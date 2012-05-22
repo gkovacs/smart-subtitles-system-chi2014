@@ -3,3 +3,5 @@
 *.m4v
 *.srt
 *~
+aux.js
+static/chinesedict.js

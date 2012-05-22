@@ -43,6 +43,7 @@ class SubtitleRead
         ++startTime
     processSubtitle(triplet) for triplet in timesAndSubtitles
     @timeToSubtitle = timeToSubtitle
+    @timesAndSubtitles = timesAndSubtitles
 
   subtitleAtTime: (sec) ->
     retv = this.timeToSubtitle[sec]

@@ -4,22 +4,29 @@ print = console.log
 applyToneToVowel = (vowel, num) ->
   --num
   if vowel == 'a'
-    return ['ā', 'á', 'ǎ', 'à'][num]
+    return ['ā', 'á', 'ǎ', 'à', 'a'][num]
   if vowel == 'i'
-    return ['ī', 'í', 'ǐ', 'ì'][num]
+    return ['ī', 'í', 'ǐ', 'ì', 'i'][num]
   if vowel == 'e'
-    return ['ē', 'é', 'ě', 'è'][num]
+    return ['ē', 'é', 'ě', 'è', 'e'][num]
   if vowel == 'o'
-    return ['ō', 'ó', 'ǒ', 'ò'][num]
+    return ['ō', 'ó', 'ǒ', 'ò', 'o'][num]
   if vowel == 'u'
-    return ['ū', 'ú', 'ǔ', 'ù'][num]
+    return ['ū', 'ú', 'ǔ', 'ù', 'u'][num]
   if vowel == 'ü'
-    return ['ǖ', 'ǘ', 'ǚ', 'ǜ'][num]
+    return ['ǖ', 'ǘ', 'ǚ', 'ǜ', 'ü'][num]
+
+getToneNumber = (word) ->
+  toneNum = word[-1..-1]
+  if toneNum in ['1','2','3','4']
+    return parseInt(toneNum)
+  else
+    return 5
 
 toneNumberToMarkSingle = (word) ->
   word = word.trim()
   toneNum = word[-1..-1]
-  if toneNum in ['1','2','3','4']
+  if toneNum in ['1','2','3','4','5']
     toneNum = parseInt(toneNum)
     word = word[...-1]
   else
@@ -55,22 +62,28 @@ class ChineseDict
       #print simp
       #print trad
       #print pinyin
-      if not wordLookup[trad]?
-        wordLookup[trad] = pinyin
-      if not wordLookup[simp]?
-        wordLookup[simp] = pinyin      
+      english = line[line.indexOf('/')+1...-1]
+      if not wordLookup[trad]? or wordLookup[trad][1].toLowerCase() != wordLookup[trad][1]
+        wordLookup[trad] = [pinyin, english]
+      if not wordLookup[simp]? or wordLookup[simp][1].toLowerCase() != wordLookup[simp][1]
+        wordLookup[simp] = [pinyin, english]
     processLine(line) for line in dictText.split('\n')
     @wordLookup = wordLookup
-    print this.wordLookup['你好']
 
   getWordList: (sentence) ->
     return sentence.split('') # TODO
 
   getPinyinForWord: (word) ->
     res = this.wordLookup[word]
-    print word
-    if res != null
-      return res
+    if res? and res.length == 2
+      return res[0]
+    else
+      return ''
+
+  getEnglishForWord: (word) ->
+    res = this.wordLookup[word]
+    if res? and res.length == 2
+      return res[1]
     else
       return ''
 
@@ -84,3 +97,4 @@ class ChineseDict
 
 root.ChineseDict = ChineseDict
 root.toneNumberToMark = toneNumberToMark
+root.getToneNumber = getToneNumber

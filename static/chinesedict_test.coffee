@@ -8,6 +8,7 @@ main = ->
   cdict = new chinesedict.ChineseDict(dictText)
   #print cdict.getPinyinForWord('家')
   #print cdict.getWordList('大家好')
-  print cdict.getPinyin('大家好')
+  #print cdict.getPinyin('大家好')
+  print cdict.getEnglishForWord('大')
 
 main() if require.main is module

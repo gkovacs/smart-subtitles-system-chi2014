@@ -1,21 +1,83 @@
 sub = {}
+//cdict = {}
 
-function onTimeChanged(s) {
-//console.log(s.currentTime)
-var currentTime = s.currentTime
-var curSub = sub.subtitleAtTime(Math.round(currentTime))
-if (curSub != '')
-  $('#caption').text(curSub)
+function setHoverTrans(word, hovertext) {
+$('#'+ word).hover(function() {
+  var vid = $('video')[0]
+  vid.pause()
+  $('.hoverable').css('background-color', '')
+  $('#'+ word).css('background-color', 'yellow')
+  $('#translation').text(hovertext)
+})
 }
 
-now.ready(function() {
+/*
+function getTransAndSetHover(word) {
+  now.getEnglish(word, function(english) {
+    setHoverTrans(word, english)
+  })
+}
+*/
 
-now.getSubText(function(subText) {
-sub = new SubtitleRead(subText)
-console.log(subText)
+function setNewSubtitles(annotatedWordList) {
+if (annotatedWordList.length == 0) return
+$('#translation').text('')
+var nhtml = []
+
+var wordToId = {}
+
+for (var i = 0; i < annotatedWordList.length; ++i) {
+var word = annotatedWordList[i][0]
+var pinyin = annotatedWordList[i][1]
+var prettypinyin = toneNumberToMark(pinyin)
+var tonecolor = ['red', 'orange', 'green', 'blue', 'black'][getToneNumber(pinyin)-1]
+var pinyinspan = '<div style="font-size: medium; text-align: center; color: ' + tonecolor + '">' + prettypinyin + '</div>'
+var english = annotatedWordList[i][2]
+var randid = Math.round(Math.random() * 1000000)
+wordToId[word] = randid
+nhtml.push('<div class="hoverable" id="' + randid + '" style="float: left">' + pinyinspan + word + '</div>')
+}
+
+$('#caption').html(nhtml.join(''))
+
+for (var i = 0; i < annotatedWordList.length; ++i) {
+var word = annotatedWordList[i][0]
+var english = annotatedWordList[i][2]
+var randid = wordToId[word]
+setHoverTrans(randid, english)
+}
+
+}
+
+function onTimeChanged(s) {
+now.getAnnotatedSubAtTime(Math.round(s.currentTime), setNewSubtitles)
+}
+
+/*
+var curSub = sub.subtitleAtTime(Math.round(currentTime))
+var wordsInSub = curSub.split('')
+
+$('#translation').text('')
+now.getPinyin(curSub, function(pinyin) {
+if (pinyin == '') $('#pinyin').text('')
+else $('#pinyin').text(toneNumberToMark(pinyin).toLowerCase())
 })
 
-})
+
+for (var i = 0; i < wordsInSub.length; ++i) {
+var word = wordsInSub[i]
+nhtml.push('<span class="hoverable" id="' + word + '">' + word + '</span>')
+}
+
+$('#caption').html(nhtml.join(''))
+
+for (var i = 0; i < wordsInSub.length; ++i) {
+var word = wordsInSub[i]
+getTransAndSetHover(word)
+}
+
+}
+*/
 
 function relMouseCoords(event, htmlelem){
     var totalOffsetX = 0;
@@ -36,13 +98,14 @@ function relMouseCoords(event, htmlelem){
     return {x:canvasX, y:canvasY}
 }
 
+/*
 $('body').mousemove(function(x) {
 var vid = $('video')[0]
 var mouseCoords = relMouseCoords(x, vid)
 if (mouseCoords.y < $('video').height() && mouseCoords.x < $('video').width()) return
 vid.pause()
-console.log(mouseCoords.x + ',' + mouseCoords.y)
 })
+*/
 
 $('body').click(function(x) {
 var vid = $('video')[0]
@@ -53,7 +116,6 @@ else
 })
 
 $('body').keypress(function(x) {
-console.log(x)
 if (x.keyCode != 32) return // not space
 var vid = $('video')[0]
 if (vid.paused)
