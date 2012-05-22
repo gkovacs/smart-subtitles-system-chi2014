@@ -1,6 +1,14 @@
 root = exports ? this
 print = console.log
 
+toDeciSeconds = (time) ->
+  time = time.split(',').join('.')
+  [hour,min,sec] = time.split(':')
+  hour = parseFloat(hour)
+  min = parseFloat(min)
+  sec = parseFloat(sec)
+  return Math.round((hour*3600 + min*60 + sec)*10)
+
 class SubtitleRead
   constructor: (subtitleText) ->
     @subtitleText = subtitleText
@@ -21,13 +29,6 @@ class SubtitleRead
         if line.indexOf(' --> ') != -1
           awaitingTime = false
           [startTime, endTime] = line.split(' --> ')
-          toDeciSeconds = (time) ->
-            time = time.replace(',', '.')
-            [hour,min,sec] = time.split(':')
-            hour = parseInt(hour)
-            min = parseInt(min)
-            sec = parseFloat(sec)
-            return Math.round((hour*3600 + min*60 + sec)*10)
           startTime = toDeciSeconds(startTime)
           endTime = toDeciSeconds(endTime)
           awaitingTime = false
@@ -50,4 +51,4 @@ class SubtitleRead
       ''
 
 root.SubtitleRead = SubtitleRead
-
+root.toDeciSeconds = toDeciSeconds
