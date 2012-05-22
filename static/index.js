@@ -1,6 +1,24 @@
 sub = {}
 //cdict = {}
 
+function prevButtonPressed() {
+  var vid = $('video')[0]
+  vid.pause()
+  curtime = Math.round(vid.currentTime)
+  now.getPrevDialogStartTime(curtime, function(time) {
+    vid.currentTime = time
+  })
+}
+
+function nextButtonPressed() {
+  var vid = $('video')[0]
+  vid.pause()
+  curtime = Math.round(vid.currentTime)
+  now.getNextDialogStartTime(curtime, function(time) {
+    vid.currentTime = time
+  })
+}
+
 function setHoverTrans(word, hovertext) {
 $('#'+ word).hover(function() {
   var vid = $('video')[0]
@@ -109,6 +127,8 @@ vid.pause()
 
 $('body').click(function(x) {
 var vid = $('video')[0]
+var mouseCoords = relMouseCoords(x, vid)
+if (mouseCoords.y > $('video').height() || mouseCoords.x > $('video').width()) return
 if (vid.paused)
   vid.play()
 else

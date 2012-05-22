@@ -40,6 +40,10 @@ app.get('/', function (req, res) {
 
 everyone.now.getAnnotatedSubAtTime = aux.getAnnotatedSubAtTime
 
+everyone.now.getPrevDialogStartTime = aux.getPrevDialogStartTime
+
+everyone.now.getNextDialogStartTime = aux.getNextDialogStartTime
+
 /*
 everyone.now.getSubText = function(recSubCallback) {
   subtext = fs.readFileSync('static/shaolin.srt', 'utf8')

@@ -58,15 +58,18 @@ class ChineseDict
       simp = line[0...line.indexOf(' ')]
       line = line[line.indexOf(' ')+1..]
       pinyin = line[line.indexOf('[')+1...line.indexOf(']')]
-      #pinyin = toneNumberToMark(pinyin)
+      pinyin = toneNumberToMark(pinyin)
       #print simp
       #print trad
       #print pinyin
       english = line[line.indexOf('/')+1...-1]
-      if not wordLookup[trad]? or wordLookup[trad][1].toLowerCase() != wordLookup[trad][1]
-        wordLookup[trad] = [pinyin, english]
-      if not wordLookup[simp]? or wordLookup[simp][1].toLowerCase() != wordLookup[simp][1]
-        wordLookup[simp] = [pinyin, english]
+      if not wordLookup[trad]?
+        wordLookup[trad] = []
+      wordLookup[trad].push([pinyin, english])
+      if trad != simp
+        if not wordLookup[simp]?
+          wordLookup[simp] = []
+        wordLookup[simp].push([pinyin, english])
     processLine(line) for line in dictText.split('\n')
     @wordLookup = wordLookup
 
@@ -75,17 +78,26 @@ class ChineseDict
 
   getPinyinForWord: (word) ->
     res = this.wordLookup[word]
-    if res? and res.length == 2
-      return res[0]
+    if res? and res.length > 0
+      return res[0][0]
     else
       return ''
 
   getEnglishForWord: (word) ->
     res = this.wordLookup[word]
-    if res? and res.length == 2
-      return res[1]
+    if res? and res.length > 0
+      return res[0][1]
     else
       return ''
+
+  getEnglishForWordAndPinyin: (word, pinyin) ->
+    res = this.wordLookup[word]
+    if res? and res.length > 0
+      for x in res
+        if x[0] == pinyin
+          return x[1]
+      return res[0][1]
+    return ''
 
   getPinyin: (sentence) ->
     wordList = this.getWordList(sentence)
