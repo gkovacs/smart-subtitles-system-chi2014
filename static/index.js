@@ -20,11 +20,11 @@ function nextButtonPressed() {
 }
 
 function setHoverTrans(word, hovertext) {
-$('#'+ word).hover(function() {
+$('.'+ word).hover(function() {
   var vid = $('video')[0]
   vid.pause()
   $('.hoverable').css('background-color', '')
-  $('#'+ word).css('background-color', 'yellow')
+  $('.'+ word).css('background-color', 'yellow')
   $('#translation').text(hovertext)
 })
 }
@@ -44,17 +44,32 @@ var nhtml = []
 
 var wordToId = {}
 
+nhtml.push('<table border="0" cellspacing="0">')
+
+var pinyinRow = []
+var wordRow = []
+
 for (var i = 0; i < annotatedWordList.length; ++i) {
 var word = annotatedWordList[i][0]
 var pinyin = annotatedWordList[i][1]
 var prettypinyin = toneNumberToMark(pinyin)
 var tonecolor = ['red', 'orange', 'green', 'blue', 'black'][getToneNumber(pinyin)-1]
-var pinyinspan = '<div style="font-size: medium; text-align: center; color: ' + tonecolor + '">' + prettypinyin + '</div>'
 var english = annotatedWordList[i][2]
 var randid = Math.round(Math.random() * 1000000)
 wordToId[word] = randid
-nhtml.push('<div class="hoverable" id="' + randid + '" style="float: left">' + pinyinspan + word + '</div>')
+
+var pinyinspan = '<td style="font-size: medium; text-align: center; color: ' + tonecolor + '" class="' + randid + ' hoverable">' + prettypinyin + '</td>'
+var wordspan = '<td style="font-size: xx-large" class="' + randid + ' hoverable">' + word + '</td>'
+
+pinyinRow.push(pinyinspan)
+wordRow.push(wordspan)
+
 }
+
+nhtml.push('<col>' + pinyinRow.join('') + '</col>')
+nhtml.push('<col>' + wordRow.join('') + '</col>')
+
+nhtml.push('</table>')
 
 $('#caption').html(nhtml.join(''))
 

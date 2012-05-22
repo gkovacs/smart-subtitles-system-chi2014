@@ -7,13 +7,12 @@
 <video controls="controls" id="videoControls" ontimeupdate="onTimeChanged(this)">
 <source src="shaolin.m4v"></source>
 </video>
+<br/>
+<span onclick="prevButtonPressed()" style="background-color: lightgreen">Prev</span>
+<span onclick="nextButtonPressed()" style="background-color: lightgreen">Next</span>
 <br/><br/>
-<span onclick="prevButtonPressed()" style="background-color: yellow">Prev</span>
-<span onclick="nextButtonPressed()" style="background-color: yellow">Next</span>
-<br/><br/><br/>
 <div id="pinyin" style="font-size: large"></div>
-<div id="caption" style="font-size: xx-large"></div>
-<br/><br/>
+<div id="caption"></div>
 <div id="translation" style="font-size: medium"></div>
 </body>
 </html>
