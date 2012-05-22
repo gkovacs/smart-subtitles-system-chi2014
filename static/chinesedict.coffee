@@ -27,6 +27,13 @@ class ChineseDict
         if not wordLookup[simp]?
           wordLookup[simp] = []
         wordLookup[simp].push([pinyin, english])
+      if english.indexOf('pr. [') != -1
+        prn = english[english.indexOf('pr. [')+'pr. ['.length..]
+        prn = prn[...prn.indexOf(']')]
+        prn = pinyinutils.toneNumberToMark(prn)
+        wordLookup[trad].push([prn, english])
+        if trad != simp
+          wordLookup[simp].push([prn, english])
     @wordLookup = wordLookup
 
   getWordList: (sentence) ->

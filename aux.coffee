@@ -2,20 +2,23 @@ root = exports ? this
 print = console.log
 
 fs = require 'fs'
-subtitleread = require './static/subtitleread.coffee'
-chinesedict = require './static/chinesedict.coffee'
+
+require 'coffee-script'
+
+subtitleread = require './static/subtitleread'
+chinesedict = require './static/chinesedict'
 
 subtext = fs.readFileSync('static/shaolin.srt', 'utf8')
 subtitleGetter = new subtitleread.SubtitleRead(subtext)
 
-dictText = fs.readFileSync('static/cedict_1_0_ts_utf-8_mdbg.txt', 'utf8')
+dictText = fs.readFileSync('static/cedict_full.txt', 'utf8')
 cdict = new chinesedict.ChineseDict(dictText)
 
 redis = require 'redis'
 client = redis.createClient()
 
-getpinyin = require './getpinyin.coffee'
-pinyinutils = require './static/pinyinutils.coffee'
+getpinyin = require './getpinyin'
+pinyinutils = require './static/pinyinutils'
 
 getPrevDialogStartTime = (time, callback) ->
   time -= 10
@@ -51,8 +54,8 @@ getNextDialogStartTime = (time, callback) ->
 fixPinyin = (pinyin) ->
   pinyin = pinyin.toLowerCase()
   # substitutions for errors in Google's pinyin service
-  ft = ['shéme', "'"]
-  dt = ['shénme', '']
+  ft = ["'"]
+  dt = ['']
   return pinyinutils.replaceAllList(pinyin, ft, dt)
 
 getAnnotatedSubAtTime = (time, callback) ->
@@ -61,21 +64,29 @@ getAnnotatedSubAtTime = (time, callback) ->
     callback([])
     return
   processPinyin = (pinyin) ->
+    print pinyin
+    print sub
     pinyin = fixPinyin(pinyin)
     pinyinNoTone = pinyinutils.removeToneMarks(pinyin)
-    pinyinWords = []
     curPinyinWord = []
     words = []
     idx = 0
     curWord = []
+    # how many characters to seek forward for a match in the pinyin
+    curSeekRange = 3
+    defSeekRange = 3
+    misSeekRange = 10
+    output = []
+    
     for char in sub
       if char.trim() == ''
         continue
       if not cdict.wordLookup[char]?
         print 'word lookup failed:' + char + '|' + sub + '|' + time
+        output.push([char, '', ''])
         continue
       haveMatch = false
-      for fidx in [0,1,2,3]
+      for fidx in [0..curSeekRange]
         if haveMatch
           break
         nidx = idx + fidx
@@ -86,8 +97,10 @@ getAnnotatedSubAtTime = (time, callback) ->
           curPinyinWord.push(pinyin[idx...idx+cpinyin.length])
           idx += cpinyin.length
           if idx >= pinyin.length or pinyin[idx] == ' ' # end of word
-            words.push(curWord.join(''))
-            pinyinWords.push(curPinyinWord.join(' '))
+            tword = curWord.join('')
+            tpinyin = curPinyinWord.join(' ')
+            ttranslation = cdict.getEnglishForWordAndPinyin(tword, tpinyin)
+            output.push([tword, tpinyin, ttranslation])
             curWord = []
             curPinyinWord = []
         for [cpinyin,english] in cdict.wordLookup[char]
@@ -128,13 +141,14 @@ getAnnotatedSubAtTime = (time, callback) ->
             havePinyinMatch()
       if not haveMatch
         print 'could not match:' + char + '|' + sub + '|' + time
+        tpinyin = cdict.getPinyinForWord(char)
+        ttranslation = cdict.getEnglishForWord(char)
+        output.push([char, tpinyin, ttranslation])
+        curSeekRange = misSeekRange
         continue
+      else
+        curSeekRange = defSeekRange
     translations = []
-    for word,i in words
-      translations.push(cdict.getEnglishForWordAndPinyin(word, pinyinWords[i]))
-    output = []
-    for word,i in words
-      output.push([word, pinyinWords[i], translations[i]])
     callback(output)
 
   client.get('pinyin|' + sub, (err, rpinyin) ->
@@ -162,6 +176,7 @@ main = ->
   #getAnnotatedSubAtTime(7985, print)
   #getAnnotatedSubAtTime(16388, print)
   #getAnnotatedSubAtTime(3820, print)
-  getAnnotatedSubAtTime(9183, print)
+  #getAnnotatedSubAtTime(9183, print)
+  getAnnotatedSubAtTime(27401, print)
 
 main() if require.main is module

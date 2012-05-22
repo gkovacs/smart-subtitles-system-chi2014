@@ -6,3 +6,5 @@
 aux.js
 static/chinesedict.js
 static/pinyinutils.js
+static/cedict_full.txt
+

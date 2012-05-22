@@ -1,0 +1,8 @@
+
+
+
+# extra additions to match Google Translate's pinyin
+
+什麼 什么 [she2 me5] /what?/who?/something/anything/
+吶 呐 [ne] /sentence-final particle (abbr. for 呢啊[ne5 a5] or variant of 哪[na5])/
+

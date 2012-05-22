@@ -90,6 +90,7 @@ main = ->
   #text = process.argv[2]
   #print text
   #print removeToneMarks(text)
-  print toneNumberToMark('nu:3 er2')
+  #print toneNumberToMark('nu:3 er2')
+  print toneNumberToMark('shui2')
 
 main() if require? and require.main is module
