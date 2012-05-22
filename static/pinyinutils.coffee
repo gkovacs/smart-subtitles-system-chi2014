@@ -28,6 +28,25 @@ getToneNumber = (word) ->
       return 4
   return 5
 
+removeToneMarks = (word) ->
+  output = []
+  for c in word
+    if c in ['ā', 'á', 'ǎ', 'à', 'a']
+      output.push('a')
+    else if c in ['ī', 'í', 'ǐ', 'ì', 'i']
+      output.push('i')
+    else if c in ['ē', 'é', 'ě', 'è', 'e']
+      output.push('e')
+    else if c in ['ō', 'ó', 'ǒ', 'ò', 'o']
+      output.push('o')
+    else if c in ['ū', 'ú', 'ǔ', 'ù', 'u']
+      output.push('u')
+    else if c in ['ǖ', 'ǘ', 'ǚ', 'ǜ', 'ü']
+      output.push('ü')
+    else
+      output.push(c)
+  return output.join('')
+
 toneNumberToMarkSingle = (word) ->
   word = word.trim()
   toneNum = word[-1..-1]
@@ -53,4 +72,11 @@ toneNumberToMark = (words) ->
 
 root.toneNumberToMark = toneNumberToMark
 root.getToneNumber = getToneNumber
+root.removeToneMarks = removeToneMarks
 
+main = ->
+  text = process.argv[2]
+  print text
+  print removeToneMarks(text)
+
+main() if require? and require.main is module

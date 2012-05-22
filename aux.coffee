@@ -2,8 +2,8 @@ root = exports ? this
 print = console.log
 
 fs = require 'fs'
-subtitleread = require('./static/subtitleread.coffee')
-chinesedict = require('./static/chinesedict.coffee')
+subtitleread = require './static/subtitleread.coffee'
+chinesedict = require './static/chinesedict.coffee'
 
 subtext = fs.readFileSync('static/shaolin.srt', 'utf8')
 subtitleGetter = new subtitleread.SubtitleRead(subtext)
@@ -13,6 +13,9 @@ cdict = new chinesedict.ChineseDict(dictText)
 
 redis = require 'redis'
 client = redis.createClient()
+
+getpinyin = require './getpinyin.coffee'
+pinyinutils = require './static/pinyinutils.coffee'
 
 getPrevDialogStartTime = (time, callback) ->
   origSub = subtitleGetter.subtitleAtTime(time)
@@ -36,6 +39,12 @@ getNextDialogStartTime = (time, callback) ->
     if cursub? and cursub != '' and cursub != origSub and nextsub != cursub
       break
     ++time
+  while time > 0
+    prevsub = subtitleGetter.subtitleAtTime(time-1)
+    cursub = subtitleGetter.subtitleAtTime(time)
+    if cursub? and cursub != '' and prevsub != cursub
+      break
+    --time
   if time < 0
     time = 0
   callback(time)
@@ -45,8 +54,9 @@ getAnnotatedSubAtTime = (time, callback) ->
   if not sub? or sub == ''
     callback([])
     return
-  client.get('pinyin|' + sub, (err, pinyin) ->
+  processPinyin = (pinyin) ->
     pinyin = pinyin.toLowerCase()
+    pinyinNoTone = pinyinutils.removeToneMarks(pinyin)
     pinyinWords = []
     curPinyinWord = []
     words = []
@@ -55,18 +65,64 @@ getAnnotatedSubAtTime = (time, callback) ->
     for char in sub
       if char.trim() == ''
         continue
-      for [cpinyin,english] in cdict.wordLookup[char]
-        if cpinyin == pinyin[idx...idx+cpinyin.length]
+      if not cdict.wordLookup[char]?
+        print 'word lookup failed:' + char + '|' + sub + '|' + time
+        continue
+      haveMatch = false
+      for fidx in [0,1,2,3,4,5,6]
+        if haveMatch
+          break
+        nidx = idx + fidx
+        havePinyinMatch = ->
+          idx = nidx
+          haveMatch = true
           curWord.push(char)
-          curPinyinWord.push(cpinyin)
+          curPinyinWord.push(pinyin[idx...idx+cpinyin.length])
           idx += cpinyin.length
           if idx >= pinyin.length or pinyin[idx] == ' ' # end of word
             words.push(curWord.join(''))
             pinyinWords.push(curPinyinWord.join(' '))
             curWord = []
             curPinyinWord = []
-            ++idx
-          break
+        for [cpinyin,english] in cdict.wordLookup[char]
+          if haveMatch
+            break
+          if cpinyin == pinyin[nidx...nidx+cpinyin.length]
+            havePinyinMatch()
+            break
+        for [cpinyin,english] in cdict.wordLookup[char]
+          if haveMatch
+            break
+          cpinyin = pinyinutils.removeToneMarks(cpinyin)
+          if cpinyin == pinyin[nidx...nidx+cpinyin.length]
+            havePinyinMatch()
+        for [cpinyin,english] in cdict.wordLookup[char]
+          if haveMatch
+            break
+          cpinyin = cpinyin.toLowerCase()
+          if cpinyin == pinyin[nidx...nidx+cpinyin.length]
+            havePinyinMatch()
+        for [cpinyin,english] in cdict.wordLookup[char]
+          if haveMatch
+            break
+          cpinyin = pinyinutils.removeToneMarks(cpinyin.toLowerCase())
+          if cpinyin == pinyin[nidx...nidx+cpinyin.length]
+            havePinyinMatch()
+        for [cpinyin,english] in cdict.wordLookup[char]
+          if haveMatch
+            break
+          cpinyin = pinyinutils.removeToneMarks(cpinyin)
+          if cpinyin == pinyinNoTone[nidx...nidx+cpinyin.length]
+            havePinyinMatch()
+        for [cpinyin,english] in cdict.wordLookup[char]
+          if haveMatch
+            break
+          cpinyin = pinyinutils.removeToneMarks(cpinyin.toLowerCase())
+          if cpinyin == pinyinNoTone[nidx...nidx+cpinyin.length]
+            havePinyinMatch()
+      if not haveMatch
+        print 'could not match:' + char + '|' + sub + '|' + time
+        continue
     translations = []
     for word,i in words
       translations.push(cdict.getEnglishForWordAndPinyin(word, pinyinWords[i]))
@@ -74,6 +130,15 @@ getAnnotatedSubAtTime = (time, callback) ->
     for word,i in words
       output.push([word, pinyinWords[i], translations[i]])
     callback(output)
+
+  client.get('pinyin|' + sub, (err, rpinyin) ->
+    if rpinyin? and rpinyin != ''
+      processPinyin(rpinyin)
+    else
+      print 'not in redis:' + sub
+      #getpinyin.getPinyin(sub, (npinyin) ->
+      #  processPinyin
+      #)
   )
 
 root.getAnnotatedSubAtTime = getAnnotatedSubAtTime
@@ -81,9 +146,12 @@ root.getPrevDialogStartTime = getPrevDialogStartTime
 root.getNextDialogStartTime = getNextDialogStartTime
 
 main = ->
-  getAnnotatedSubAtTime(900, print)
-  getPrevDialogStartTime(900, print)
-  getNextDialogStartTime(900, print)
+  #getAnnotatedSubAtTime(20, print)
+  #getAnnotatedSubAtTime(9000, print)
+  #getPrevDialogStartTime(9000, print)
+  #getNextDialogStartTime(9000, print)
   #process.exit()
+  #getAnnotatedSubAtTime(38017, print)
+  getAnnotatedSubAtTime(38345, print)
 
 main() if require.main is module

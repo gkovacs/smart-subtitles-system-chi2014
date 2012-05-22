@@ -10,7 +10,7 @@ class SubtitleRead
     startTime = 0.0
     endTime = 0.0
     lineContents = ''
-    processLine = (line) ->
+    for line in subtitleText.split('\n')
       line = line.trim()
       if line == ''
         if lineContents != ''
@@ -21,32 +21,29 @@ class SubtitleRead
         if line.indexOf(' --> ') != -1
           awaitingTime = false
           [startTime, endTime] = line.split(' --> ')
-          toSeconds = (time) ->
-            if time.indexOf(',') != -1
-              time = time[0...time.indexOf(',')]
+          toDeciSeconds = (time) ->
+            time = time.replace(',', '.')
             [hour,min,sec] = time.split(':')
             hour = parseInt(hour)
             min = parseInt(min)
-            sec = parseInt(sec)
-            Math.round(hour*3600 + min*60 + sec)
-          startTime = toSeconds(startTime)
-          endTime = toSeconds(endTime)
+            sec = parseFloat(sec)
+            return Math.round((hour*3600 + min*60 + sec)*10)
+          startTime = toDeciSeconds(startTime)
+          endTime = toDeciSeconds(endTime)
           awaitingTime = false
       else
-        lineContents = (lineContents + '\n' + line).trim()
-    processLine(line) for line in subtitleText.split('\n')
+        lineContents = (lineContents + ' ' + line).trim()
     
-    processSubtitle = (triplet) ->
+    for triplet in timesAndSubtitles
       [startTime,endTime,lineContents] = triplet
-      while startTime < endTime
+      while startTime < endTime + 50
         timeToSubtitle[startTime] = lineContents
         ++startTime
-    processSubtitle(triplet) for triplet in timesAndSubtitles
     @timeToSubtitle = timeToSubtitle
     @timesAndSubtitles = timesAndSubtitles
 
-  subtitleAtTime: (sec) ->
-    retv = this.timeToSubtitle[sec]
+  subtitleAtTime: (deciSec) ->
+    retv = this.timeToSubtitle[deciSec]
     if retv
       retv
     else

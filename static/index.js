@@ -4,18 +4,18 @@ sub = {}
 function prevButtonPressed() {
   var vid = $('video')[0]
   vid.pause()
-  curtime = Math.round(vid.currentTime)
+  curtime = Math.round(vid.currentTime*10)
   now.getPrevDialogStartTime(curtime, function(time) {
-    vid.currentTime = time
+    vid.currentTime = time/10
   })
 }
 
 function nextButtonPressed() {
   var vid = $('video')[0]
   vid.pause()
-  curtime = Math.round(vid.currentTime)
+  curtime = Math.round(vid.currentTime*10)
   now.getNextDialogStartTime(curtime, function(time) {
-    vid.currentTime = time
+    vid.currentTime = time/10
   })
 }
 
@@ -38,7 +38,7 @@ function getTransAndSetHover(word) {
 */
 
 function setNewSubtitles(annotatedWordList) {
-if (annotatedWordList.length == 0) return
+//if (annotatedWordList.length == 0) return
 $('#translation').text('')
 var nhtml = []
 
@@ -60,7 +60,7 @@ coloredSpans = []
 var pinyinWords = pinyin.split(' ')
 for (var j = 0; j < pinyinWords.length; ++j) {
   var curWord = pinyinWords[j]
-  var tonecolor = ['red', 'orange', 'green', 'blue', 'black'][getToneNumber(curWord)-1]
+  var tonecolor = ['red', '#AE5100', 'green', 'blue', 'black'][getToneNumber(curWord)-1]
   coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord + '</span>')
 }
 var pinyinspan = '<td style="font-size: medium; text-align: center;" class="' + randid + ' hoverable">' + coloredSpans.join(' ') + '</td>'
@@ -88,7 +88,7 @@ setHoverTrans(randid, english)
 }
 
 function onTimeChanged(s) {
-now.getAnnotatedSubAtTime(Math.round(s.currentTime), setNewSubtitles)
+now.getAnnotatedSubAtTime(Math.round(s.currentTime*10), setNewSubtitles)
 }
 
 /*

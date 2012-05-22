@@ -17,14 +17,15 @@ getPinyin = (text, callback) ->
     pinyin = stdout.split('","')[2]
     pinyin = escapeUnicodeEncoded(pinyin)
     client.set('pinyin|' + text, pinyin)
-    callback(text, pinyin)
+    callback(pinyin)
   )
 
 root.getPinyin = getPinyin
 
 main = ->
-  getPinyin(process.argv[2], (text, pinyin) ->
-    print text
+  text = process.argv[2]
+  print text
+  getPinyin(text, (pinyin) ->    
     print pinyin
   )
 
