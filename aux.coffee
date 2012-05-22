@@ -64,8 +64,6 @@ getAnnotatedSubAtTime = (time, callback) ->
     callback([])
     return
   processPinyin = (pinyin) ->
-    print pinyin
-    print sub
     pinyin = fixPinyin(pinyin)
     pinyinNoTone = pinyinutils.removeToneMarks(pinyin)
     curPinyinWord = []

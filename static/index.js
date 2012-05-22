@@ -53,8 +53,10 @@ for (var i = 0; i < annotatedWordList.length; ++i) {
 var word = annotatedWordList[i][0]
 var pinyin = annotatedWordList[i][1]
 var english = annotatedWordList[i][2]
-var randid = Math.round(Math.random() * 1000000)
-wordToId[word] = randid
+
+if (wordToId[word] == null)
+  wordToId[word] = Math.round(Math.random() * 1000000)
+var randid = wordToId[word]
 
 coloredSpans = []
 var pinyinWords = pinyin.split(' ')
