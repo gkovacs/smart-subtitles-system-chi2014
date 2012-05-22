@@ -48,13 +48,20 @@ getNextDialogStartTime = (time, callback) ->
     time = 0
   callback(time)
 
+fixPinyin = (pinyin) ->
+  pinyin = pinyin.toLowerCase()
+  # substitutions for errors in Google's pinyin service
+  ft = ['shéme', "'"]
+  dt = ['shénme', '']
+  return pinyinutils.replaceAllList(pinyin, ft, dt)
+
 getAnnotatedSubAtTime = (time, callback) ->
   sub = subtitleGetter.subtitleAtTime(time)
   if not sub? or sub == ''
     callback([])
     return
   processPinyin = (pinyin) ->
-    pinyin = pinyin.toLowerCase()
+    pinyin = fixPinyin(pinyin)
     pinyinNoTone = pinyinutils.removeToneMarks(pinyin)
     pinyinWords = []
     curPinyinWord = []
@@ -151,6 +158,9 @@ main = ->
   #getNextDialogStartTime(9000, print)
   #process.exit()
   #getAnnotatedSubAtTime(38017, print)
-  getAnnotatedSubAtTime(38345, print)
+  #getAnnotatedSubAtTime(38345, print)
+  #getAnnotatedSubAtTime(7985, print)
+  #getAnnotatedSubAtTime(16388, print)
+  getAnnotatedSubAtTime(3820, print)
 
 main() if require.main is module

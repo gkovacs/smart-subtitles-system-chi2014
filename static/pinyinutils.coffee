@@ -47,8 +47,19 @@ removeToneMarks = (word) ->
       output.push(c)
   return output.join('')
 
+replaceAllList = (word, fromlist, tolist) ->
+  for i in [0...fromlist.length]
+    f = fromlist[i]
+    t = tolist[i]
+    word = word.split(f).join(t)
+  return word
+
 toneNumberToMarkSingle = (word) ->
   word = word.trim()
+  if ':' in word
+    fl = ['ū:','ú:','ǔ:','ù:','u:']
+    tl = ['ǖ', 'ǘ', 'ǚ', 'ǜ', 'ü']
+    word = replaceAllList(word, fl, tl)
   toneNum = word[-1..-1]
   if toneNum in ['1','2','3','4','5']
     toneNum = parseInt(toneNum)
@@ -73,10 +84,12 @@ toneNumberToMark = (words) ->
 root.toneNumberToMark = toneNumberToMark
 root.getToneNumber = getToneNumber
 root.removeToneMarks = removeToneMarks
+root.replaceAllList = replaceAllList
 
 main = ->
-  text = process.argv[2]
-  print text
-  print removeToneMarks(text)
+  #text = process.argv[2]
+  #print text
+  #print removeToneMarks(text)
+  print toneNumberToMark('nu:3 er2')
 
 main() if require? and require.main is module

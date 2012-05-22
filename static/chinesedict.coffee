@@ -6,10 +6,10 @@ pinyinutils = require './pinyinutils.coffee'
 class ChineseDict
   constructor: (dictText) ->
     wordLookup = {} # word => [pinyin, definition]
-    processLine = (line) ->
+    for line in dictText.split('\n')
       line = line.trim()
       if line[0] == '#'
-        return
+        continue
       trad = line[0...line.indexOf(' ')]
       line = line[line.indexOf(' ')+1..]
       simp = line[0...line.indexOf(' ')]
@@ -27,7 +27,6 @@ class ChineseDict
         if not wordLookup[simp]?
           wordLookup[simp] = []
         wordLookup[simp].push([pinyin, english])
-    processLine(line) for line in dictText.split('\n')
     @wordLookup = wordLookup
 
   getWordList: (sentence) ->
