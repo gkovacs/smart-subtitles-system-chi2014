@@ -18,12 +18,11 @@ getpinyin = require './getpinyin.coffee'
 pinyinutils = require './static/pinyinutils.coffee'
 
 getPrevDialogStartTime = (time, callback) ->
-  origSub = subtitleGetter.subtitleAtTime(time)
-  --time
+  time -= 10
   while time > 0
     prevsub = subtitleGetter.subtitleAtTime(time-1)
     cursub = subtitleGetter.subtitleAtTime(time)
-    if cursub? and cursub != '' and cursub != origSub and prevsub != cursub
+    if cursub? and cursub != '' and prevsub != cursub
       break
     --time
   if time < 0
@@ -69,7 +68,7 @@ getAnnotatedSubAtTime = (time, callback) ->
         print 'word lookup failed:' + char + '|' + sub + '|' + time
         continue
       haveMatch = false
-      for fidx in [0,1,2,3,4,5,6]
+      for fidx in [0,1,2,3]
         if haveMatch
           break
         nidx = idx + fidx

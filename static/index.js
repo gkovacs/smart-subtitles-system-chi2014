@@ -3,7 +3,7 @@ sub = {}
 
 function prevButtonPressed() {
   var vid = $('video')[0]
-  vid.pause()
+  //vid.pause()
   curtime = Math.round(vid.currentTime*10)
   now.getPrevDialogStartTime(curtime, function(time) {
     vid.currentTime = time/10
@@ -12,7 +12,7 @@ function prevButtonPressed() {
 
 function nextButtonPressed() {
   var vid = $('video')[0]
-  vid.pause()
+  //vid.pause()
   curtime = Math.round(vid.currentTime*10)
   now.getNextDialogStartTime(curtime, function(time) {
     vid.currentTime = time/10
@@ -155,11 +155,26 @@ else
   vid.pause()
 })
 
-$('body').keypress(function(x) {
-if (x.keyCode != 32) return // not space
-var vid = $('video')[0]
-if (vid.paused)
-  vid.play()
-else
-  vid.pause()
-})
+function checkKey(x) {
+  var vid = $('video')[0]
+  if (x.keyCode == 32) { // space
+    if (vid.paused)
+      vid.play()
+    else
+      vid.pause()
+  } else if (x.keyCode == 37) { // left arrow
+    if (x.ctrlKey) {
+      prevButtonPressed()
+    } else {
+      vid.currentTime -= 5
+    }
+  } else if (x.keyCode == 39) { // right arrow
+    if (x.ctrlKey) {
+      nextButtonPressed()
+    } else {
+      vid.currentTime += 5
+    }
+  }
+}
+
+$('body').keydown(checkKey)
