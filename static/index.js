@@ -52,13 +52,18 @@ var wordRow = []
 for (var i = 0; i < annotatedWordList.length; ++i) {
 var word = annotatedWordList[i][0]
 var pinyin = annotatedWordList[i][1]
-var prettypinyin = toneNumberToMark(pinyin)
-var tonecolor = ['red', 'orange', 'green', 'blue', 'black'][getToneNumber(pinyin)-1]
 var english = annotatedWordList[i][2]
 var randid = Math.round(Math.random() * 1000000)
 wordToId[word] = randid
 
-var pinyinspan = '<td style="font-size: medium; text-align: center; color: ' + tonecolor + '" class="' + randid + ' hoverable">' + prettypinyin + '</td>'
+coloredSpans = []
+var pinyinWords = pinyin.split(' ')
+for (var j = 0; j < pinyinWords.length; ++j) {
+  var curWord = pinyinWords[j]
+  var tonecolor = ['red', 'orange', 'green', 'blue', 'black'][getToneNumber(curWord)-1]
+  coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord + '</span>')
+}
+var pinyinspan = '<td style="font-size: medium; text-align: center;" class="' + randid + ' hoverable">' + coloredSpans.join(' ') + '</td>'
 var wordspan = '<td style="font-size: xx-large" class="' + randid + ' hoverable">' + word + '</td>'
 
 pinyinRow.push(pinyinspan)
