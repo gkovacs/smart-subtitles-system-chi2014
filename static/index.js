@@ -3,7 +3,7 @@ sub = {}
 
 function prevButtonPressed() {
   var vid = $('video')[0]
-  //vid.pause()
+  vid.pause()
   curtime = Math.round(vid.currentTime*10)
   now.getPrevDialogStartTime(curtime, function(time) {
     vid.currentTime = time/10

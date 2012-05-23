@@ -32,7 +32,7 @@ initializeSubtitle = (subtitleSource) ->
   )
 
 getPrevDialogStartTime = (time, callback) ->
-  time -= 10
+  time -= 1
   while time > 0
     prevsub = subtitleGetter.subtitleAtTime(time-1)
     cursub = subtitleGetter.subtitleAtTime(time)

@@ -41,7 +41,7 @@ class ChineseDict
         for reading in readings
           # note standard reading if not the standard
           if reading != pinyin
-            english = english + ' Std pr. ' + pinyin
+            english = english + ' Standard pronunciation: ' + pinyin
           # prioritize readings that start with lowercases
           if reading.toLowerCase() == reading
             if wordLookup[form].length > 0
