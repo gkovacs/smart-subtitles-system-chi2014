@@ -180,3 +180,24 @@ function checkKey(x) {
 }
 
 $('body').keydown(checkKey)
+
+function getUrlParameters() {
+var map = {};
+var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+map[key] = value;
+});
+return map; 
+}
+
+now.ready(function() {
+var urlParams = getUrlParameters()
+var videoSource = 'shaolin.m4v'
+if (urlParams['video'] != null)
+  videoSource = urlParams['video']
+$('video')[0].src = videoSource
+var subSource = 'shaolin.srt'
+if (urlParams['sub'] != null)
+  subSource = urlParams['sub']
+now.initializeSubtitle(subSource)
+})
+

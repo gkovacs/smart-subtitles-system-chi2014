@@ -1,24 +1,35 @@
 root = exports ? this
 print = console.log
 
+root.portnum = 3000
+
 fs = require 'fs'
+http_get = require 'http-get'
 
 require 'coffee-script'
 
 subtitleread = require './static/subtitleread'
 chinesedict = require './static/chinesedict'
 
-subtext = fs.readFileSync('static/shaolin.srt', 'utf8')
-subtitleGetter = new subtitleread.SubtitleRead(subtext)
-
 dictText = fs.readFileSync('static/cedict_full.txt', 'utf8')
 cdict = new chinesedict.ChineseDict(dictText)
+
+subtext = ''
+subtitleGetter = {}
 
 redis = require 'redis'
 client = redis.createClient()
 
 getpinyin = require './getpinyin'
 pinyinutils = require './static/pinyinutils'
+
+initializeSubtitle = (subtitleSource) ->
+  if subtitleSource.indexOf('/') == -1
+    subtitleSource = 'http://localhost:' + root.portnum + '/' + subtitleSource
+  http_get.get({url: subtitleSource}, (err, dlData) ->
+    subtext = dlData.buffer
+    subtitleGetter = new subtitleread.SubtitleRead(subtext)
+  )
 
 getPrevDialogStartTime = (time, callback) ->
   time -= 10
@@ -184,6 +195,7 @@ getAnnotatedSubAtTime = (time, callback) ->
 root.getAnnotatedSubAtTime = getAnnotatedSubAtTime
 root.getPrevDialogStartTime = getPrevDialogStartTime
 root.getNextDialogStartTime = getNextDialogStartTime
+root.initializeSubtitle = initializeSubtitle
 
 main = ->
   # shaolin

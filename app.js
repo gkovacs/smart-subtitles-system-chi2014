@@ -44,6 +44,8 @@ everyone.now.getPrevDialogStartTime = aux.getPrevDialogStartTime
 
 everyone.now.getNextDialogStartTime = aux.getNextDialogStartTime
 
+everyone.now.initializeSubtitle = aux.initializeSubtitle
+
 /*
 everyone.now.getSubText = function(recSubCallback) {
   subtext = fs.readFileSync('static/shaolin.srt', 'utf8')
@@ -64,5 +66,5 @@ everyone.now.getEnglish = function(word, recPinyinCallback) {
 }
 */
 
-app.listen(3000);
+app.listen(aux.portnum);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
