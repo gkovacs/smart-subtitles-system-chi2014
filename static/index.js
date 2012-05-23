@@ -65,7 +65,7 @@ for (var j = 0; j < pinyinWords.length; ++j) {
   var tonecolor = ['red', '#AE5100', 'green', 'blue', 'black'][getToneNumber(curWord)-1]
   coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord + '</span>')
 }
-var pinyinspan = '<td style="font-size: medium; text-align: center;" class="' + randid + ' hoverable">' + coloredSpans.join(' ') + '</td>'
+var pinyinspan = '<td style="font-size: large; text-align: center;" class="' + randid + ' hoverable">' + coloredSpans.join(' ') + '</td>'
 var wordspan = '<td style="font-size: xx-large" class="' + randid + ' hoverable">' + word + '</td>'
 
 pinyinRow.push(pinyinspan)

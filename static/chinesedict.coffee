@@ -36,9 +36,6 @@ class ChineseDict
           wordLookup[simp].push([prn, english])
     @wordLookup = wordLookup
 
-  getWordList: (sentence) ->
-    return sentence.split('') # TODO
-
   getPinyinForWord: (word) ->
     res = this.wordLookup[word]
     if res? and res.length > 0
@@ -69,6 +66,22 @@ class ChineseDict
     print nwordList
     print nwordList.length
     return nwordList.join(' ')
+
+  getWordList: (sentence) ->
+    myself = this
+    longestStartWord = (remaining) ->
+      if myself.getEnglishForWord(remaining) != ''
+        return remaining
+      if remaining.length == 1
+        return remaining
+      return longestStartWord(remaining[0...remaining.length-1])
+    words = []
+    i = 0
+    while i < sentence.length
+      nextWord = longestStartWord(sentence[i..])
+      words.push(nextWord)
+      i += nextWord.length
+    return words
 
 root.ChineseDict = ChineseDict
 

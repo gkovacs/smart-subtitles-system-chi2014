@@ -58,6 +58,22 @@ fixPinyin = (pinyin) ->
   dt = ['']
   return pinyinutils.replaceAllList(pinyin, ft, dt)
 
+fixSegmentation = (wordsWithPinyinAndTrans) ->
+  output = []
+  for [word,pinyin,english] in wordsWithPinyinAndTrans
+    if not english or english == ''
+      wordsList = cdict.getWordList(word)
+      allPinyin = pinyin.split(' ')
+      wordIdx = 0
+      for cword in wordsList
+        cpinyin = allPinyin[wordIdx...wordIdx+cword.length].join(' ')
+        cenglish = cdict.getEnglishForWordAndPinyin(cword, cpinyin)
+        output.push([cword, cpinyin, cenglish])
+        wordIdx += cword.length
+    else
+      output.push([word,pinyin,english])
+  return output
+
 getAnnotatedSubAtTime = (time, callback) ->
   sub = subtitleGetter.subtitleAtTime(time)
   if not sub? or sub == ''
@@ -146,7 +162,7 @@ getAnnotatedSubAtTime = (time, callback) ->
         continue
       else
         curSeekRange = defSeekRange
-    translations = []
+    output = fixSegmentation(output)
     callback(output)
 
   client.get('pinyin|' + sub, (err, rpinyin) ->
