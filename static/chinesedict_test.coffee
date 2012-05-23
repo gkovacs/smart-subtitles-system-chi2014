@@ -10,6 +10,7 @@ main = ->
   #print cdict.getWordList('大家好')
   #print cdict.getPinyin('大家好')
   #print cdict.getEnglishForWord('大')
-  print cdict.getWordList('中华人民共和国中央人民政府门户网站')
+  #print cdict.getWordList('中华人民共和国中央人民政府门户网站')
+  print cdict.wordLookup['什']
 
 main() if require.main is module

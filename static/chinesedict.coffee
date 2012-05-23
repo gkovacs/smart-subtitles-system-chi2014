@@ -1,7 +1,14 @@
 root = exports ? this
 print = console.log
 
-pinyinutils = require './pinyinutils.coffee'
+pinyinutils = require './pinyinutils'
+
+noDuplicates = (list) ->
+  output = []
+  for x in list
+    if x not in output
+      output.push(x)
+  return output
 
 class ChineseDict
   constructor: (dictText) ->
@@ -20,20 +27,19 @@ class ChineseDict
       #print trad
       #print pinyin
       english = line[line.indexOf('/')+1...-1]
-      if not wordLookup[trad]?
-        wordLookup[trad] = []
-      wordLookup[trad].push([pinyin, english])
-      if trad != simp
-        if not wordLookup[simp]?
-          wordLookup[simp] = []
-        wordLookup[simp].push([pinyin, english])
+      readings = [pinyin]
       if english.indexOf('pr. [') != -1
         prn = english[english.indexOf('pr. [')+'pr. ['.length..]
         prn = prn[...prn.indexOf(']')]
         prn = pinyinutils.toneNumberToMark(prn)
-        wordLookup[trad].push([prn, english])
-        if trad != simp
-          wordLookup[simp].push([prn, english])
+        readings.push(prn)
+      forms = [trad, simp, trad.replace('甚', '什'), trad.replace('沒', '没')]
+      forms = noDuplicates(forms)
+      for form in forms
+        if not wordLookup[form]?
+          wordLookup[form] = []
+        for reading in readings
+          wordLookup[form].push([reading, english])
     @wordLookup = wordLookup
 
   getPinyinForWord: (word) ->

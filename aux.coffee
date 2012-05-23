@@ -35,12 +35,15 @@ getPrevDialogStartTime = (time, callback) ->
 getNextDialogStartTime = (time, callback) ->
   origSub = subtitleGetter.subtitleAtTime(time)
   ++time
-  while true
+  while time < subtitleGetter.lastStartTime
     nextsub = subtitleGetter.subtitleAtTime(time+1)
     cursub = subtitleGetter.subtitleAtTime(time)
     if cursub? and cursub != '' and cursub != origSub and nextsub != cursub
       break
     ++time
+  if time >= subtitleGetter.lastStartTime
+    callback(time)
+    return
   while time > 0
     prevsub = subtitleGetter.subtitleAtTime(time-1)
     cursub = subtitleGetter.subtitleAtTime(time)
@@ -80,6 +83,8 @@ getAnnotatedSubAtTime = (time, callback) ->
     callback([])
     return
   processPinyin = (pinyin) ->
+    #print pinyin
+    #print sub
     pinyin = fixPinyin(pinyin)
     pinyinNoTone = pinyinutils.removeToneMarks(pinyin)
     curPinyinWord = []
@@ -87,17 +92,18 @@ getAnnotatedSubAtTime = (time, callback) ->
     idx = 0
     curWord = []
     # how many characters to seek forward for a match in the pinyin
-    curSeekRange = 3
     defSeekRange = 3
     misSeekRange = 10
+    curSeekRange = defSeekRange
     output = []
     
     for char in sub
       if char.trim() == ''
         continue
       if not cdict.wordLookup[char]?
-        print 'word lookup failed:' + char + '|' + sub + '|' + time
+        #print 'word lookup failed:' + char + '|' + sub + '|' + time
         output.push([char, '', ''])
+        ++curSeekRange
         continue
       haveMatch = false
       for fidx in [0..curSeekRange]
@@ -180,6 +186,7 @@ root.getPrevDialogStartTime = getPrevDialogStartTime
 root.getNextDialogStartTime = getNextDialogStartTime
 
 main = ->
+  # shaolin
   #getAnnotatedSubAtTime(20, print)
   #getAnnotatedSubAtTime(9000, print)
   #getPrevDialogStartTime(9000, print)
@@ -191,6 +198,13 @@ main = ->
   #getAnnotatedSubAtTime(16388, print)
   #getAnnotatedSubAtTime(3820, print)
   #getAnnotatedSubAtTime(9183, print)
-  getAnnotatedSubAtTime(27401, print)
+  #getAnnotatedSubAtTime(27401, print)
+  
+  # bodyguards
+  #getAnnotatedSubAtTime(5723, print)
+  #getAnnotatedSubAtTime(5728, print)
+  #getAnnotatedSubAtTime(1251, print)
+  #getAnnotatedSubAtTime(5725, print)
+  getAnnotatedSubAtTime(10930, print)
 
 main() if require.main is module

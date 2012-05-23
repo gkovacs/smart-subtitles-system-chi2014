@@ -2,7 +2,31 @@
 
 
 # extra additions to match Google Translate's pinyin
+# shen2 as she2
 
+甚 什 [she2] /what/
+甚 甚 [she4] /what/very/extremely/any/
 什麼 什么 [she2 me5] /what?/who?/something/anything/
+什麽地方 什么地方 [she2 me5 di4 fang5] /somewhere/someplace/where/
+什麽時候 什么时候 [she2 me5 shi2 hou5] /variant of 甚麼時候|什么时候, when?/at what time?/
+幹甚麼 干什么 [gan4 she2 me5] /what are you doing?/what's he up to?/
+憑什麼 凭什么 [ping2 she2 me5] /(spoken) why?/for which reason?/
+沒什麼 没什么 [mei2 she2 me5] /variant of 沒甚麼|没什么, nothing/it doesn't matter/it's nothing/never mind/
+沒有甚麼 没有什么 [mei2 you3 she2 me5] /it is nothing/there's nothing ... about it/
+沒有什麼 没有什么 [mei2 you3 shen2 me5] /it is nothing/there's nothing ... about it/
+沒有甚麼不可能 没有什么不可能 [mei2 you3 she2 me5 bu4 ke3 neng2] /nothing is impossible/there's nothing impossible about it/
+沒甚麼 没什么 [mei2 she2 me5] /nothing/it doesn't matter/it's nothing/never mind/
+為什麼 为什么 [wei4 she2 me5] /why?/for what reason?/
+甚麼 甚么 [she2 me5] /variant of 什麼|什么[shen2 me5]/
+甚麼事 什么事 [she2 me5 shi4] /what?/which?/
+甚麼人 什么人 [she2 me5 ren2] /who?/which person?/
+甚麼時候 什么时候 [she2 me5 shi2 hou5] /when?/at what time?/
+甚麼樣 什么样 [she2 me5 yang4] /what kind?/what sort?/
+甚麼的 什么的 [she2 me5 de5] /and so on/and what not/
+都什麼年代了 都什么年代了 [dou1 she2 me5 nian2 dai4 le5] /What decade are you living in?/That's so out-of-date!/
+
+
 吶 呐 [ne] /sentence-final particle (abbr. for 呢啊[ne5 a5] or variant of 哪[na5])/
+嗯 嗯 [ń] /(nonverbal grunt as interjection)/OK, yeah/what?/
+嗯 嗯 [n] /(nonverbal grunt as interjection)/OK, yeah/what?/
 

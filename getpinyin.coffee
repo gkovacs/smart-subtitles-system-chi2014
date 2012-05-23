@@ -12,7 +12,8 @@ escapeUnicodeEncoded = (text) ->
   return unescape(text.split('\\u').join('%u'))
 
 getPinyin = (text, callback) ->
-  command = 'w3m "http://translate.google.com/translate_a/t?client=t&text=' + text + '&sl=zh&tl=zh-TW&ie=UTF-8" -dump'
+  reqtxt = text.split('"').join('')
+  command = 'w3m "http://translate.google.com/translate_a/t?client=t&text=' + reqtxt + '&sl=zh&tl=zh-TW&ie=UTF-8" -dump'
   child_process.exec(command, (error, stdout, stderr) ->
     pinyin = stdout.split('","')[2]
     pinyin = escapeUnicodeEncoded(pinyin)

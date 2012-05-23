@@ -12,6 +12,7 @@ toDeciSeconds = (time) ->
 class SubtitleRead
   constructor: (subtitleText) ->
     @subtitleText = subtitleText
+    lastStartTime = 0
     timeToSubtitle = {}
     timesAndSubtitles = [] # start,end,subtitle
     awaitingTime = true
@@ -37,11 +38,14 @@ class SubtitleRead
     
     for triplet in timesAndSubtitles
       [startTime,endTime,lineContents] = triplet
+      if startTime > lastStartTime
+        lastStartTime = startTime
       while startTime < endTime + 50
         timeToSubtitle[startTime] = lineContents
         ++startTime
     @timeToSubtitle = timeToSubtitle
     @timesAndSubtitles = timesAndSubtitles
+    @lastStartTime = lastStartTime
 
   subtitleAtTime: (deciSec) ->
     retv = this.timeToSubtitle[deciSec]
