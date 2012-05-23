@@ -39,6 +39,16 @@ class ChineseDict
         if not wordLookup[form]?
           wordLookup[form] = []
         for reading in readings
+          # prioritize readings that start with lowercases
+          if reading.toLowerCase() == reading
+            if wordLookup[form].length > 0
+              [topReading,topEnglish] = wordLookup[form][0]
+              if topReading.toLowerCase() != topReading
+                wordLookup[form].unshift([reading, english]) # prepend
+                continue
+              if topEnglish.indexOf('variant of ') == 0
+                wordLookup[form].unshift([reading, english]) # prepend
+                continue
           wordLookup[form].push([reading, english])
     @wordLookup = wordLookup
 

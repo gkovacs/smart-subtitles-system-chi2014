@@ -72,8 +72,54 @@ fixPinyin = (pinyin) ->
   dt = ['']
   return pinyinutils.replaceAllList(pinyin, ft, dt)
 
+lookupDataForWord = (word) ->
+  return [word, cdict.getPinyinForWord(word), cdict.getEnglishForWord(word)]
+
+groupWordsFast = (wordsWithPinyinAndTrans) ->
+  if wordsWithPinyinAndTrans.length == 0
+    return []
+  curWordData = wordsWithPinyinAndTrans[0]
+  for i in [1...wordsWithPinyinAndTrans.length]
+    proposedWordChars = curWordData[0] + wordsWithPinyinAndTrans[i][0]
+    proposedWordData = lookupDataForWord(proposedWordChars)
+    if proposedWordData[2] != ''
+      curWordData = proposedWordData
+    else
+      output.push(curWordData)
+      curWordData = wordsWithPinyinAndTrans[i]
+  output.push(curWordData)
+  return output
+
+groupWordsLong = (wordsWithPinyinAndTrans) ->
+  longestStartWord = (remainingList) ->
+    if cdict.getPinyinForWord(remainingList.join('')) != ''
+      return remainingList
+    if remainingList.length == 1
+      return remainingList
+    return longestStartWord(remainingList[0...remainingList.length-1])
+  wordsOrig = (x[0] for x in wordsWithPinyinAndTrans)
+  words = []
+  i = 0
+  while i < wordsOrig.length
+    nextWord = longestStartWord(wordsOrig[i..])
+    words.push(nextWord.join(''))
+    i += nextWord.length
+
+  # words is a flat list of words; turn it into [word,pinyin,english] list
+  output = []
+  wordsOrigToData = {}
+  for x in wordsWithPinyinAndTrans
+    wordsOrigToData[x[0]] = x
+  for x in words
+    if wordsOrigToData[x]?
+      output.push(wordsOrigToData[x])
+    else
+      output.push(lookupDataForWord(x))
+  return output
+
 fixSegmentation = (wordsWithPinyinAndTrans) ->
   output = []
+  # ensure everything is in dictionary
   for [word,pinyin,english] in wordsWithPinyinAndTrans
     if not english or english == ''
       wordsList = cdict.getWordList(word)
@@ -86,7 +132,7 @@ fixSegmentation = (wordsWithPinyinAndTrans) ->
         wordIdx += cword.length
     else
       output.push([word,pinyin,english])
-  return output
+  return groupWordsLong(output)
 
 getAnnotatedSubAtTime = (time, callback) ->
   sub = subtitleGetter.subtitleAtTime(time)
@@ -187,6 +233,7 @@ getAnnotatedSubAtTime = (time, callback) ->
       processPinyin(rpinyin)
     else
       print 'not in redis:' + sub
+      processPinyin('')
       #getpinyin.getPinyin(sub, (npinyin) ->
       #  processPinyin
       #)
@@ -217,6 +264,14 @@ main = ->
   #getAnnotatedSubAtTime(5728, print)
   #getAnnotatedSubAtTime(1251, print)
   #getAnnotatedSubAtTime(5725, print)
-  getAnnotatedSubAtTime(10930, print)
+  #getAnnotatedSubAtTime(10930, print)
+  
+  #print fixSegmentation([['中华人民共和国中央人民政府门户网站', '', '']])
+  #print fixSegmentation([['中', '', ''], ['华', '', ''], ['人', '', ''], ['民', '', '']])
+  #print fixSegmentation([['中华', '', ''], ['人民', '', ''], ['共和国', '', '']]) # doesn't work; 中华人民 not in dictionary
+  #print groupWordsLong([['中华', '', ''], ['人民', '', ''], ['共和国', '', '']])
+  #print groupWordsLong([['中', '', ''], ['华', '', '']])
+  #print groupWordsLong([['中', '', ''], ['华', '', ''], ['人', '', ''], ['民', '', '']])
+  print groupWordsLong([['中华', '', ''], ['人民', 'rm', ''], ['共和国', 'ghg', ''], ['中央', 'zy', ''], ['人民','',''],['政','',''],['府','',''],['门','',''],['户','',''],['网站','','']])
 
 main() if require.main is module
