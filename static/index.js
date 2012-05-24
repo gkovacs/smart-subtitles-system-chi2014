@@ -150,7 +150,7 @@ vid.pause()
 $('body').click(function(x) {
 var vid = $('video')[0]
 var mouseCoords = relMouseCoords(x, vid)
-if (mouseCoords.y > $('video').height() || mouseCoords.x > $('video').width()) return
+if (mouseCoords.y > $('video').height() - 30 || mouseCoords.x > $('video').width()) return
 if (vid.paused)
   vid.play()
 else
