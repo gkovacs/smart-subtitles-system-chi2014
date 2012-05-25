@@ -198,6 +198,9 @@ $('video')[0].src = videoSource
 var subSource = 'shaolin.srt'
 if (urlParams['sub'] != null)
   subSource = urlParams['sub']
-now.initializeSubtitle(subSource)
+var subLanguage = 'zh'
+if (urlParams['lang'] != null)
+  subLanguage = urlParams['lang']
+now.initializeSubtitle(subSource, subLanguage)
 })
 

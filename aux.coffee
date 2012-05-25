@@ -10,9 +10,11 @@ require 'coffee-script'
 
 subtitleread = require './static/subtitleread'
 chinesedict = require './static/chinesedict'
+japanesedict = require './static/japanesedict'
 
 dictText = fs.readFileSync('static/cedict_full.txt', 'utf8')
 cdict = new chinesedict.ChineseDict(dictText)
+jdict = new japanesedict.JapaneseDict()
 
 subtext = ''
 subtitleGetter = {}
@@ -23,7 +25,10 @@ client = redis.createClient()
 getpinyin = require './getpinyin'
 pinyinutils = require './static/pinyinutils'
 
-initializeSubtitle = (subtitleSource) ->
+language = 'zh'
+
+initializeSubtitle = (subtitleSource, nlanguage) ->
+  language = nlanguage
   if subtitleSource.indexOf('/') == -1
     subtitleSource = 'http://localhost:' + root.portnum + '/' + subtitleSource
   http_get.get({url: subtitleSource}, (err, dlData) ->
@@ -135,6 +140,19 @@ fixSegmentation = (wordsWithPinyinAndTrans) ->
   return groupWordsLong(output)
 
 getAnnotatedSubAtTime = (time, callback) ->
+  if language == 'zh'
+    getAnnotatedSubAtTimeChinese(time, callback)
+  if language == 'ja'
+    getAnnotatedSubAtTimeJapanese(time, callback)
+
+getAnnotatedSubAtTimeJapanese = (time, callback) ->
+  sub = subtitleGetter.subtitleAtTime(time)
+  if not sub? or sub == ''
+    callback([])
+  jdict.getGlossForSentence(sub, callback)
+  
+
+getAnnotatedSubAtTimeChinese = (time, callback) ->
   sub = subtitleGetter.subtitleAtTime(time)
   if not sub? or sub == ''
     callback([])
