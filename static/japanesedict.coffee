@@ -31,8 +31,8 @@ parseGloss = (htmlPage) ->
       line = line[line.indexOf('【')+1..]
       furigana = line[...line.indexOf('】')].trim()
       english = line[line.indexOf('】')+1..].trim()
-    if english.lastIndexOf(';') != -1
-      english = english[...english.lastIndexOf(';')].trim()
+    #if english.lastIndexOf(';') != -1
+    #  english = english[...english.lastIndexOf(';')].trim()
     if english.lastIndexOf('; (P)') != -1
       english = english[...english.lastIndexOf('; (P)')].trim()
     if english.indexOf('<font color="red" size="-1">[Partial Match!]</font>') != -1
@@ -72,8 +72,12 @@ class JapaneseDict
       popularEnglish = []
       standardEnglish = []
       for kanji in kanjiL.split(';')
-        for furigana in furiganaL.split()
+        if kanji.indexOf('(P)') != -1
+          kanji = kanji[...kanji.indexOf('(P)')]
+        for furigana in furiganaL.split(';')
           isPopular = furigana.indexOf('(P)') != -1
+          if furigana.indexOf('(') != -1
+            furigana = furigana[...furigana.indexOf('(')]
           if isPopular
             furigana = furigana[...furigana.indexOf('(P)')]
             popularFurigana.push(furigana)
@@ -86,43 +90,65 @@ class JapaneseDict
         for furigana in standardFurigana
           wordLookup[kanji].push([furigana, english])
     @wordLookup = wordLookup
+    @lastLookupMs = 0
+    @mirrors = ['http://www.edrdg.org/cgi-bin/wwwjdic/wwwjdic?9ZIG', 'http://ryouko.imsb.nrc.ca/cgi-bin/wwwjdic/wwwjdic?9ZIG']
+    @mirrorIdx = 0
 
   removeMultiFurigana: (glossList) =>
     output = []
     for [kanji,furigana,english] in glossList
-      if furigana? and furigana.indexOf(';') != -1
-        if this.wordLookup[kanji]? and this.wordLookup[kanji][0]? and this.wordLookup[kanji][0][0]? # have multiple readings
+      if furigana? and (furigana.indexOf(';') != -1 or furigana.indexOf('(') != -1)
+        if this.wordLookup[kanji]? and this.wordLookup[kanji][0]? # have multiple readings
           furigana = this.wordLookup[kanji][0][0]
         else
-          furigana = furigana[...furigana.indexOf(';')]
+          if furigana.indexOf(';') != -1
+            furigana = furigana[...furigana.indexOf(';')]
+          if furigana.indexOf('(') != -1
+            furigana = furigana[...furigana.indexOf('(')]
       output.push([kanji,furigana,english])
     return output
 
   getWordsForSetence: (sentence, callback) =>
-    sentence = sentence.split('　').join('').split(' ').join('')
-    client.get('jpgloss|' + sentence, (err, res) ->
-      if res? and res != ''
+    sentence = sentence.split('　').join('-').split(' ').join('-')
+    client.get('jpgloss|' + sentence, (err, res) =>
+      if res? and res != '' and res.indexOf('WWWJDIC is undergoing file maintenance.') == -1
+        print res
         callback(parseGloss(res))
       else
-        glossURL = 'http://www.edrdg.org/cgi-bin/wwwjdic/wwwjdic?9ZIG' + sentence
+        curTimeMs = (new Date()).getTime()
+        lastLookupMs = this.lastLookupMs
+        this.lastLookupMs = curTimeMs
+        glossURL = ''
+        if curTimeMs - lastLookupMs < 1000 # last request was within a second
+          @mirrorIdx = (@mirrorIdx + 1) % @mirrors.length
+          glossURL = @mirrors[@mirrorIdx] + sentence
+        else
+          @mirrorIdx = 0
+          glossURL = @mirrors[@mirrorIdx] + sentence
         print 'fetching: ' + glossURL
         http_get.get({url: glossURL}, (err, dlData) ->
           glossData = dlData.buffer
-          callback(parseGloss(glossData))
-          client.set('jpgloss|' + sentence, glossData)
+          if glossData.indexOf('WWWJDIC is undergoing file maintenance.') == -1
+            callback(parseGloss(glossData))
+            client.set('jpgloss|' + sentence, glossData)
+          else
+            setTimeout( ->
+              getWordsForSetence(sentence, callback)
+            , 1000)
         )
     )
 
   getGlossForSentence: (sentence, callback) =>
     this.getWordsForSetence(sentence, (words) =>
       output = []
+      print words
       i = 0
       widx = 0
       while widx < words.length
         word = words[widx]
-        curWord = word[0]
+        curWordL = word[0]
         possibleMatches = []
-        for x in curWord.split('\t').join(' ').split(' ')
+        for x in curWordL.split('\t').join(' ').split(' ')
           possibleMatches.push(x)
         partial = false
         inflected = false
@@ -163,6 +189,11 @@ class JapaneseDict
             matchedStringLength = j-1
             matchedString = sentence[i...i+matchedStringLength]
             furigana = word[1]
+            if furigana.indexOf('(') != -1
+              furigana = furigana[...furigana.indexOf('(')]
+            if furigana.indexOf(';') != -1
+              furigana = furigana[...furigana.indexOf(';')]
+            # TODO try all furigana and take best one (highest numOkuriGana)
             curWordInv = curWord.split('').reverse().join('')
             furiganaInv = furigana.split('').reverse().join('')
             numOkuriGana = 0
@@ -170,7 +201,9 @@ class JapaneseDict
               if curWordInv[numOkuriGana] != furiganaInv[numOkuriGana]
                 break
               ++numOkuriGana
-            furigana = furigana[...-numOkuriGana]
+            print "matchedString: #{matchedString}, #{numOkuriGana}, #{curWord}, #{furigana}"
+            if numOkuriGana > 0
+              furigana = furigana[...-numOkuriGana]
             output.push([matchedString, furigana, word[2]])
             i += matchedStringLength
             ++widx

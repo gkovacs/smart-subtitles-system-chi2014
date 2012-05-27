@@ -13,6 +13,10 @@ main = ->
   #jdict.getGlossForSentence('その中で体を自由にスムーズに動かす働きをしているのが', print)
   #jdict.getGlossForSentence('病気はどうして私を選んだのだろう', print)
   #jdict.getGlossForSentence('それらの神経細胞は中枢神経と末梢神経に分けられ', print)
-  jdict.getGlossForSentence('特別じゃない  ただ特別な病気に選ばれてしまった 少女の記録', print)
+  #jdict.getGlossForSentence('特別じゃない  ただ特別な病気に選ばれてしまった 少女の記録', print)
+  #jdict.getGlossForSentence('なんか落ち着かなくて眠れなかった', print)
+  #jdict.getGlossForSentence('でもね　うちのクラス　ピアノ弾けるのは　富田さんしかいなくて', print)
+  #jdict.getGlossForSentence('クラス委員　前　出て', print)
+  jdict.getGlossForSentence('どんな転び方した　そんなところ怪我し', print)
 
 main() if require.main is module
