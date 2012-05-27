@@ -39,8 +39,11 @@ parseGloss = (htmlPage) ->
       english = english[...english.indexOf('<font color="red" size="-1">[Partial Match!]</font>')].trim()
       output.push([kanji,furigana,english,'partial'])
       continue
-    if kanji.indexOf('Possible inflected verb or adjective:') == 0 and kanji.indexOf('<br>') != -1
+    inflectedMessage = 'Possible inflected verb or adjective:'
+    if kanji.indexOf(inflectedMessage) == 0 and kanji.indexOf('<br>') != -1
+      conjugationForm = kanji[kanji.indexOf(inflectedMessage)+inflectedMessage.length...kanji.indexOf('<br>')]
       kanji = kanji[kanji.indexOf('<br>')+4..].trim()
+      english = english + conjugationForm
       output.push([kanji,furigana,english,'inflected'])
       continue
     output.push([kanji,furigana,english])
@@ -48,7 +51,55 @@ parseGloss = (htmlPage) ->
 
 class JapaneseDict
 
-  getWordsForSetence: (sentence, callback) ->
+  constructor: (dictText) ->
+    wordLookup = {} # word => [furigana, definition]
+    for line in dictText.split('\n')
+      line = line.trim()
+      kanjiL = ''
+      furiganaL = ''
+      english = ''
+      if line.indexOf('[') != -1
+        kanjiL = line[...line.indexOf('[')].trim()
+        furiganaL = line[line.indexOf('[')+1...line.indexOf(']')].trim()
+        english = line[line.indexOf('/')+1...-1].trim()
+      else
+        kanjiL = line[...line.indexOf('/')].trim()
+        furiganaL = line[...line.indexOf('/')].trim()
+        english = line[line.indexOf('/')+1...-1].trim()
+      #havePopular
+      popularFurigana = []
+      standardFurigana = []
+      popularEnglish = []
+      standardEnglish = []
+      for kanji in kanjiL.split(';')
+        for furigana in furiganaL.split()
+          isPopular = furigana.indexOf('(P)') != -1
+          if isPopular
+            furigana = furigana[...furigana.indexOf('(P)')]
+            popularFurigana.push(furigana)
+          else
+            standardFurigana.push(furigana)
+        if not wordLookup[kanji]?
+          wordLookup[kanji] = []
+        for furigana in popularFurigana[..].reverse()
+          wordLookup[kanji].unshift([furigana, english])
+        for furigana in standardFurigana
+          wordLookup[kanji].push([furigana, english])
+    @wordLookup = wordLookup
+
+  removeMultiFurigana: (glossList) =>
+    output = []
+    for [kanji,furigana,english] in glossList
+      if furigana? and furigana.indexOf(';') != -1
+        if this.wordLookup[kanji]? and this.wordLookup[kanji][0]? and this.wordLookup[kanji][0][0]? # have multiple readings
+          furigana = this.wordLookup[kanji][0][0]
+        else
+          furigana = furigana[...furigana.indexOf(';')]
+      output.push([kanji,furigana,english])
+    return output
+
+  getWordsForSetence: (sentence, callback) =>
+    sentence = sentence.split('　').join('').split(' ').join('')
     client.get('jpgloss|' + sentence, (err, res) ->
       if res? and res != ''
         callback(parseGloss(res))
@@ -62,8 +113,8 @@ class JapaneseDict
         )
     )
 
-  getGlossForSentence: (sentence, callback) ->
-    this.getWordsForSetence(sentence, (words) ->
+  getGlossForSentence: (sentence, callback) =>
+    this.getWordsForSetence(sentence, (words) =>
       output = []
       i = 0
       widx = 0
@@ -74,12 +125,11 @@ class JapaneseDict
         for x in curWord.split('\t').join(' ').split(' ')
           possibleMatches.push(x)
         partial = false
-        partialMinMatch = 2
+        inflected = false
         if word.length == 4 and word[3] == 'partial'
           partial = true
         if word.length == 4 and word[3] == 'inflected'
-          partial = true
-          partialMinMatch = 1
+          inflected = true
         if i >= sentence.length
           break
         curChar = sentence[i]
@@ -91,8 +141,8 @@ class JapaneseDict
             ++widx
             haveMatch = true
             break
-          else if partial and sentence[i...i+partialMinMatch] == curWord[0...partialMinMatch]
-            j = partialMinMatch
+          else if partial and sentence[i...i+2] == curWord[0...2]
+            j = 2
             while j <= curWord.length
               if sentence[i...i+j] != curWord[0...j]
                 break
@@ -104,10 +154,36 @@ class JapaneseDict
             ++widx
             haveMatch = true
             break
+          else if inflected and sentence[i...i+1] == curWord[0...1]
+            j = 1
+            while j <= curWord.length
+              if sentence[i...i+j] != curWord[0...j]
+                break
+              ++j
+            matchedStringLength = j-1
+            matchedString = sentence[i...i+matchedStringLength]
+            furigana = word[1]
+            curWordInv = curWord.split('').reverse().join('')
+            furiganaInv = furigana.split('').reverse().join('')
+            numOkuriGana = 0
+            while numOkuriGana < Math.min(curWord.length, furigana.length)
+              if curWordInv[numOkuriGana] != furiganaInv[numOkuriGana]
+                break
+              ++numOkuriGana
+            furigana = furigana[...-numOkuriGana]
+            output.push([matchedString, furigana, word[2]])
+            i += matchedStringLength
+            ++widx
+            haveMatch = true
+            break
         if not haveMatch
           output.push([curChar, '', ''])
           ++i
-      callback(output)
+      while i < sentence.length
+        curChar = sentence[i]
+        output.push([curChar, '', ''])
+        ++i
+      callback(this.removeMultiFurigana(output))
     )
 
 root.JapaneseDict = JapaneseDict

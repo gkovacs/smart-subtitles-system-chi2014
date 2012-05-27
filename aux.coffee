@@ -14,7 +14,8 @@ japanesedict = require './static/japanesedict'
 
 dictText = fs.readFileSync('static/cedict_full.txt', 'utf8')
 cdict = new chinesedict.ChineseDict(dictText)
-jdict = new japanesedict.JapaneseDict()
+jdictText = fs.readFileSync('static/edict2_full.txt', 'utf8')
+jdict = new japanesedict.JapaneseDict(jdictText)
 
 subtext = ''
 subtitleGetter = {}
