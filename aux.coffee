@@ -28,13 +28,15 @@ pinyinutils = require './static/pinyinutils'
 
 language = 'zh'
 
-initializeSubtitle = (subtitleSource, nlanguage) ->
+initializeSubtitle = (subtitleSource, nlanguage, doneCallback) ->
   language = nlanguage
   if subtitleSource.indexOf('/') == -1
     subtitleSource = 'http://localhost:' + root.portnum + '/' + subtitleSource
   http_get.get({url: subtitleSource}, (err, dlData) ->
     subtext = dlData.buffer
     subtitleGetter = new subtitleread.SubtitleRead(subtext)
+    if doneCallback?
+      doneCallback()
   )
 
 getPrevDialogStartTime = (time, callback) ->
@@ -173,11 +175,26 @@ getAnnotatedSubAtTimeChinese = (time, callback) ->
     curSeekRange = defSeekRange
     output = []
     
+    endWord = ->
+      tword = curWord.join('')
+      tpinyin = curPinyinWord.join(' ')
+      ttranslation = cdict.getEnglishForWordAndPinyin(tword, tpinyin)
+      output.push([tword, tpinyin, ttranslation])
+      curWord = []
+      curPinyinWord = []
+    
     for char in sub
       if char.trim() == ''
         continue
+      if char == pinyin[idx..idx] or (char == '，' and pinyin[idx..idx] == ',') # punctuation
+        endWord()
+        print 'punctuation:' + char + '|' + sub + '|' + time
+        output.push([char, '', ''])
+        ++idx
+        continue
       if not cdict.wordLookup[char]?
-        #print 'word lookup failed:' + char + '|' + sub + '|' + time
+        endWord()
+        print 'word lookup failed:' + char + '|' + sub + '|' + time
         output.push([char, '', ''])
         ++curSeekRange
         continue
@@ -193,12 +210,7 @@ getAnnotatedSubAtTimeChinese = (time, callback) ->
           curPinyinWord.push(pinyin[idx...idx+cpinyin.length])
           idx += cpinyin.length
           if idx >= pinyin.length or pinyin[idx] == ' ' # end of word
-            tword = curWord.join('')
-            tpinyin = curPinyinWord.join(' ')
-            ttranslation = cdict.getEnglishForWordAndPinyin(tword, tpinyin)
-            output.push([tword, tpinyin, ttranslation])
-            curWord = []
-            curPinyinWord = []
+            endWord()
         for [cpinyin,english] in cdict.wordLookup[char]
           if haveMatch
             break
@@ -291,6 +303,11 @@ main = ->
   #print groupWordsLong([['中华', '', ''], ['人民', '', ''], ['共和国', '', '']])
   #print groupWordsLong([['中', '', ''], ['华', '', '']])
   #print groupWordsLong([['中', '', ''], ['华', '', ''], ['人', '', ''], ['民', '', '']])
-  print groupWordsLong([['中华', '', ''], ['人民', 'rm', ''], ['共和国', 'ghg', ''], ['中央', 'zy', ''], ['人民','',''],['政','',''],['府','',''],['门','',''],['户','',''],['网站','','']])
+  #print groupWordsLong([['中华', '', ''], ['人民', 'rm', ''], ['共和国', 'ghg', ''], ['中央', 'zy', ''], ['人民','',''],['政','',''],['府','',''],['门','',''],['户','',''],['网站','','']])
+  
+  # crouchingtigerhiddendragon
+  initializeSubtitle('crouchingtigerhiddendragon.srt', 'zh', ->
+    getAnnotatedSubAtTime(1200, print)
+  )
 
 main() if require.main is module
