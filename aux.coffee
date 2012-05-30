@@ -125,6 +125,35 @@ groupWordsLong = (wordsWithPinyinAndTrans) ->
       output.push(lookupDataForWord(x))
   return output
 
+groupWordsLongPreservingPinyin = (wordsWithPinyinAndTrans) ->
+  longestStartWord = (remainingList) ->
+    pinyinForRemaining = pinyinutils.removeToneMarks(cdict.getPinyinForWord((x[0] for x in remainingList).join('')).split(' ').join('').toLowerCase())
+    origPinyinForRemaining = pinyinutils.removeToneMarks((x[1] for x in remainingList).join('').split(' ').join('').toLowerCase())
+    if pinyinForRemaining == origPinyinForRemaining
+      return remainingList
+    if remainingList.length == 1
+      return remainingList
+    return longestStartWord(remainingList[0...remainingList.length-1])
+  wordsOrig = wordsWithPinyinAndTrans
+  words = []
+  i = 0
+  while i < wordsOrig.length
+    nextWord = (x[0] for x in longestStartWord(wordsOrig[i..]))
+    words.push(nextWord.join(''))
+    i += nextWord.length
+
+  # words is a flat list of words; turn it into [word,pinyin,english] list
+  output = []
+  wordsOrigToData = {}
+  for x in wordsWithPinyinAndTrans
+    wordsOrigToData[x[0]] = x
+  for x in words
+    if wordsOrigToData[x]?
+      output.push(wordsOrigToData[x])
+    else
+      output.push(lookupDataForWord(x))
+  return output
+
 fixSegmentation = (wordsWithPinyinAndTrans) ->
   output = []
   # ensure everything is in dictionary
@@ -140,7 +169,7 @@ fixSegmentation = (wordsWithPinyinAndTrans) ->
         wordIdx += cword.length
     else
       output.push([word,pinyin,english])
-  return groupWordsLong(output)
+  return output
 
 getAnnotatedSubAtTime = (time, callback) ->
   if language == 'zh'
@@ -163,6 +192,7 @@ getAnnotatedSubAtTimeChinese = (time, callback) ->
   processPinyin = (pinyin) ->
     #print pinyin
     #print sub
+    havePinyin = pinyin.length > 0
     pinyin = fixPinyin(pinyin)
     pinyinNoTone = pinyinutils.removeToneMarks(pinyin)
     curPinyinWord = []
@@ -257,6 +287,10 @@ getAnnotatedSubAtTimeChinese = (time, callback) ->
       else
         curSeekRange = defSeekRange
     output = fixSegmentation(output)
+    if not havePinyin
+      output = groupWordsLong(output)
+    else
+      output = groupWordsLongPreservingPinyin(output)
     callback(output)
 
   client.get('pinyin|' + sub, (err, rpinyin) ->
@@ -304,10 +338,12 @@ main = ->
   #print groupWordsLong([['中', '', ''], ['华', '', '']])
   #print groupWordsLong([['中', '', ''], ['华', '', ''], ['人', '', ''], ['民', '', '']])
   #print groupWordsLong([['中华', '', ''], ['人民', 'rm', ''], ['共和国', 'ghg', ''], ['中央', 'zy', ''], ['人民','',''],['政','',''],['府','',''],['门','',''],['户','',''],['网站','','']])
+  #print groupWordsLongPreservingPinyin([['中华', 'zhōng huá', ''], ['人民', 'rén mín', ''], ['共和国', 'gòng hé guó', ''], ['中央', 'zy', ''], ['人民','rén mín',''],['政','zhèng',''],['府','fǔ',''],['门','',''],['户','',''],['网站','','']])
+  
   
   # crouchingtigerhiddendragon
-  initializeSubtitle('crouchingtigerhiddendragon.srt', 'zh', ->
-    getAnnotatedSubAtTime(1200, print)
-  )
+  #initializeSubtitle('crouchingtigerhiddendragon.srt', 'zh', ->
+  #  getAnnotatedSubAtTime(1200, print)
+  #)
 
 main() if require.main is module
