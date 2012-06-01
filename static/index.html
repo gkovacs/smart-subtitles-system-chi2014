@@ -2,8 +2,31 @@
 <body style="font-family: 'Arial', sans-serif;">
 <script type="text/javascript" src="/nowjs/now.js"></script>
 <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
-<script type="text/javascript" src="index.js"></script>
 <script type="text/javascript" src="pinyinutils.js"></script>
+<!--<script type="text/javascript" src="modernizr.js"></script>-->
+<script type="text/javascript" src="index.js"></script>
+<script type="text/javascript" src="examplevids.js"></script>
+
+<div id='inputRegion' style='display:none;'>
+<h4>Instructions</h2>
+Provide a video (URL or local file), and Chinese subtitles (can be found for various videos <a href="http://shooter.cn/">here</a>), then press "Start Playing".<br/>
+
+Here are some examples (click on button to fill in the form, then press "Start Playing"):<br/>
+<button onclick="loadShaoLin()">新少林寺</button>
+<button onclick="loadWoHuCangLong()">卧虎藏龙</button><br/>
+
+<h4>Specify Video and Subtitle</h2>
+Video (<a href="http://en.wikipedia.org/wiki/M4V">MP4/M4V format</a>)
+<select id="urlOrFile" onchange="urlOrFileChanged()">
+  <option value="file" >Local File</option>
+  <option value="url" >URL</option>
+</select>: <input type="file" accept="video/*" id="videoInputFile" style="width: 500px" onkeypress="textChanged()" onchange="textChanged()" onkeyup="textChanged()" /><input style="display: none; width: 500px" type="text" id="videoInputURL" style=" onkeypress="textChanged()" onchange="textChanged()" onkeyup="textChanged()" /><br />
+Subtitle (<a href="http://en.wikipedia.org/wiki/SubRip#SubRip_text_file_format">SRT format</a>):<br/><textarea id="subtitleInput" style="width: 100%; height: 200px" onkeypress="textChanged()" onchange="textChanged()" onkeyup="textChanged()"></textarea><br />
+<button onclick="startPlayback()" disabled="true" id="startPlaybackButton">Start Playing</button>
+</div>
+
+<div id='viewingRegion' style='display:none;'>
+<div id="errorRegion" style="background-color: yellow"></div>
 <video controls="controls" id="videoControls" ontimeupdate="onTimeChanged(this)">
 </video>
 <br/>
@@ -13,5 +36,7 @@
 <div id="pinyin" style="font-size: large"></div>
 <div id="caption"></div>
 <div id="translation" style="font-size: medium"></div>
+</div>
+
 </body>
 </html>

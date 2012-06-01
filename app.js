@@ -46,6 +46,10 @@ everyone.now.getNextDialogStartTime = aux.getNextDialogStartTime
 
 everyone.now.initializeSubtitle = aux.initializeSubtitle
 
+everyone.now.initializeSubtitleText = aux.initializeSubtitleText
+
+everyone.now.downloadSubtitleText = aux.downloadSubtitleText
+
 /*
 everyone.now.getSubText = function(recSubCallback) {
   subtext = fs.readFileSync('static/shaolin.srt', 'utf8')

@@ -29,14 +29,25 @@ pinyinutils = require './static/pinyinutils'
 language = 'zh'
 
 initializeSubtitle = (subtitleSource, nlanguage, doneCallback) ->
-  language = nlanguage
   if subtitleSource.indexOf('/') == -1
     subtitleSource = 'http://localhost:' + root.portnum + '/' + subtitleSource
   http_get.get({url: subtitleSource}, (err, dlData) ->
     subtext = dlData.buffer
-    subtitleGetter = new subtitleread.SubtitleRead(subtext)
-    if doneCallback?
-      doneCallback()
+    initializeSubtitleText(subtext, nlanguage, doneCallback)
+  )
+
+initializeSubtitleText = (subtitleText, nlanguage, doneCallback) ->
+  language = nlanguage
+  subtitleGetter = new subtitleread.SubtitleRead(subtitleText)
+  if doneCallback?
+    doneCallback()
+
+downloadSubtitleText = (subtitleSource, callback) ->
+  if subtitleSource.indexOf('/') == -1
+    subtitleSource = 'http://localhost:' + root.portnum + '/' + subtitleSource
+  http_get.get({url: subtitleSource}, (err, dlData) ->
+    subtext = dlData.buffer
+    callback(subtext)
   )
 
 getPrevDialogStartTime = (time, callback) ->
@@ -308,6 +319,8 @@ root.getAnnotatedSubAtTime = getAnnotatedSubAtTime
 root.getPrevDialogStartTime = getPrevDialogStartTime
 root.getNextDialogStartTime = getNextDialogStartTime
 root.initializeSubtitle = initializeSubtitle
+root.initializeSubtitleText = initializeSubtitleText
+root.downloadSubtitleText = downloadSubtitleText
 
 main = ->
   # shaolin

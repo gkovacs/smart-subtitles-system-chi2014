@@ -181,6 +181,75 @@ function checkKey(x) {
 
 $('body').keydown(checkKey)
 
+function startPlayback() {
+  if (isLocalFile()) {
+    var file = $('#videoInputFile')[0].files[0]
+    var type = file.type
+    var videoNode = $('video')[0]
+    var canPlay = videoNode.canPlayType(type)
+    canPlay = (canPlay === '' ? 'no' : canPlay)
+    var isError = canPlay === 'no'
+    var URL = window.URL
+    if (!URL)
+      URL = window.webkitURL
+    var fileURL = URL.createObjectURL(file)
+    videoNode.src = fileURL
+  } else {
+    var videoSource = $('#videoInputURL').val().trim()
+    $('video')[0].src = videoSource
+  }
+  var subtitleText = $('#subtitleInput').val().trim()
+  var subLanguage = 'zh'
+  $('#inputRegion').hide()
+  $('#viewingRegion').show()
+  if (subtitleText.indexOf('\n') == -1) { // this is a URL, not the subtitle text
+    now.initializeSubtitle(subtitleText, subLanguage)
+  } else { // this is the subtitle text
+    now.initializeSubtitleText(subtitleText, subLanguage)
+  }
+}
+
+function isLocalFile() {
+  return ($('#urlOrFile').val() == 'file')
+}
+
+function loadVideo(videourl, suburl) {
+  $('#urlOrFile').val('url')
+  urlOrFileChanged()
+  $('#videoInputURL').val(videourl)
+  $('#subtitleInput').val('')
+  now.downloadSubtitleText(suburl, function(subText) {
+    $('#subtitleInput').val(subText)
+    textChanged()
+  })
+}
+
+function urlOrFileChanged() {
+  if (isLocalFile()) {
+    $('#videoInputURL').hide()
+    $('#videoInputFile').show()
+  } else {
+    $('#videoInputFile').hide()
+    $('#videoInputURL').show()
+  }
+}
+
+function textChanged() {
+  if (isLocalFile()) {
+    if ($('#videoInputFile').val() && $('#subtitleInput').val()) {
+      $('#startPlaybackButton')[0].disabled = false
+    } else {
+      $('#startPlaybackButton')[0].disabled = true
+    }
+  } else {
+    if ($('#videoInputURL').val() && $('#subtitleInput').val()) {
+      $('#startPlaybackButton')[0].disabled = false
+    } else {
+      $('#startPlaybackButton')[0].disabled = true
+    }
+  }
+}
+
 function getUrlParameters() {
 var map = {};
 var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
@@ -189,18 +258,50 @@ map[key] = value;
 return map; 
 }
 
+function videoError() {
+
+}
+
+$(document).ready(function() {
+$('#inputRegion').show()
+$('#videoInputFile').val('')
+textChanged()
+urlOrFileChanged()
+
+setInterval(function() {
+  var videoPlaybackError = $('video')[0].error
+  if (videoPlaybackError) {
+    var videoSource = $('video')[0].src
+    var errorMessage = ''
+    if (videoPlaybackError.code == 0) errorMessage = 'MEDIA_ERR_ABORTED - fetching process aborted by user'
+    if (videoPlaybackError.code == 1) errorMessage = 'MEDIA_ERR_NETWORK - error occurred when downloading'
+    if (videoPlaybackError.code == 3) errorMessage = 'MEDIA_ERR_DECODE - error occurred when decoding'
+    if (videoPlaybackError.code == 4) errorMessage = 'MEDIA_ERR_SRC_NOT_SUPPORTED - audio/video format not supported by browser'
+    var printableError =  JSON.stringify(videoPlaybackError, null, 4)
+    $('#errorRegion').text('Error playing ' + videoSource + ': ' + errorMessage + ' ' + printableError)
+  }
+}, 1000)
+
+})
+
 now.ready(function() {
 var urlParams = getUrlParameters()
-var videoSource = 'shaolin.m4v'
-if (urlParams['video'] != null)
-  videoSource = urlParams['video']
-$('video')[0].src = videoSource
-var subSource = 'shaolin.srt'
-if (urlParams['sub'] != null)
-  subSource = urlParams['sub']
-var subLanguage = 'zh'
-if (urlParams['lang'] != null)
-  subLanguage = urlParams['lang']
-now.initializeSubtitle(subSource, subLanguage)
+if (urlParams['video'] != null && urlParams['sub'] != null) {
+  var videoSource = 'shaolin.m4v'
+  if (urlParams['video'] != null)
+    videoSource = urlParams['video']
+  $('video')[0].src = videoSource
+  var subSource = 'shaolin.srt'
+  if (urlParams['sub'] != null)
+    subSource = urlParams['sub']
+  var subLanguage = 'zh'
+  if (urlParams['lang'] != null)
+    subLanguage = urlParams['lang']
+  $('#viewingRegion').hide()
+  $('#viewingRegion').show()
+  now.initializeSubtitle(subSource, subLanguage)  
+  return
+}
+
 })
 
