@@ -236,6 +236,20 @@ function isLocalFile() {
 }
 
 function loadVideo(videourl, suburl) {
+  if (videourl.indexOf('{m4v|webm}') != -1) {
+    if (Modernizr.video.webm && !Modernizr.video.h264) {
+      videourl = videourl.replace('{m4v|webm}', 'webm')
+    } else {
+      videourl = videourl.replace('{m4v|webm}', 'm4v')
+    }
+  }
+  if (videourl.indexOf('{mp4|webm}') != -1) {
+    if (Modernizr.video.webm && !Modernizr.video.h264) {
+      videourl = videourl.replace('{mp4|webm}', 'webm')
+    } else {
+      videourl = videourl.replace('{mp4|webm}', 'mp4')
+    }
+  }
   $('#urlOrFile').val('url')
   urlOrFileChanged()
   $('#videoInputURL').val(videourl)
@@ -297,10 +311,26 @@ return map;
 }
 
 $(document).ready(function() {
+if (!Modernizr.video || !Modernizr.video.h264) {
+$('#inputErrorRegion').html('Your browser does not support MP4 video; please use <a href="http://www.google.com/chrome">Chrome</a>')
+}
+
 $('#inputRegion').show()
 $('#videoInputFile').val('')
 textChanged()
 urlOrFileChanged()
+
+var supportedFormats = []
+if (Modernizr.video.h264) {
+supportedFormats.push('<a href="http://en.wikipedia.org/wiki/M4V">MP4</a>')
+}
+if (Modernizr.video.webm) {
+supportedFormats.push('<a href="http://en.wikipedia.org/wiki/WebM">WebM</a>')
+}
+if (supportedFormats.length > 0) {
+$('#supportedVideoFormats').html(supportedFormats.join(' or ') + ' format')
+}
+
 })
 
 now.ready(function() {
