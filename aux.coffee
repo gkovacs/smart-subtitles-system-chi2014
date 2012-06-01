@@ -28,11 +28,12 @@ pinyinutils = require './static/pinyinutils'
 
 language = 'zh'
 
+cachedSubtitles = {}
+
 initializeSubtitle = (subtitleSource, nlanguage, doneCallback) ->
   if subtitleSource.indexOf('/') == -1
     subtitleSource = 'http://localhost:' + root.portnum + '/' + subtitleSource
-  http_get.get({url: subtitleSource}, (err, dlData) ->
-    subtext = dlData.buffer
+  downloadSubtitleText(subtitleSource, (subtext) ->
     initializeSubtitleText(subtext, nlanguage, doneCallback)
   )
 
@@ -45,10 +46,14 @@ initializeSubtitleText = (subtitleText, nlanguage, doneCallback) ->
 downloadSubtitleText = (subtitleSource, callback) ->
   if subtitleSource.indexOf('/') == -1
     subtitleSource = 'http://localhost:' + root.portnum + '/' + subtitleSource
-  http_get.get({url: subtitleSource}, (err, dlData) ->
-    subtext = dlData.buffer
-    callback(subtext)
-  )
+  if cachedSubtitles[subtitleSource]?
+    callback(cachedSubtitles[subtitleSource])
+  else
+    http_get.get({url: subtitleSource}, (err, dlData) ->
+      subtext = dlData.buffer
+      cachedSubtitles[subtitleSource] = subtext
+      callback(subtext)
+    )
 
 getPrevDialogStartTime = (time, callback) ->
   time -= 1
@@ -229,13 +234,13 @@ getAnnotatedSubAtTimeChinese = (time, callback) ->
         continue
       if char == pinyin[idx..idx] or (char == '，' and pinyin[idx..idx] == ',') # punctuation
         endWord()
-        print 'punctuation:' + char + '|' + sub + '|' + time
+        #print 'punctuation:' + char + '|' + sub + '|' + time
         output.push([char, '', ''])
         ++idx
         continue
       if not cdict.wordLookup[char]?
         endWord()
-        print 'word lookup failed:' + char + '|' + sub + '|' + time
+        #print 'word lookup failed:' + char + '|' + sub + '|' + time
         output.push([char, '', ''])
         ++curSeekRange
         continue
@@ -289,7 +294,7 @@ getAnnotatedSubAtTimeChinese = (time, callback) ->
           if cpinyin == pinyinNoTone[nidx...nidx+cpinyin.length]
             havePinyinMatch()
       if not haveMatch
-        print 'could not match:' + char + '|' + sub + '|' + time
+        #print 'could not match:' + char + '|' + sub + '|' + time
         tpinyin = cdict.getPinyinForWord(char)
         ttranslation = cdict.getEnglishForWord(char)
         output.push([char, tpinyin, ttranslation])

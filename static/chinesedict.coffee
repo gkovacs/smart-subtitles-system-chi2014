@@ -80,10 +80,7 @@ class ChineseDict
 
   getPinyin: (sentence) ->
     wordList = this.getWordList(sentence)
-    print wordList
     nwordList = (this.getPinyinForWord(word) for word in wordList)
-    print nwordList
-    print nwordList.length
     return nwordList.join(' ')
 
   getWordList: (sentence) ->
