@@ -157,10 +157,14 @@ function flipPause() {
 
 function videoPlaying() {
 $('#playPauseButton').text('Pause (Space)')
+$('#prevLineButton').show()
+$('#nextLineButton').show()
 }
 
 function videoPaused() {
 $('#playPauseButton').text('Play (Space)')
+$('#prevLineButton').show()
+$('#nextLineButton').show()
 }
 
 $('body').click(function(x) {
@@ -219,6 +223,8 @@ function startPlayback() {
   $('#inputRegion').hide()
   $('#viewingRegion').show()
   if (subtitleText.indexOf('\n') == -1) { // this is a URL, not the subtitle text
+    if (subtitleText.indexOf('Loading subtitles from ') == 0)
+      subtitleText = subtitleText.substring('Loading subtitles from '.length)
     now.initializeSubtitle(subtitleText, subLanguage)
   } else { // this is the subtitle text
     now.initializeSubtitleText(subtitleText, subLanguage)
@@ -234,6 +240,8 @@ function loadVideo(videourl, suburl) {
   urlOrFileChanged()
   $('#videoInputURL').val(videourl)
   $('#subtitleInput').val('')
+  textChanged()
+  $('#subtitleInput').val('Loading subtitles from ' + suburl)
   now.downloadSubtitleText(suburl, function(subText) {
     $('#subtitleInput').val(subText)
     textChanged()

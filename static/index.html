@@ -9,7 +9,7 @@
 
 <div id='inputRegion' style='display:none;'>
 <h4>Instructions</h2>
-Provide a video (URL or local file), and Chinese subtitles (can be found for various videos <a href="http://shooter.cn/">here</a>), then press "Start Playing".<br/>
+Provide a video (URL or local file), and Chinese subtitles (<a href="http://shooter.cn/">see here</a>), then press "Start Playing".<br/>
 
 Here are some examples (click on button to fill in the form, then press "Start Playing"):<br/>
 <button onclick="loadShaoLin()">新少林寺</button>
@@ -30,9 +30,9 @@ Subtitle (<a href="http://en.wikipedia.org/wiki/SubRip#SubRip_text_file_format">
 <video controls="controls" autoplay="autoplay" id="videoControls" ontimeupdate="onTimeChanged(this)" onerror="onVideoError(this)" onplay="videoPlaying(this)" onpause="videoPaused(this)">
 </video>
 <br/>
-<span onclick="prevButtonPressed()" style="background-color: lightgreen">Prev Line (Ctrl⬅)</span>
-<span onclick="nextButtonPressed()" style="background-color: lightgreen">Next Line (Ctrl➡)</span>
-<span onclick="flipPause()" style="background-color: lightgreen" id="playPauseButton" ></span>
+<span onclick="prevButtonPressed()" style="background-color: lightgreen; display: none" id="prevLineButton">Prev Line (Ctrl⬅)</span>
+<span onclick="nextButtonPressed()" style="background-color: lightgreen; display: none" id="nextLineButton">Next Line (Ctrl➡)</span>
+<span onclick="flipPause()" style="background-color: lightgreen" id="playPauseButton" >Video loading, please wait</span>
 <br/><br/>
 <div id="pinyin" style="font-size: large"></div>
 <div id="caption"></div>
