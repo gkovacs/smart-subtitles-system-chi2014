@@ -35,6 +35,8 @@ class SubtitleRead
           awaitingTime = false
       else
         lineContents = (lineContents + ' ' + line).trim()
+    if lineContents != ''
+      timesAndSubtitles.push([startTime,endTime,lineContents])
     
     for triplet in timesAndSubtitles
       [startTime,endTime,lineContents] = triplet
