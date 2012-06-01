@@ -147,6 +147,22 @@ vid.pause()
 })
 */
 
+function flipPause() {
+  var vid = $('video')[0]
+  if (vid.paused)
+    vid.play()
+  else
+    vid.pause()
+}
+
+function videoPlaying() {
+$('#playPauseButton').text('Pause (Space)')
+}
+
+function videoPaused() {
+$('#playPauseButton').text('Play (Space)')
+}
+
 $('body').click(function(x) {
 var vid = $('video')[0]
 var mouseCoords = relMouseCoords(x, vid)
@@ -250,28 +266,10 @@ function textChanged() {
   }
 }
 
-function getUrlParameters() {
-var map = {};
-var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-map[key] = value;
-});
-return map; 
-}
-
-function videoError() {
-
-}
-
-$(document).ready(function() {
-$('#inputRegion').show()
-$('#videoInputFile').val('')
-textChanged()
-urlOrFileChanged()
-
-setInterval(function() {
-  var videoPlaybackError = $('video')[0].error
+function onVideoError(s) {
+  var videoPlaybackError = s.error
   if (videoPlaybackError) {
-    var videoSource = $('video')[0].src
+    var videoSource = s.src
     var errorMessage = ''
     if (videoPlaybackError.code == 0) errorMessage = 'MEDIA_ERR_ABORTED - fetching process aborted by user'
     if (videoPlaybackError.code == 1) errorMessage = 'MEDIA_ERR_NETWORK - error occurred when downloading'
@@ -280,8 +278,21 @@ setInterval(function() {
     var printableError =  JSON.stringify(videoPlaybackError, null, 4)
     $('#errorRegion').text('Error playing ' + videoSource + ': ' + errorMessage + ' ' + printableError)
   }
-}, 1000)
+}
 
+function getUrlParameters() {
+var map = {};
+var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+map[key] = value;
+});
+return map; 
+}
+
+$(document).ready(function() {
+$('#inputRegion').show()
+$('#videoInputFile').val('')
+textChanged()
+urlOrFileChanged()
 })
 
 now.ready(function() {

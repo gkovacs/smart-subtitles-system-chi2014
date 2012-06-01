@@ -27,11 +27,12 @@ Subtitle (<a href="http://en.wikipedia.org/wiki/SubRip#SubRip_text_file_format">
 
 <div id='viewingRegion' style='display:none;'>
 <div id="errorRegion" style="background-color: yellow"></div>
-<video controls="controls" autoplay="autoplay" id="videoControls" ontimeupdate="onTimeChanged(this)">
+<video controls="controls" autoplay="autoplay" id="videoControls" ontimeupdate="onTimeChanged(this)" onerror="onVideoError(this)" onplay="videoPlaying(this)" onpause="videoPaused(this)">
 </video>
 <br/>
 <span onclick="prevButtonPressed()" style="background-color: lightgreen">Prev Line (Ctrl⬅)</span>
 <span onclick="nextButtonPressed()" style="background-color: lightgreen">Next Line (Ctrl➡)</span>
+<span onclick="flipPause()" style="background-color: lightgreen" id="playPauseButton" ></span>
 <br/><br/>
 <div id="pinyin" style="font-size: large"></div>
 <div id="caption"></div>
