@@ -167,14 +167,15 @@ $('#prevLineButton').show()
 $('#nextLineButton').show()
 }
 
-$('body').click(function(x) {
+$(document).click(function(x) {
 var vid = $('video')[0]
 var mouseCoords = relMouseCoords(x, vid)
-if (mouseCoords.y > $('video').height() - 30 || mouseCoords.x > $('video').width()) return
+if (mouseCoords.y > $('video').height() - 30 || mouseCoords.x > $('video').width()) return true
 if (vid.paused)
   vid.play()
 else
   vid.pause()
+return false
 })
 
 function checkKey(x) {
@@ -184,22 +185,28 @@ function checkKey(x) {
       vid.play()
     else
       vid.pause()
+    x.preventDefault()
+    return false
   } else if (x.keyCode == 37) { // left arrow
     if (x.ctrlKey) {
       prevButtonPressed()
     } else {
       vid.currentTime -= 5
     }
+    x.preventDefault()
+    return false
   } else if (x.keyCode == 39) { // right arrow
     if (x.ctrlKey) {
       nextButtonPressed()
     } else {
       vid.currentTime += 5
     }
+    x.preventDefault()
+    return false
   }
 }
 
-$('body').keydown(checkKey)
+$(document).keydown(checkKey)
 
 function startPlayback() {
   if (isLocalFile()) {
