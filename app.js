@@ -34,21 +34,15 @@ app.configure(function(){
   app.use(express.static(__dirname + '/static'));
 });
 
+/*
 app.get('/', function (req, res) {
   res.render('index'); // Where index.ejs is your ejs template
 });
+*/
 
-everyone.now.getAnnotatedSubAtTime = aux.getAnnotatedSubAtTime
-
-everyone.now.getPrevDialogStartTime = aux.getPrevDialogStartTime
-
-everyone.now.getNextDialogStartTime = aux.getNextDialogStartTime
-
-everyone.now.initializeSubtitle = aux.initializeSubtitle
-
-everyone.now.initializeSubtitleText = aux.initializeSubtitleText
-
-everyone.now.downloadSubtitleText = aux.downloadSubtitleText
+nowjs.on("connect", function() {
+  aux.initializeUser(this)
+})
 
 /*
 everyone.now.getSubText = function(recSubCallback) {

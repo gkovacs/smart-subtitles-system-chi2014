@@ -17,9 +17,6 @@ cdict = new chinesedict.ChineseDict(dictText)
 jdictText = fs.readFileSync('static/edict2_full.txt', 'utf8')
 jdict = new japanesedict.JapaneseDict(jdictText)
 
-subtext = ''
-subtitleGetter = {}
-
 redis = require 'redis'
 client = redis.createClient()
 
@@ -30,302 +27,307 @@ language = 'zh'
 
 cachedSubtitles = {}
 
-initializeSubtitle = (subtitleSource, nlanguage, doneCallback) ->
-  if subtitleSource.indexOf('/') == -1
-    subtitleSource = 'http://localhost:' + root.portnum + '/' + subtitleSource
-  downloadSubtitleText(subtitleSource, (subtext) ->
-    initializeSubtitleText(subtext, nlanguage, doneCallback)
-  )
+root.initializeUser = (nuser) ->
 
-initializeSubtitleText = (subtitleText, nlanguage, doneCallback) ->
-  language = nlanguage
-  subtitleGetter = new subtitleread.SubtitleRead(subtitleText)
-  if doneCallback?
-    doneCallback()
+  subtext = ''
+  subtitleGetter = {}
 
-downloadSubtitleText = (subtitleSource, callback) ->
-  if subtitleSource.indexOf('/') == -1
-    subtitleSource = 'http://localhost:' + root.portnum + '/' + subtitleSource
-  if cachedSubtitles[subtitleSource]?
-    callback(cachedSubtitles[subtitleSource])
-  else
-    http_get.get({url: subtitleSource}, (err, dlData) ->
-      subtext = dlData.buffer
-      cachedSubtitles[subtitleSource] = subtext
-      callback(subtext)
+  initializeSubtitle = (subtitleSource, nlanguage, doneCallback) ->
+    if subtitleSource.indexOf('/') == -1
+      subtitleSource = 'http://localhost:' + root.portnum + '/' + subtitleSource
+    downloadSubtitleText(subtitleSource, (subtext) ->
+      initializeSubtitleText(subtext, nlanguage, doneCallback)
     )
 
-getPrevDialogStartTime = (time, callback) ->
-  time -= 1
-  while time > 0
-    prevsub = subtitleGetter.subtitleAtTime(time-1)
-    cursub = subtitleGetter.subtitleAtTime(time)
-    if cursub? and cursub != '' and prevsub != cursub
-      break
-    --time
-  if time < 0
-    time = 0
-  callback(time)
+  initializeSubtitleText = (subtitleText, nlanguage, doneCallback) ->
+    language = nlanguage
+    subtitleGetter = new subtitleread.SubtitleRead(subtitleText)
+    if doneCallback?
+      doneCallback()
 
-getNextDialogStartTime = (time, callback) ->
-  origSub = subtitleGetter.subtitleAtTime(time)
-  ++time
-  while time < subtitleGetter.lastStartTime
-    nextsub = subtitleGetter.subtitleAtTime(time+1)
-    cursub = subtitleGetter.subtitleAtTime(time)
-    if cursub? and cursub != '' and cursub != origSub and nextsub != cursub
-      break
-    ++time
-  if time >= subtitleGetter.lastStartTime
+  downloadSubtitleText = (subtitleSource, callback) ->
+    if subtitleSource.indexOf('/') == -1
+      subtitleSource = 'http://localhost:' + root.portnum + '/' + subtitleSource
+    if cachedSubtitles[subtitleSource]?
+      callback(cachedSubtitles[subtitleSource])
+    else
+      http_get.get({url: subtitleSource}, (err, dlData) ->
+        subtext = dlData.buffer
+        cachedSubtitles[subtitleSource] = subtext
+        callback(subtext)
+      )
+
+  getPrevDialogStartTime = (time, callback) ->
+    time -= 1
+    while time > 0
+      prevsub = subtitleGetter.subtitleAtTime(time-1)
+      cursub = subtitleGetter.subtitleAtTime(time)
+      if cursub? and cursub != '' and prevsub != cursub
+        break
+      --time
+    if time < 0
+      time = 0
     callback(time)
-    return
-  while time > 0
-    prevsub = subtitleGetter.subtitleAtTime(time-1)
-    cursub = subtitleGetter.subtitleAtTime(time)
-    if cursub? and cursub != '' and prevsub != cursub
-      break
-    --time
-  if time < 0
-    time = 0
-  callback(time)
 
-fixPinyin = (pinyin) ->
-  pinyin = pinyin.toLowerCase()
-  # substitutions for errors in Google's pinyin service
-  ft = ["'"]
-  dt = ['']
-  return pinyinutils.replaceAllList(pinyin, ft, dt)
+  getNextDialogStartTime = (time, callback) ->
+    origSub = subtitleGetter.subtitleAtTime(time)
+    ++time
+    while time < subtitleGetter.lastStartTime
+      nextsub = subtitleGetter.subtitleAtTime(time+1)
+      cursub = subtitleGetter.subtitleAtTime(time)
+      if cursub? and cursub != '' and cursub != origSub and nextsub != cursub
+        break
+      ++time
+    if time >= subtitleGetter.lastStartTime
+      callback(time)
+      return
+    while time > 0
+      prevsub = subtitleGetter.subtitleAtTime(time-1)
+      cursub = subtitleGetter.subtitleAtTime(time)
+      if cursub? and cursub != '' and prevsub != cursub
+        break
+      --time
+    if time < 0
+      time = 0
+    callback(time)
 
-lookupDataForWord = (word) ->
-  return [word, cdict.getPinyinForWord(word), cdict.getEnglishForWord(word)]
+  fixPinyin = (pinyin) ->
+    pinyin = pinyin.toLowerCase()
+    # substitutions for errors in Google's pinyin service
+    ft = ["'"]
+    dt = ['']
+    return pinyinutils.replaceAllList(pinyin, ft, dt)
 
-groupWordsFast = (wordsWithPinyinAndTrans) ->
-  if wordsWithPinyinAndTrans.length == 0
-    return []
-  curWordData = wordsWithPinyinAndTrans[0]
-  for i in [1...wordsWithPinyinAndTrans.length]
-    proposedWordChars = curWordData[0] + wordsWithPinyinAndTrans[i][0]
-    proposedWordData = lookupDataForWord(proposedWordChars)
-    if proposedWordData[2] != ''
-      curWordData = proposedWordData
-    else
-      output.push(curWordData)
-      curWordData = wordsWithPinyinAndTrans[i]
-  output.push(curWordData)
-  return output
+  lookupDataForWord = (word) ->
+    return [word, cdict.getPinyinForWord(word), cdict.getEnglishForWord(word)]
 
-groupWordsLong = (wordsWithPinyinAndTrans) ->
-  longestStartWord = (remainingList) ->
-    if cdict.getPinyinForWord(remainingList.join('')) != ''
-      return remainingList
-    if remainingList.length == 1
-      return remainingList
-    return longestStartWord(remainingList[0...remainingList.length-1])
-  wordsOrig = (x[0] for x in wordsWithPinyinAndTrans)
-  words = []
-  i = 0
-  while i < wordsOrig.length
-    nextWord = longestStartWord(wordsOrig[i..])
-    words.push(nextWord.join(''))
-    i += nextWord.length
-
-  # words is a flat list of words; turn it into [word,pinyin,english] list
-  output = []
-  wordsOrigToData = {}
-  for x in wordsWithPinyinAndTrans
-    wordsOrigToData[x[0]] = x
-  for x in words
-    if wordsOrigToData[x]?
-      output.push(wordsOrigToData[x])
-    else
-      output.push(lookupDataForWord(x))
-  return output
-
-groupWordsLongPreservingPinyin = (wordsWithPinyinAndTrans) ->
-  longestStartWord = (remainingList) ->
-    pinyinForRemaining = pinyinutils.removeToneMarks(cdict.getPinyinForWord((x[0] for x in remainingList).join('')).split(' ').join('').toLowerCase())
-    origPinyinForRemaining = pinyinutils.removeToneMarks((x[1] for x in remainingList).join('').split(' ').join('').toLowerCase())
-    if pinyinForRemaining == origPinyinForRemaining
-      return remainingList
-    if remainingList.length == 1
-      return remainingList
-    return longestStartWord(remainingList[0...remainingList.length-1])
-  wordsOrig = wordsWithPinyinAndTrans
-  words = []
-  i = 0
-  while i < wordsOrig.length
-    nextWord = (x[0] for x in longestStartWord(wordsOrig[i..]))
-    words.push(nextWord.join(''))
-    i += nextWord.length
-
-  # words is a flat list of words; turn it into [word,pinyin,english] list
-  output = []
-  wordsOrigToData = {}
-  for x in wordsWithPinyinAndTrans
-    wordsOrigToData[x[0]] = x
-  for x in words
-    if wordsOrigToData[x]?
-      output.push(wordsOrigToData[x])
-    else
-      output.push(lookupDataForWord(x))
-  return output
-
-fixSegmentation = (wordsWithPinyinAndTrans) ->
-  output = []
-  # ensure everything is in dictionary
-  for [word,pinyin,english] in wordsWithPinyinAndTrans
-    if not english or english == ''
-      wordsList = cdict.getWordList(word)
-      allPinyin = pinyin.split(' ')
-      wordIdx = 0
-      for cword in wordsList
-        cpinyin = allPinyin[wordIdx...wordIdx+cword.length].join(' ')
-        cenglish = cdict.getEnglishForWordAndPinyin(cword, cpinyin)
-        output.push([cword, cpinyin, cenglish])
-        wordIdx += cword.length
-    else
-      output.push([word,pinyin,english])
-  return output
-
-getAnnotatedSubAtTime = (time, callback) ->
-  if language == 'zh'
-    getAnnotatedSubAtTimeChinese(time, callback)
-  if language == 'ja'
-    getAnnotatedSubAtTimeJapanese(time, callback)
-
-getAnnotatedSubAtTimeJapanese = (time, callback) ->
-  sub = subtitleGetter.subtitleAtTime(time)
-  if not sub? or sub == ''
-    callback([])
-  jdict.getGlossForSentence(sub, callback)
-  
-
-getAnnotatedSubAtTimeChinese = (time, callback) ->
-  sub = subtitleGetter.subtitleAtTime(time)
-  if not sub? or sub == ''
-    callback([])
-    return
-  processPinyin = (pinyin) ->
-    #print pinyin
-    #print sub
-    havePinyin = pinyin.length > 0
-    pinyin = fixPinyin(pinyin)
-    pinyinNoTone = pinyinutils.removeToneMarks(pinyin)
-    curPinyinWord = []
-    words = []
-    idx = 0
-    curWord = []
-    # how many characters to seek forward for a match in the pinyin
-    defSeekRange = 3
-    misSeekRange = 10
-    curSeekRange = defSeekRange
-    output = []
-    
-    endWord = ->
-      tword = curWord.join('')
-      tpinyin = curPinyinWord.join(' ')
-      ttranslation = cdict.getEnglishForWordAndPinyin(tword, tpinyin)
-      output.push([tword, tpinyin, ttranslation])
-      curWord = []
-      curPinyinWord = []
-    
-    for char in sub
-      if char.trim() == ''
-        continue
-      if char == pinyin[idx..idx] or (char == '，' and pinyin[idx..idx] == ',') # punctuation
-        endWord()
-        #print 'punctuation:' + char + '|' + sub + '|' + time
-        output.push([char, '', ''])
-        ++idx
-        continue
-      if not cdict.wordLookup[char]?
-        endWord()
-        #print 'word lookup failed:' + char + '|' + sub + '|' + time
-        output.push([char, '', ''])
-        ++curSeekRange
-        continue
-      haveMatch = false
-      for fidx in [0..curSeekRange]
-        if haveMatch
-          break
-        nidx = idx + fidx
-        havePinyinMatch = ->
-          idx = nidx
-          haveMatch = true
-          curWord.push(char)
-          curPinyinWord.push(pinyin[idx...idx+cpinyin.length])
-          idx += cpinyin.length
-          if idx >= pinyin.length or pinyin[idx] == ' ' # end of word
-            endWord()
-        for [cpinyin,english] in cdict.wordLookup[char]
-          if haveMatch
-            break
-          if cpinyin == pinyin[nidx...nidx+cpinyin.length]
-            havePinyinMatch()
-            break
-        for [cpinyin,english] in cdict.wordLookup[char]
-          if haveMatch
-            break
-          cpinyin = pinyinutils.removeToneMarks(cpinyin)
-          if cpinyin == pinyin[nidx...nidx+cpinyin.length]
-            havePinyinMatch()
-        for [cpinyin,english] in cdict.wordLookup[char]
-          if haveMatch
-            break
-          cpinyin = cpinyin.toLowerCase()
-          if cpinyin == pinyin[nidx...nidx+cpinyin.length]
-            havePinyinMatch()
-        for [cpinyin,english] in cdict.wordLookup[char]
-          if haveMatch
-            break
-          cpinyin = pinyinutils.removeToneMarks(cpinyin.toLowerCase())
-          if cpinyin == pinyin[nidx...nidx+cpinyin.length]
-            havePinyinMatch()
-        for [cpinyin,english] in cdict.wordLookup[char]
-          if haveMatch
-            break
-          cpinyin = pinyinutils.removeToneMarks(cpinyin)
-          if cpinyin == pinyinNoTone[nidx...nidx+cpinyin.length]
-            havePinyinMatch()
-        for [cpinyin,english] in cdict.wordLookup[char]
-          if haveMatch
-            break
-          cpinyin = pinyinutils.removeToneMarks(cpinyin.toLowerCase())
-          if cpinyin == pinyinNoTone[nidx...nidx+cpinyin.length]
-            havePinyinMatch()
-      if not haveMatch
-        #print 'could not match:' + char + '|' + sub + '|' + time
-        tpinyin = cdict.getPinyinForWord(char)
-        ttranslation = cdict.getEnglishForWord(char)
-        output.push([char, tpinyin, ttranslation])
-        curSeekRange = misSeekRange
-        continue
+  groupWordsFast = (wordsWithPinyinAndTrans) ->
+    if wordsWithPinyinAndTrans.length == 0
+      return []
+    curWordData = wordsWithPinyinAndTrans[0]
+    for i in [1...wordsWithPinyinAndTrans.length]
+      proposedWordChars = curWordData[0] + wordsWithPinyinAndTrans[i][0]
+      proposedWordData = lookupDataForWord(proposedWordChars)
+      if proposedWordData[2] != ''
+        curWordData = proposedWordData
       else
-        curSeekRange = defSeekRange
-    output = fixSegmentation(output)
-    if not havePinyin
-      output = groupWordsLong(output)
-    else
-      output = groupWordsLongPreservingPinyin(output)
-    callback(output)
+        output.push(curWordData)
+        curWordData = wordsWithPinyinAndTrans[i]
+    output.push(curWordData)
+    return output
 
-  client.get('pinyin|' + sub, (err, rpinyin) ->
-    if rpinyin? and rpinyin != ''
-      processPinyin(rpinyin)
-    else
-      print 'not in redis:' + sub
-      processPinyin('')
-      #getpinyin.getPinyin(sub, (npinyin) ->
-      #  processPinyin
-      #)
-  )
+  groupWordsLong = (wordsWithPinyinAndTrans) ->
+    longestStartWord = (remainingList) ->
+      if cdict.getPinyinForWord(remainingList.join('')) != ''
+        return remainingList
+      if remainingList.length == 1
+        return remainingList
+      return longestStartWord(remainingList[0...remainingList.length-1])
+    wordsOrig = (x[0] for x in wordsWithPinyinAndTrans)
+    words = []
+    i = 0
+    while i < wordsOrig.length
+      nextWord = longestStartWord(wordsOrig[i..])
+      words.push(nextWord.join(''))
+      i += nextWord.length
 
-root.getAnnotatedSubAtTime = getAnnotatedSubAtTime
-root.getPrevDialogStartTime = getPrevDialogStartTime
-root.getNextDialogStartTime = getNextDialogStartTime
-root.initializeSubtitle = initializeSubtitle
-root.initializeSubtitleText = initializeSubtitleText
-root.downloadSubtitleText = downloadSubtitleText
+    # words is a flat list of words; turn it into [word,pinyin,english] list
+    output = []
+    wordsOrigToData = {}
+    for x in wordsWithPinyinAndTrans
+      wordsOrigToData[x[0]] = x
+    for x in words
+      if wordsOrigToData[x]?
+        output.push(wordsOrigToData[x])
+      else
+        output.push(lookupDataForWord(x))
+    return output
+
+  groupWordsLongPreservingPinyin = (wordsWithPinyinAndTrans) ->
+    longestStartWord = (remainingList) ->
+      pinyinForRemaining = pinyinutils.removeToneMarks(cdict.getPinyinForWord((x[0] for x in remainingList).join('')).split(' ').join('').toLowerCase())
+      origPinyinForRemaining = pinyinutils.removeToneMarks((x[1] for x in remainingList).join('').split(' ').join('').toLowerCase())
+      if pinyinForRemaining == origPinyinForRemaining
+        return remainingList
+      if remainingList.length == 1
+        return remainingList
+      return longestStartWord(remainingList[0...remainingList.length-1])
+    wordsOrig = wordsWithPinyinAndTrans
+    words = []
+    i = 0
+    while i < wordsOrig.length
+      nextWord = (x[0] for x in longestStartWord(wordsOrig[i..]))
+      words.push(nextWord.join(''))
+      i += nextWord.length
+
+    # words is a flat list of words; turn it into [word,pinyin,english] list
+    output = []
+    wordsOrigToData = {}
+    for x in wordsWithPinyinAndTrans
+      wordsOrigToData[x[0]] = x
+    for x in words
+      if wordsOrigToData[x]?
+        output.push(wordsOrigToData[x])
+      else
+        output.push(lookupDataForWord(x))
+    return output
+
+  fixSegmentation = (wordsWithPinyinAndTrans) ->
+    output = []
+    # ensure everything is in dictionary
+    for [word,pinyin,english] in wordsWithPinyinAndTrans
+      if not english or english == ''
+        wordsList = cdict.getWordList(word)
+        allPinyin = pinyin.split(' ')
+        wordIdx = 0
+        for cword in wordsList
+          cpinyin = allPinyin[wordIdx...wordIdx+cword.length].join(' ')
+          cenglish = cdict.getEnglishForWordAndPinyin(cword, cpinyin)
+          output.push([cword, cpinyin, cenglish])
+          wordIdx += cword.length
+      else
+        output.push([word,pinyin,english])
+    return output
+
+  getAnnotatedSubAtTime = (time, callback) ->
+    if language == 'zh'
+      getAnnotatedSubAtTimeChinese(time, callback)
+    if language == 'ja'
+      getAnnotatedSubAtTimeJapanese(time, callback)
+
+  getAnnotatedSubAtTimeJapanese = (time, callback) ->
+    sub = subtitleGetter.subtitleAtTime(time)
+    if not sub? or sub == ''
+      callback([])
+    jdict.getGlossForSentence(sub, callback)
+    
+
+  getAnnotatedSubAtTimeChinese = (time, callback) ->
+    sub = subtitleGetter.subtitleAtTime(time)
+    if not sub? or sub == ''
+      callback([])
+      return
+    processPinyin = (pinyin) ->
+      #print pinyin
+      #print sub
+      havePinyin = pinyin.length > 0
+      pinyin = fixPinyin(pinyin)
+      pinyinNoTone = pinyinutils.removeToneMarks(pinyin)
+      curPinyinWord = []
+      words = []
+      idx = 0
+      curWord = []
+      # how many characters to seek forward for a match in the pinyin
+      defSeekRange = 3
+      misSeekRange = 10
+      curSeekRange = defSeekRange
+      output = []
+      
+      endWord = ->
+        tword = curWord.join('')
+        tpinyin = curPinyinWord.join(' ')
+        ttranslation = cdict.getEnglishForWordAndPinyin(tword, tpinyin)
+        output.push([tword, tpinyin, ttranslation])
+        curWord = []
+        curPinyinWord = []
+      
+      for char in sub
+        if char.trim() == ''
+          continue
+        if char == pinyin[idx..idx] or (char == '，' and pinyin[idx..idx] == ',') # punctuation
+          endWord()
+          #print 'punctuation:' + char + '|' + sub + '|' + time
+          output.push([char, '', ''])
+          ++idx
+          continue
+        if not cdict.wordLookup[char]?
+          endWord()
+          #print 'word lookup failed:' + char + '|' + sub + '|' + time
+          output.push([char, '', ''])
+          ++curSeekRange
+          continue
+        haveMatch = false
+        for fidx in [0..curSeekRange]
+          if haveMatch
+            break
+          nidx = idx + fidx
+          havePinyinMatch = ->
+            idx = nidx
+            haveMatch = true
+            curWord.push(char)
+            curPinyinWord.push(pinyin[idx...idx+cpinyin.length])
+            idx += cpinyin.length
+            if idx >= pinyin.length or pinyin[idx] == ' ' # end of word
+              endWord()
+          for [cpinyin,english] in cdict.wordLookup[char]
+            if haveMatch
+              break
+            if cpinyin == pinyin[nidx...nidx+cpinyin.length]
+              havePinyinMatch()
+              break
+          for [cpinyin,english] in cdict.wordLookup[char]
+            if haveMatch
+              break
+            cpinyin = pinyinutils.removeToneMarks(cpinyin)
+            if cpinyin == pinyin[nidx...nidx+cpinyin.length]
+              havePinyinMatch()
+          for [cpinyin,english] in cdict.wordLookup[char]
+            if haveMatch
+              break
+            cpinyin = cpinyin.toLowerCase()
+            if cpinyin == pinyin[nidx...nidx+cpinyin.length]
+              havePinyinMatch()
+          for [cpinyin,english] in cdict.wordLookup[char]
+            if haveMatch
+              break
+            cpinyin = pinyinutils.removeToneMarks(cpinyin.toLowerCase())
+            if cpinyin == pinyin[nidx...nidx+cpinyin.length]
+              havePinyinMatch()
+          for [cpinyin,english] in cdict.wordLookup[char]
+            if haveMatch
+              break
+            cpinyin = pinyinutils.removeToneMarks(cpinyin)
+            if cpinyin == pinyinNoTone[nidx...nidx+cpinyin.length]
+              havePinyinMatch()
+          for [cpinyin,english] in cdict.wordLookup[char]
+            if haveMatch
+              break
+            cpinyin = pinyinutils.removeToneMarks(cpinyin.toLowerCase())
+            if cpinyin == pinyinNoTone[nidx...nidx+cpinyin.length]
+              havePinyinMatch()
+        if not haveMatch
+          #print 'could not match:' + char + '|' + sub + '|' + time
+          tpinyin = cdict.getPinyinForWord(char)
+          ttranslation = cdict.getEnglishForWord(char)
+          output.push([char, tpinyin, ttranslation])
+          curSeekRange = misSeekRange
+          continue
+        else
+          curSeekRange = defSeekRange
+      output = fixSegmentation(output)
+      if not havePinyin
+        output = groupWordsLong(output)
+      else
+        output = groupWordsLongPreservingPinyin(output)
+      callback(output)
+
+    client.get('pinyin|' + sub, (err, rpinyin) ->
+      if rpinyin? and rpinyin != ''
+        processPinyin(rpinyin)
+      else
+        print 'not in redis:' + sub
+        processPinyin('')
+        #getpinyin.getPinyin(sub, (npinyin) ->
+        #  processPinyin
+        #)
+    )
+
+  nuser.now.getAnnotatedSubAtTime = getAnnotatedSubAtTime
+  nuser.now.getPrevDialogStartTime = getPrevDialogStartTime
+  nuser.now.getNextDialogStartTime = getNextDialogStartTime
+  nuser.now.initializeSubtitle = initializeSubtitle
+  nuser.now.initializeSubtitleText = initializeSubtitleText
+  nuser.now.downloadSubtitleText = downloadSubtitleText
 
 main = ->
   # shaolin
