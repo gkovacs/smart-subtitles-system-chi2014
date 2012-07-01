@@ -18,15 +18,36 @@ getPinyin = (text, callback) ->
     pinyin = stdout.split('","')[2]
     pinyin = escapeUnicodeEncoded(pinyin)
     client.set('pinyin|' + text, pinyin)
-    callback(pinyin)
+    callback(text, pinyin)
+  )
+
+lastPinyinFetchTimestamp = 0
+
+getPinyinRateLimited = (text, callback) ->
+  timestamp = Math.round((new Date()).getTime() / 1000)
+  if lastPinyinFetchTimestamp + 1 >= timestamp
+    setTimeout(() ->
+      getPinyinRateLimited(text, callback)
+    , 1000)
+  else
+    lastPinyinFetchTimestamp = timestamp
+    getPinyin(text, callback)
+
+getPinyinRateLimitedCached = (text, callback) ->
+  client.get('pinyin|' + text, (err, reply) ->
+    if reply?
+      callback(text, reply)
+    else
+      getPinyinRateLimited(text, callback)
   )
 
 root.getPinyin = getPinyin
+root.getPinyinRateLimitedCached = getPinyinRateLimitedCached
 
 main = ->
   text = process.argv[2]
   print text
-  getPinyin(text, (pinyin) ->    
+  getPinyinRateLimitedCached(text, (ntext, pinyin) ->
     print pinyin
   )
 

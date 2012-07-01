@@ -8,10 +8,7 @@ subtitleread = require './static/subtitleread'
 redis = require 'redis'
 client = redis.createClient()
 
-subtext = fs.readFileSync(process.argv[2], 'utf8')
-subtitleGetter = new subtitleread.SubtitleRead(subtext)
-keys = ('pinyin|' + x[2] for x in subtitleGetter.timesAndSubtitles)
-
+###
 processRedisReplies = (err, replies) ->
   keysToFetch = []
   for reply,i in replies
@@ -31,8 +28,18 @@ processRedisReplies = (err, replies) ->
     )
     ++i
   , 2500)
+###
 
 main = ->
-  client.mget(keys, processRedisReplies)
+  #client.mget(keys, processRedisReplies)
+  subtext = fs.readFileSync(process.argv[2], 'utf8')
+  subtitleGetter = new subtitleread.SubtitleRead(subtext)
+  textlist = (x[2] for x in subtitleGetter.timesAndSubtitles)
+
+  for text in textlist
+    getpinyin.getPinyinRateLimitedCached(text, (ntext, pinyin) ->
+      print ntext
+      print pinyin
+    )
 
 main() if require.main is module

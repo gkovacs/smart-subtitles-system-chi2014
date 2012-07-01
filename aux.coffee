@@ -44,6 +44,11 @@ root.initializeUser = (nuser) ->
     subtitleGetter = new subtitleread.SubtitleRead(subtitleText)
     if doneCallback?
       doneCallback()
+    textlist = (x[2] for x in subtitleGetter.timesAndSubtitles)
+    for text in textlist
+      getpinyin.getPinyinRateLimitedCached(text, (ntext, pinyin) ->
+        return
+      )
 
   downloadSubtitleText = (subtitleSource, callback) ->
     if subtitleSource.indexOf('/') == -1
