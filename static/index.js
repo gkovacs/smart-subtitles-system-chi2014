@@ -279,6 +279,16 @@ function urlOrFileChanged() {
   }
 }
 
+function subtitleUploaded() {
+var reader = new FileReader()
+reader.onloadend = function( ){
+  $('#subtitleInput').val(reader.result)
+  textChanged()
+}
+var srtfile = $('#srtInputFile')[0].files[0]
+reader.readAsText(srtfile)
+}
+
 function textChanged() {
   if (isLocalFile()) {
     if ($('#videoInputFile').val() && $('#subtitleInput').val()) {
