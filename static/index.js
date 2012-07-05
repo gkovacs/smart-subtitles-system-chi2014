@@ -1,6 +1,8 @@
 sub = {}
 //cdict = {}
 
+subLanguage = 'zh'
+
 function prevButtonPressed() {
   var vid = $('video')[0]
   vid.pause()
@@ -25,7 +27,11 @@ $('.'+ word).hover(function() {
   vid.pause()
   $('.hoverable').css('background-color', '')
   $('.'+ word).css('background-color', 'yellow')
-  $('#translation').text(hovertext)
+  if (subLanguage == 'en') {
+    $('#translation').html(hovertext)
+  } else {
+    $('#translation').text(hovertext)
+  }
 })
 }
 
@@ -67,6 +73,9 @@ for (var j = 0; j < pinyinWords.length; ++j) {
 }
 var pinyinspan = '<td style="font-size: large; text-align: center;" class="' + randid + ' hoverable">' + coloredSpans.join(' ') + '</td>'
 var wordspan = '<td style="font-size: xx-large" class="' + randid + ' hoverable">' + word + '</td>'
+if (word == ' ') {
+  wordspan = '<td style="font-size: xx-small">　</td>'
+}
 
 pinyinRow.push(pinyinspan)
 wordRow.push(wordspan)
@@ -226,7 +235,6 @@ function startPlayback() {
     $('video')[0].src = videoSource
   }
   var subtitleText = $('#subtitleInput').val().trim()
-  var subLanguage = 'zh'
   $('#inputRegion').hide()
   $('#viewingRegion').show()
   if (subtitleText.indexOf('\n') == -1) { // this is a URL, not the subtitle text
@@ -352,6 +360,8 @@ $('#supportedVideoFormats').html(supportedFormats.join(' or ') + ' format')
 
 now.ready(function() {
 var urlParams = getUrlParameters()
+if (urlParams['lang'] != null)
+  subLanguage = urlParams['lang']
 if (urlParams['video'] != null && urlParams['sub'] != null) {
   var videoSource = 'shaolin.m4v'
   if (urlParams['video'] != null)
@@ -360,12 +370,11 @@ if (urlParams['video'] != null && urlParams['sub'] != null) {
   var subSource = 'shaolin.srt'
   if (urlParams['sub'] != null)
     subSource = urlParams['sub']
-  var subLanguage = 'zh'
-  if (urlParams['lang'] != null)
-    subLanguage = urlParams['lang']
-  $('#viewingRegion').hide()
-  $('#viewingRegion').show()
-  now.initializeSubtitle(subSource, subLanguage)  
+  callOnceMethodAvailable('initializeSubtitle', function() {
+    $('#inputRegion').hide()
+    $('#viewingRegion').show()
+    now.initializeSubtitle(subSource, subLanguage)
+  })
   return
 }
 

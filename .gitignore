@@ -1,11 +1,13 @@
 *.avi
 *.mp4
 *.m4v
+*.webm
 *.srt
 *~
 aux.js
-static/chinesedict.js
 static/pinyinutils.js
+static/client.js
 static/cedict_full.txt
 static/edict2_full.txt
 static/examplevids.js
+

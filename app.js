@@ -11,7 +11,7 @@ var app = express.createServer();
 var coffeescript = require('coffee-script')
 var subtitleread = require('./static/subtitleread')
 var chinesedict = require('./static/chinesedict')
-var aux = require('./aux.js')
+var aux = require('./aux')
 
 var nowjs = require('now')
 var everyone = nowjs.initialize(app);
