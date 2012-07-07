@@ -4,17 +4,17 @@ print = console.log
 applyToneToVowel = (vowel, num) ->
   --num
   if vowel == 'a'
-    return ['ā', 'á', 'ǎ', 'à', 'a'][num]
+    return 'āáǎàa'[num]
   if vowel == 'i'
-    return ['ī', 'í', 'ǐ', 'ì', 'i'][num]
+    return 'īíǐìi'[num]
   if vowel == 'e'
-    return ['ē', 'é', 'ě', 'è', 'e'][num]
+    return 'ēéěèe'[num]
   if vowel == 'o'
-    return ['ō', 'ó', 'ǒ', 'ò', 'o'][num]
+    return 'ōóǒòo'[num]
   if vowel == 'u'
-    return ['ū', 'ú', 'ǔ', 'ù', 'u'][num]
+    return 'ūúǔùu'[num]
   if vowel == 'ü'
-    return ['ǖ', 'ǘ', 'ǚ', 'ǜ', 'ü'][num]
+    return 'ǖǘǚǜü'[num]
 
 getToneNumber = (word) ->
   for c in word
@@ -31,17 +31,17 @@ getToneNumber = (word) ->
 removeToneMarks = (word) ->
   output = []
   for c in word
-    if c in ['ā', 'á', 'ǎ', 'à', 'a']
+    if c in 'āáǎàa'
       output.push('a')
-    else if c in ['ī', 'í', 'ǐ', 'ì', 'i']
+    else if c in 'īíǐìi'
       output.push('i')
-    else if c in ['ē', 'é', 'ě', 'è', 'e']
+    else if c in 'ēéěèe'
       output.push('e')
-    else if c in ['ō', 'ó', 'ǒ', 'ò', 'o']
+    else if c in 'ōóǒòo'
       output.push('o')
-    else if c in ['ū', 'ú', 'ǔ', 'ù', 'u']
+    else if c in 'ūúǔùu'
       output.push('u')
-    else if c in ['ǖ', 'ǘ', 'ǚ', 'ǜ', 'ü']
+    else if c in 'ǖǘǚǜü'
       output.push('ü')
     else
       output.push(c)

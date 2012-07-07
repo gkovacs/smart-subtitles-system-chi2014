@@ -1,6 +1,8 @@
 sub = {}
 //cdict = {}
 
+audioQueue = []
+
 subLanguage = 'zh'
 
 function prevButtonPressed() {
@@ -35,14 +37,43 @@ $('.'+ wordid).hover(function() {
 })
 }
 
-function setClickPronounce(wordid, word) {
+function nextAudioItem() {
+  console.log(audioQueue)
+  if (audioQueue.length > 0) {
+    $('audio')[0].src = audioQueue.pop()
+    $('audio')[0].play()
+  }
+}
+
+function setClickPronounceEN(wordid, word) {
 $('.'+ wordid).click(function() {
   var vid = $('video')[0]
   vid.pause()
   now.getPrononciation(word.toLowerCase(), function(nword, prononc, prurl) {
     $('.'+wordid+'.pinyinspan').html(prononc)
-    $('#pronounceWidget').html('<audio controls="" autoplay="autoplay"><source src="' + prurl + '" type="audio/mpeg" /></audio>')
+    audioQueue = [prurl]
+    nextAudioItem()
   })
+})
+}
+
+function setClickPronounceZH(wordid, pinyin) {
+$('.'+ wordid).click(function() {
+  var vid = $('video')[0]
+  vid.pause()
+  var nqueue = []
+  var pinyinWords = pinyin.split(' ')
+  for (var i = 0; i < pinyinWords.length; ++i) {
+    var piny = pinyinWords[i].toLowerCase()
+    var tonenum = getToneNumber(piny)
+    if (tonenum == 5)
+      tonenum = 1
+    var notonemark = removeToneMarks(piny) + tonenum
+    nqueue.push('http://transgame.csail.mit.edu/pinyin/' + notonemark + '.mp3')
+  }
+  nqueue.reverse()
+  audioQueue = nqueue
+  nextAudioItem()
 })
 }
 
@@ -102,11 +133,14 @@ $('#caption').html(nhtml.join(''))
 
 for (var i = 0; i < annotatedWordList.length; ++i) {
   var word = annotatedWordList[i][0]
+  var pinyin = annotatedWordList[i][1]
   var english = annotatedWordList[i][2]
   var randid = wordToId[word]
   setHoverTrans(randid, english)
   if (subLanguage == 'en') {
-    setClickPronounce(randid, word)
+    setClickPronounceEN(randid, word)
+  } else if (subLanguage == 'zh') {
+    setClickPronounceZH(randid, pinyin)
   }
 }
 
@@ -387,6 +421,8 @@ if (urlParams['video'] != null && urlParams['sub'] != null) {
   callOnceMethodAvailable('initializeSubtitle', function() {
     $('#inputRegion').hide()
     $('#viewingRegion').show()
+    console.log(subSource)
+    
     now.initializeSubtitle(subSource, subLanguage)
   })
   return
