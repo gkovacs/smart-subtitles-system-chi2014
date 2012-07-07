@@ -21,17 +21,28 @@ function nextButtonPressed() {
   })
 }
 
-function setHoverTrans(word, hovertext) {
-$('.'+ word).hover(function() {
+function setHoverTrans(wordid, hovertext) {
+$('.'+ wordid).hover(function() {
   var vid = $('video')[0]
   vid.pause()
   $('.hoverable').css('background-color', '')
-  $('.'+ word).css('background-color', 'yellow')
+  $('.'+ wordid).css('background-color', 'yellow')
   if (subLanguage == 'en') {
     $('#translation').html(hovertext)
   } else {
     $('#translation').text(hovertext)
   }
+})
+}
+
+function setClickPronounce(wordid, word) {
+$('.'+ wordid).click(function() {
+  var vid = $('video')[0]
+  vid.pause()
+  now.getPrononciation(word.toLowerCase(), function(nword, prononc, prurl) {
+    $('.'+wordid+'.pinyinspan').html(prononc)
+    $('#pronounceWidget').html('<audio controls="" autoplay="autoplay"><source src="' + prurl + '" type="audio/mpeg" /></audio>')
+  })
 })
 }
 
@@ -71,8 +82,8 @@ for (var j = 0; j < pinyinWords.length; ++j) {
   var tonecolor = ['red', '#AE5100', 'green', 'blue', 'black'][getToneNumber(curWord)-1]
   coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord + '</span>')
 }
-var pinyinspan = '<td style="font-size: large; text-align: center;" class="' + randid + ' hoverable">' + coloredSpans.join(' ') + '</td>'
-var wordspan = '<td style="font-size: xx-large" class="' + randid + ' hoverable">' + word + '</td>'
+var pinyinspan = '<td style="font-size: large; text-align: center;" class="' + randid + ' hoverable pinyinspan">' + coloredSpans.join(' ') + '</td>'
+var wordspan = '<td style="font-size: xx-large" class="' + randid + ' hoverable wordspan">' + word + '</td>'
 if (word == ' ') {
   wordspan = '<td style="font-size: xx-small">　</td>'
 }
@@ -90,10 +101,13 @@ nhtml.push('</table>')
 $('#caption').html(nhtml.join(''))
 
 for (var i = 0; i < annotatedWordList.length; ++i) {
-var word = annotatedWordList[i][0]
-var english = annotatedWordList[i][2]
-var randid = wordToId[word]
-setHoverTrans(randid, english)
+  var word = annotatedWordList[i][0]
+  var english = annotatedWordList[i][2]
+  var randid = wordToId[word]
+  setHoverTrans(randid, english)
+  if (subLanguage == 'en') {
+    setClickPronounce(randid, word)
+  }
 }
 
 }

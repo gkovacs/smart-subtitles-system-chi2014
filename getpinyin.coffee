@@ -41,7 +41,7 @@ getPinyinRateLimitedCached = (text, callback) ->
       getPinyinRateLimited(text, callback)
   )
 
-root.getPinyin = getPinyin
+#root.getPinyin = getPinyin
 root.getPinyinRateLimitedCached = getPinyinRateLimitedCached
 
 main = ->

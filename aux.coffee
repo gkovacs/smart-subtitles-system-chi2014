@@ -26,6 +26,8 @@ client = redis.createClient()
 getpinyin = require './getpinyin'
 pinyinutils = require './static/pinyinutils'
 
+getprononciation = require './getprononciation'
+
 language = 'zh'
 
 cachedSubtitles = {}
@@ -348,6 +350,7 @@ root.initializeUser = (nuser) ->
   nuser.now.initializeSubtitle = initializeSubtitle
   nuser.now.initializeSubtitleText = initializeSubtitleText
   nuser.now.downloadSubtitleText = downloadSubtitleText
+  nuser.now.getPrononciation = getprononciation.getPrononciationRateLimitedCached
 
 main = ->
   # shaolin
