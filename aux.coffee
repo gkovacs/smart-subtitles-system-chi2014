@@ -9,6 +9,7 @@ http_get = require 'http-get'
 require 'coffee-script'
 
 subtitleread = require './static/subtitleread'
+subpread = require './static/subpread'
 chinesedict = require './static/chinesedict'
 japanesedict = require './static/japanesedict'
 englishdict = require './static/englishdict'
@@ -30,16 +31,15 @@ getprononciation = require './getprononciation'
 
 language = 'zh'
 
-cachedSubtitles = {}
-
 root.initializeUser = (nuser) ->
 
   subtext = ''
-  subtitleGetter = {}
+  subtitleGetter = null
+  subPixGetter = null
 
   initializeSubtitle = (subtitleSource, nlanguage, doneCallback) ->
-    if subtitleSource.indexOf('/') == -1
-      subtitleSource = 'http://localhost:' + root.portnum + '/' + subtitleSource
+    if (not subtitleSource?) or subtitleSource == ''
+      return
     downloadSubtitleText(subtitleSource, (subtext) ->
       initializeSubtitleText(subtext, nlanguage, doneCallback)
     )
@@ -49,24 +49,29 @@ root.initializeUser = (nuser) ->
     subtitleGetter = new subtitleread.SubtitleRead(subtitleText)
     if doneCallback?
       doneCallback()
-    if nlanguage == "zh"
-      textlist = (x[2] for x in subtitleGetter.timesAndSubtitles)
-      for text in textlist
-        getpinyin.getPinyinRateLimitedCached(text, (ntext, pinyin) ->
-          print "fetched pinyin for" + ntext + ":" + pinyin
-        )
+    #if nlanguage == "zh"
+    #  textlist = (x[2] for x in subtitleGetter.timesAndSubtitles)
+    #  for text in textlist
+    #    getpinyin.getPinyinRateLimitedCached(text, (ntext, pinyin) ->
+    #    )
+
+  initializeSubPix = (subPixSource) ->
+    if (not subPixSource?) or subPixSource == ''
+      return
+    downloadSubtitleText(subPixSource, (subPixText) ->
+      subPixDir = ''
+      if subPixSource.lastIndexOf('/') != -1
+        subPixDir = subPixSource[..subPixSource.lastIndexOf('/')]
+      subPixGetter = new subpread.SubpRead(subPixText, subPixDir)
+    )
 
   downloadSubtitleText = (subtitleSource, callback) ->
-    if subtitleSource.indexOf('/') == -1
+    if subtitleSource.indexOf('http://') == -1
       subtitleSource = 'http://localhost:' + root.portnum + '/' + subtitleSource
-    if cachedSubtitles[subtitleSource]?
-      callback(cachedSubtitles[subtitleSource])
-    else
-      http_get.get({url: subtitleSource}, (err, dlData) ->
-        subtext = dlData.buffer
-        cachedSubtitles[subtitleSource] = subtext
-        callback(subtext)
-      )
+    http_get.get({url: subtitleSource}, (err, dlData) ->
+      data = dlData.buffer
+      callback(data)
+    )
 
   getPrevDialogStartTime = (time, callback) ->
     time -= 1
@@ -199,6 +204,10 @@ root.initializeUser = (nuser) ->
       else
         output.push([word,pinyin,english])
     return output
+
+  getSubPixAtTime = (time, callback) ->
+    if subPixGetter?
+      callback(subPixGetter.subtitleAtTime(time))
 
   getAnnotatedSubAtTime = (time, callback) ->
     if language == 'zh'
@@ -345,10 +354,12 @@ root.initializeUser = (nuser) ->
     )
 
   nuser.now.getAnnotatedSubAtTime = getAnnotatedSubAtTime
+  nuser.now.getSubPixAtTime = getSubPixAtTime
   nuser.now.getPrevDialogStartTime = getPrevDialogStartTime
   nuser.now.getNextDialogStartTime = getNextDialogStartTime
   nuser.now.initializeSubtitle = initializeSubtitle
   nuser.now.initializeSubtitleText = initializeSubtitleText
+  nuser.now.initializeSubPix = initializeSubPix
   nuser.now.downloadSubtitleText = downloadSubtitleText
   nuser.now.getPrononciation = getprononciation.getPrononciationRateLimitedCached
 

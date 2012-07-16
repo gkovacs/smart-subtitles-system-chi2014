@@ -85,6 +85,12 @@ function getTransAndSetHover(word) {
 }
 */
 
+function setNewSubPix(subpixPath) {
+if (subpixPath == '')
+  subpixPath = 'blank.png'
+$('#subpDisplay').attr('src', subpixPath)
+}
+
 function setNewSubtitles(annotatedWordList) {
 //if (annotatedWordList.length == 0) return
 $('#translation').text('')
@@ -148,6 +154,7 @@ for (var i = 0; i < annotatedWordList.length; ++i) {
 
 function onTimeChanged(s) {
 now.getAnnotatedSubAtTime(Math.round(s.currentTime*10), setNewSubtitles)
+now.getSubPixAtTime(Math.round(s.currentTime*10), setNewSubPix)
 }
 
 /*
@@ -292,6 +299,10 @@ function startPlayback() {
   } else { // this is the subtitle text
     now.initializeSubtitleText(subtitleText, subLanguage)
   }
+  var subpixSource = getUrlParameters()['subpix']
+  if (subpixSource != null) {
+    now.initializeSubPix(subpixSource)
+  }
 }
 
 function isLocalFile() {
@@ -390,6 +401,7 @@ $('#inputErrorRegion').html('Your browser does not support MP4 video; please use
 
 $('#inputRegion').show()
 $('#videoInputFile').val('')
+$('#srtInputFile').val('')
 textChanged()
 urlOrFileChanged()
 
@@ -410,22 +422,29 @@ now.ready(function() {
 var urlParams = getUrlParameters()
 if (urlParams['lang'] != null)
   subLanguage = urlParams['lang']
-if (urlParams['video'] != null && urlParams['sub'] != null) {
-  var videoSource = 'shaolin.m4v'
+if (urlParams['video'] != null && (urlParams['sub'] != null || urlParams['subpix'] != null)) {
+  var videoSource = ''
   if (urlParams['video'] != null)
     videoSource = urlParams['video']
   $('video')[0].src = videoSource
-  var subSource = 'shaolin.srt'
+  var subSource = ''
   if (urlParams['sub'] != null)
     subSource = urlParams['sub']
+  var subPixSource = ''
+  if (urlParams['subpix'] != null)
+    subPixSource = urlParams['subpix']
   callOnceMethodAvailable('initializeSubtitle', function() {
     $('#inputRegion').hide()
     $('#viewingRegion').show()
     console.log(subSource)
-    
     now.initializeSubtitle(subSource, subLanguage)
   })
-  return
+  callOnceMethodAvailable('initializeSubPix', function() {
+    $('#inputRegion').hide()
+    $('#viewingRegion').show()
+    console.log(subPixSource)
+    now.initializeSubPix(subPixSource)
+  })
 }
 
 })
