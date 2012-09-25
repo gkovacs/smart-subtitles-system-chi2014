@@ -24,16 +24,30 @@ function nextButtonPressed() {
 }
 
 function setHoverTrans(wordid, hovertext) {
-$('.'+ wordid).hover(function() {
+$('.'+ wordid).mouseover(function() {
   var vid = $('video')[0]
   vid.pause()
-  $('.hoverable').css('background-color', '')
-  $('.'+ wordid).css('background-color', 'yellow')
+  //$('.hoverable').css('background-color', '')
+  var chineseChar = $('.'+ wordid + ':not(.pinyinspan)')
+  var pos = chineseChar.offset()
+  var width = chineseChar.width()
+  var height = chineseChar.height()
+  $($('.'+ wordid)).css('background-color', 'yellow')
+  $('#translation').appendTo(chineseChar)
+  $('#translation').css({'left': (pos.left) + 'px', 'top': (pos.top + height + 10) + 'px', 'position': 'fixed', }).show()
+  $('#translationTriangle').appendTo(chineseChar)
+  $('#translationTriangle').css({'left': (pos.left) + 'px', 'top': (pos.top + height) + 'px', 'position': 'fixed', }).show()
+  //$('.'+ wordid).css()
   if (subLanguage == 'en') {
     $('#translation').html(hovertext)
   } else {
     $('#translation').text(hovertext)
   }
+})
+$('.'+ wordid).mouseout(function() {
+  $($('.'+ wordid)).css('background-color', '')
+  $('#translation').text('')
+  $('#translationTriangle').hide()
 })
 }
 
@@ -121,7 +135,7 @@ for (var j = 0; j < pinyinWords.length; ++j) {
   coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord + '</span>')
 }
 var pinyinspan = '<td style="font-size: large; text-align: center;" class="' + randid + ' hoverable pinyinspan">' + coloredSpans.join(' ') + '</td>'
-var wordspan = '<td style="font-size: xx-large" class="' + randid + ' hoverable wordspan">' + word + '</td>'
+var wordspan = '<td style="font-size: xx-large; text-align: center;" class="' + randid + ' hoverable wordspan">' + word + '</td>'
 if (word == ' ') {
   wordspan = '<td style="font-size: xx-small">　</td>'
 }
