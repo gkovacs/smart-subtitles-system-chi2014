@@ -92,6 +92,7 @@ $('#subpDisplay').attr('src', subpixPath)
 }
 
 function setNewSubtitles(annotatedWordList) {
+console.log(annotatedWordList.toString())
 //if (annotatedWordList.length == 0) return
 $('#translation').text('')
 var nhtml = []
@@ -394,58 +395,4 @@ map[key] = value;
 return map; 
 }
 
-$(document).ready(function() {
-if (!Modernizr.video || !Modernizr.video.h264) {
-$('#inputErrorRegion').html('Your browser does not support MP4 video; please use <a href="http://www.google.com/chrome">Chrome</a>')
-}
-
-$('#inputRegion').show()
-$('#videoInputFile').val('')
-$('#srtInputFile').val('')
-textChanged()
-urlOrFileChanged()
-
-var supportedFormats = []
-if (Modernizr.video.h264) {
-supportedFormats.push('<a href="http://en.wikipedia.org/wiki/M4V">MP4</a>')
-}
-if (Modernizr.video.webm) {
-supportedFormats.push('<a href="http://en.wikipedia.org/wiki/WebM">WebM</a>')
-}
-if (supportedFormats.length > 0) {
-$('#supportedVideoFormats').html(supportedFormats.join(' or ') + ' format')
-}
-
-})
-
-now.ready(function() {
-var urlParams = getUrlParameters()
-if (urlParams['lang'] != null)
-  subLanguage = urlParams['lang']
-if (urlParams['video'] != null && (urlParams['sub'] != null || urlParams['subpix'] != null)) {
-  var videoSource = ''
-  if (urlParams['video'] != null)
-    videoSource = urlParams['video']
-  $('video')[0].src = videoSource
-  var subSource = ''
-  if (urlParams['sub'] != null)
-    subSource = urlParams['sub']
-  var subPixSource = ''
-  if (urlParams['subpix'] != null)
-    subPixSource = urlParams['subpix']
-  callOnceMethodAvailable('initializeSubtitle', function() {
-    $('#inputRegion').hide()
-    $('#viewingRegion').show()
-    console.log(subSource)
-    now.initializeSubtitle(subSource, subLanguage)
-  })
-  callOnceMethodAvailable('initializeSubPix', function() {
-    $('#inputRegion').hide()
-    $('#viewingRegion').show()
-    console.log(subPixSource)
-    now.initializeSubPix(subPixSource)
-  })
-}
-
-})
 

@@ -13,63 +13,12 @@
 <script type="text/javascript" src="index.js"></script>
 <script type="text/javascript" src="examplevids.js"></script>
 <script type="text/javascript">
-
 $(document).ready(function() {
-if (!Modernizr.video || !Modernizr.video.h264) {
-$('#inputErrorRegion').html('Your browser does not support MP4 video; please use <a href="http://www.google.com/chrome">Chrome</a>')
-}
-
-$('#inputRegion').show()
-$('#videoInputFile').val('')
-$('#srtInputFile').val('')
-textChanged()
-urlOrFileChanged()
-
-var supportedFormats = []
-if (Modernizr.video.h264) {
-supportedFormats.push('<a href="http://en.wikipedia.org/wiki/M4V">MP4</a>')
-}
-if (Modernizr.video.webm) {
-supportedFormats.push('<a href="http://en.wikipedia.org/wiki/WebM">WebM</a>')
-}
-if (supportedFormats.length > 0) {
-$('#supportedVideoFormats').html(supportedFormats.join(' or ') + ' format')
-}
-
-})
-
-now.ready(function() {
-var urlParams = getUrlParameters()
-if (urlParams['lang'] != null)
-  subLanguage = urlParams['lang']
-if (urlParams['video'] != null && (urlParams['sub'] != null || urlParams['subpix'] != null)) {
-  var videoSource = ''
-  if (urlParams['video'] != null)
-    videoSource = urlParams['video']
-  $('video')[0].src = videoSource
-  var subSource = ''
-  if (urlParams['sub'] != null)
-    subSource = urlParams['sub']
-  var subPixSource = ''
-  if (urlParams['subpix'] != null)
-    subPixSource = urlParams['subpix']
-  callOnceMethodAvailable('initializeSubtitle', function() {
-    $('#inputRegion').hide()
-    $('#viewingRegion').show()
-    console.log(subSource)
-    now.initializeSubtitle(subSource, subLanguage)
-  })
-  callOnceMethodAvailable('initializeSubPix', function() {
-    $('#inputRegion').hide()
-    $('#viewingRegion').show()
-    console.log(subPixSource)
-    now.initializeSubPix(subPixSource)
-  })
-}
-
+  $('#inputRegion').hide()
+  $('#viewingRegion').show()
+  setNewSubtitles([['天际','tiān jì','horizon'],['又一次','yòu yī cì','yet again/once again/once more'],['在','zài','(located) at/(to be) in/to exist/in the middle of doing sth/(indicating an action in progress)'],['哭泣','kū qì','to weep']])
 })
 </script>
-
 <div id='inputRegion' style='display:none;'>
 <div style="position: fixed; top: 0; right: 0; text-align: right; font-size: small"><i>Contact: <a href="http://gkovacs.github.com">Geza Kovacs</a></i></div>
 <div id="inputErrorRegion" style="background-color: yellow"></div>
