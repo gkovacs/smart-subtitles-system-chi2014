@@ -1,10 +1,10 @@
 root = exports ? this
 print = console.log
 
-root.portnum = 3000
-
 fs = require 'fs'
 http_get = require 'http-get'
+
+root.portnum = 3000
 
 require 'coffee-script'
 
@@ -209,6 +209,14 @@ root.initializeUser = (nuser) ->
     if subPixGetter?
       callback(subPixGetter.subtitleAtTime(time))
 
+  getFullAnnotatedSub = (callback) ->
+    if language == 'zh'
+      getFullAnnotatedSubChinese(callback)
+    if language == 'ja'
+      getFullAnnotatedSubJapanese(callback)
+    if language == 'en'
+      getFullAnnotatedSubEnglish(callback)
+
   getAnnotatedSubAtTime = (time, callback) ->
     if language == 'zh'
       getAnnotatedSubAtTimeChinese(time, callback)
@@ -233,11 +241,7 @@ root.initializeUser = (nuser) ->
     jdict.getGlossForSentence(sub, callback)
     
 
-  getAnnotatedSubAtTimeChinese = (time, callback) ->
-    sub = subtitleGetter.subtitleAtTime(time)
-    if not sub? or sub == ''
-      callback([])
-      return
+  getGlossChinese = (sub, callback) ->
     processPinyin = (pinyin) ->
       #print pinyin
       #print sub
@@ -353,7 +357,29 @@ root.initializeUser = (nuser) ->
         #)
     )
 
+  getAnnotatedSubAtTimeChinese = (time, callback) ->
+    sub = subtitleGetter.subtitleAtTime(time)
+    if not sub? or sub == ''
+      callback([])
+      return
+    getGlossChinese(sub, callback)
+
+  getFullAnnotatedSubChinese = (callback) ->
+    allSubLines = subtitleGetter.getTimesAndSubtitles()
+    annotatedSubLines = []
+    console.log 'getting full annotated sub'
+    await
+      for i in [0...allSubLines.length]
+        getGlossChinese(allSubLines[i][2], defer(annotatedSubLines[i]))
+    console.log 'finished getting full annotated sub'
+    timesAndAnnotatedSubLines = []
+    for i in [0...allSubLines.length]
+      timesAndAnnotatedSubLines[i] = [allSubLines[i][0], allSubLines[i][1], annotatedSubLines[i]]
+    callback(timesAndAnnotatedSubLines)
+
+
   nuser.now.getAnnotatedSubAtTime = getAnnotatedSubAtTime
+  nuser.now.getFullAnnotatedSub = getFullAnnotatedSub
   nuser.now.getSubPixAtTime = getSubPixAtTime
   nuser.now.getPrevDialogStartTime = getPrevDialogStartTime
   nuser.now.getNextDialogStartTime = getNextDialogStartTime

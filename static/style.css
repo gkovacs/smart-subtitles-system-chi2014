@@ -1,0 +1,13 @@
+#translationTriangle {
+  width: 0px;
+  height: 0px;
+  border-style: solid;
+  border-width: 0 10px 10px 10px;
+  border-color: transparent transparent #007bff transparent;
+}
+
+#translation {
+  border-style: solid;
+  border-width: 3px 0px 0px 0px;
+  border-color: #007bff transparent transparent transparent;
+}

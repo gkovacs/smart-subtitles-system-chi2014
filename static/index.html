@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<link rel="stylesheet" href="style.css">
+
+<style type="text/css">
+</style>
+
 </head>
 <body style="font-family: 'Arial', sans-serif;">
 <script type="text/javascript" src="/nowjs/now.js"></script>
@@ -57,7 +62,10 @@ if (urlParams['video'] != null && (urlParams['sub'] != null || urlParams['subpix
     $('#inputRegion').hide()
     $('#viewingRegion').show()
     console.log(subSource)
-    now.initializeSubtitle(subSource, subLanguage)
+    //now.initializeSubtitle(subSource, subLanguage)
+    now.initializeSubtitle(subSource, subLanguage, function() {
+      now.getFullAnnotatedSub(setNewSubtitleList)
+    })
   })
   callOnceMethodAvailable('initializeSubPix', function() {
     $('#inputRegion').hide()
@@ -82,7 +90,7 @@ Here are some examples (click on button to fill in the form, then press "Start V
 <button onclick="loadWoHuCangLongSim()">卧虎藏龙（简体字）</button>
 <button onclick="loadWoHuCangLong()">卧虎藏龙（繁体字）</button><br/>
 -->
-<h4>Specify Video and Subtitle</h2>
+<h4>Specify Video and Subtitle</h4>
 Video (<span id="supportedVideoFormats">Your browser doesn't support video, use <a href="http://www.google.com/chrome">Chrome</a></span>)
 <select id="urlOrFile" onchange="urlOrFileChanged()">
   <option value="file" >Local File</option>
@@ -99,20 +107,25 @@ Subtitle (<a href="http://en.wikipedia.org/wiki/SubRip#SubRip_text_file_format">
 </div>
 
 <div id='viewingRegion' style='display:none;'>
-<div id="errorRegion" style="background-color: yellow"></div>
-<video controls="controls" autoplay="autoplay" id="videoControls" ontimeupdate="onTimeChanged(this)" onerror="onVideoError(this)" onplay="videoPlaying(this)" onpause="videoPaused(this)" onfocus="this.blur()">
-</video>
+<div id="errorRegion" style="background-color: yellow" align="center"></div>
+<div align="center"><video controls="controls" id="videoControls" ontimeupdate="onTimeChanged(this)" onerror="onVideoError(this)" onplay="videoPlaying(this)" onpause="videoPaused(this)" onfocus="this.blur()">
+</video></div>
 <br/>
+<!--<div align="center">
 <span onclick="prevButtonPressed()" style="background-color: lightgreen; display: none" id="prevLineButton">Prev Line (Ctrl⬅)</span>
 <span onclick="nextButtonPressed()" style="background-color: lightgreen; display: none" id="nextLineButton">Next Line (Ctrl➡)</span>
 <span onclick="flipPause()" style="background-color: lightgreen" id="playPauseButton" >Video loading, please wait</span>
-<br/><br/>
-<div id='subpRegion'><img id='subpDisplay'></img></div>
+</div>-->
+<div id='subpRegion' align="center"><img id='subpDisplay'></img></div>
+<div align="center">
 <div id="pinyin" style="font-size: large"></div>
 <div id="caption"></div>
+<div id="translationTriangle" style="display: none"></div>
 <div id="translation" style="font-size: medium; display: none"></div>
 <div id="pronounceWidget" style="display: none"><audio onended="nextAudioItem()" onerror="nextAudioItem()" controls=""></audio></div>
+</div>
 </div>
 
 </body>
 </html>
+

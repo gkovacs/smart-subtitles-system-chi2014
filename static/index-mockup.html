@@ -18,16 +18,33 @@
 <script type="text/javascript" src="index.js"></script>
 <script type="text/javascript" src="examplevids.js"></script>
 <script type="text/javascript">
+/*
 $(document).ready(function() {
   $('#inputRegion').hide()
   $('#viewingRegion').show()
   setNewSubtitles([['天际','tiān jì','horizon'],['又一次','yòu yī cì','yet again/once again/once more'],['在','zài','(located) at/(to be) in/to exist/in the middle of doing sth/(indicating an action in progress)'],['哭泣','kū qì','to weep']])
 })
+*/
+
+now.ready(function() {
+  var subSource = 'shaolin_sim.srt'
+  var videoSource = 'shaolin.m4v'
+  var subLanguage = 'zh'
+  $('video')[0].src = videoSource
+  callOnceMethodAvailable('initializeSubtitle', function() {
+    $('#inputRegion').hide()
+    $('#viewingRegion').show()
+    //console.log(subSource)
+    now.initializeSubtitle(subSource, subLanguage, function() {
+      now.getFullAnnotatedSub(setNewSubtitleList)
+    })
+  })
+})
 </script>
 <div id='inputRegion' style='display:none;'>
 <div style="position: fixed; top: 0; right: 0; text-align: right; font-size: small"><i>Contact: <a href="http://gkovacs.github.com">Geza Kovacs</a></i></div>
 <div id="inputErrorRegion" style="background-color: yellow"></div>
-<h4>Instructions</h2>
+<h4>Instructions</h4>
 Provide a video (URL or local file), and Chinese subtitles (<a href="http://shooter.cn/">see here</a>), then press "Start Video".<br/>
 <!--
 Here are some examples (click on button to fill in the form, then press "Start Video"):<br/>
@@ -36,7 +53,7 @@ Here are some examples (click on button to fill in the form, then press "Start V
 <button onclick="loadWoHuCangLongSim()">卧虎藏龙（简体字）</button>
 <button onclick="loadWoHuCangLong()">卧虎藏龙（繁体字）</button><br/>
 -->
-<h4>Specify Video and Subtitle</h2>
+<h4>Specify Video and Subtitle</h4>
 Video (<span id="supportedVideoFormats">Your browser doesn't support video, use <a href="http://www.google.com/chrome">Chrome</a></span>)
 <select id="urlOrFile" onchange="urlOrFileChanged()">
   <option value="file" >Local File</option>
@@ -53,20 +70,23 @@ Subtitle (<a href="http://en.wikipedia.org/wiki/SubRip#SubRip_text_file_format">
 </div>
 
 <div id='viewingRegion' style='display:none;'>
-<div id="errorRegion" style="background-color: yellow"></div>
-<video controls="controls" autoplay="autoplay" id="videoControls" ontimeupdate="onTimeChanged(this)" onerror="onVideoError(this)" onplay="videoPlaying(this)" onpause="videoPaused(this)" onfocus="this.blur()">
-</video>
+<div id="errorRegion" style="background-color: yellow" align="center"></div>
+<div align="center"><video controls="controls" id="videoControls" ontimeupdate="onTimeChanged(this)" onerror="onVideoError(this)" onplay="videoPlaying(this)" onpause="videoPaused(this)" onfocus="this.blur()">
+</video></div>
 <br/>
+<!--<div align="center">
 <span onclick="prevButtonPressed()" style="background-color: lightgreen; display: none" id="prevLineButton">Prev Line (Ctrl⬅)</span>
 <span onclick="nextButtonPressed()" style="background-color: lightgreen; display: none" id="nextLineButton">Next Line (Ctrl➡)</span>
 <span onclick="flipPause()" style="background-color: lightgreen" id="playPauseButton" >Video loading, please wait</span>
-<br/><br/>
-<div id='subpRegion'><img id='subpDisplay'></img></div>
+</div>-->
+<div id='subpRegion' align="center"><img id='subpDisplay'></img></div>
+<div align="center">
 <div id="pinyin" style="font-size: large"></div>
 <div id="caption"></div>
 <div id="translationTriangle" style="display: none"></div>
 <div id="translation" style="font-size: medium; display: none"></div>
 <div id="pronounceWidget" style="display: none"><audio onended="nextAudioItem()" onerror="nextAudioItem()" controls=""></audio></div>
+</div>
 </div>
 
 </body>

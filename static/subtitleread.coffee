@@ -49,6 +49,9 @@ class SubtitleRead
     @timesAndSubtitles = timesAndSubtitles
     @lastStartTime = lastStartTime
 
+  getTimesAndSubtitles: () ->
+    return @timesAndSubtitles
+
   subtitleAtTime: (deciSec) ->
     retv = this.timeToSubtitle[deciSec]
     if retv

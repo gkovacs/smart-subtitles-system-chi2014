@@ -8,7 +8,7 @@ var express = require('express')
 var ejs = require('ejs')
 var app = express.createServer();
 
-var coffeescript = require('coffee-script')
+var coffeescript = require('iced-coffee-script')
 var subtitleread = require('./static/subtitleread')
 var chinesedict = require('./static/chinesedict')
 var aux = require('./aux')

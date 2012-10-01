@@ -24,31 +24,38 @@ function nextButtonPressed() {
 }
 
 function setHoverTrans(wordid, hovertext) {
-$('.'+ wordid).mouseover(function() {
+$('.'+ wordid).hover(function() {
   var vid = $('video')[0]
   vid.pause()
-  //$('.hoverable').css('background-color', '')
+  $('.currentlyHighlighted').css('background-color', '')
+  $('.currentlyHighlighted').removeClass('currentlyHighlighted')
   var chineseChar = $('.'+ wordid + ':not(.pinyinspan)')
   var pos = chineseChar.offset()
   var width = chineseChar.width()
   var height = chineseChar.height()
   $($('.'+ wordid)).css('background-color', 'yellow')
-  $('#translation').appendTo(chineseChar)
-  $('#translation').css({'left': (pos.left) + 'px', 'top': (pos.top + height + 10) + 'px', 'position': 'fixed', }).show()
-  $('#translationTriangle').appendTo(chineseChar)
-  $('#translationTriangle').css({'left': (pos.left) + 'px', 'top': (pos.top + height) + 'px', 'position': 'fixed', }).show()
+  $($('.'+ wordid)).addClass('currentlyHighlighted')
+  //$('#translation').appendTo(chineseChar)
+  $('#translation').css({'left': (pos.left) + 'px', 'top': (pos.top + height + 10) + 'px', 'position': 'absolute', }).show()
+  //$('#translationTriangle').appendTo(chineseChar)
+  $('#translationTriangle').css({'left': (pos.left) + 'px', 'top': (pos.top + height) + 'px', 'position': 'absolute', }).show()
   //$('.'+ wordid).css()
   if (subLanguage == 'en') {
     $('#translation').html(hovertext)
   } else {
+    if (hovertext.indexOf('/') != -1) {
+      hovertext = hovertext.slice(0, hovertext.indexOf('/'))
+    }
     $('#translation').text(hovertext)
   }
 })
+/*
 $('.'+ wordid).mouseout(function() {
   $($('.'+ wordid)).css('background-color', '')
   $('#translation').text('')
   $('#translationTriangle').hide()
 })
+*/
 }
 
 function nextAudioItem() {
@@ -106,10 +113,45 @@ $('#subpDisplay').attr('src', subpixPath)
 }
 
 function setNewSubtitles(annotatedWordList) {
-console.log(annotatedWordList.toString())
+  setNewSubtitleList([[0, 1, annotatedWordList]])
+}
+
+prevDialogNum = 0
+
+dialogStartTimesDeciSeconds = []
+
+function gotoDialog(dialogNum) {
+  gotoDialogNoVidSeek(dialogNum)
+  $('video')[0].currentTime = dialogStartTimesDeciSeconds[dialogNum] / 10
+}
+
+function gotoDialogNoVidSeek(dialogNum) {
+  if (dialogNum < 0 || dialogNum >= dialogStartTimesDeciSeconds.length) return
+  $('#dialogStart' + prevDialogNum).css('background-color', 'black')
+  //$('#dialogStartPY' + prevDialogNum).css('background-color', 'black')
+  $('#dialogStart' + dialogNum).css('background-color', 'darkgreen')
+  //$('#dialogStartPY' + dialogNum).css('background-color', 'darkgreen')
+  prevDialogNum = dialogNum
+  var offset = $('#dialogStart' + dialogNum).offset()
+  var width = $('#dialogStart' + dialogNum).width()
+  var videoOffset = $('video').offset()
+  var videoWidth = $('video').width()
+  offset.top = videoOffset.top
+  //offset.left -= Math.round(videoWidth/2)
+  //offset.left += Math.round(width/2)
+  //offset.left = Math.max(0, offset.left)
+  $('video').offset(offset)
+  window.scroll(offset.left - Math.round(videoWidth/2))
+}
+
+function setNewSubtitleList(annotatedWordListList) {
+//console.log(annotatedWordList.toString())
 //if (annotatedWordList.length == 0) return
+$('#translationTriangle').hide()
 $('#translation').text('')
 var nhtml = []
+
+dialogStartTimesDeciSeconds = []
 
 var wordToId = {}
 
@@ -118,6 +160,22 @@ nhtml.push('<table border="0" cellspacing="0">')
 var pinyinRow = []
 var wordRow = []
 
+pinyinRow.push('<td style="display:-moz-inline-box;display:inline-block;width:' + $('video').offset().left + 'px;"></td>')
+wordRow.push('<td style="display:-moz-inline-box;display:inline-block;width:' + $('video').offset().left + 'px;"></td>')
+
+for (var q = 0; q < annotatedWordListList.length; ++q) {
+var startTimeDeciSeconds = annotatedWordListList[q][0]
+dialogStartTimesDeciSeconds[q] = startTimeDeciSeconds
+var startHMS = toHourMinSec(Math.round(startTimeDeciSeconds/10))
+var annotatedWordList = annotatedWordListList[q][2]
+
+//console.log(annotatedWordList)
+
+pinyinRow.push('<td id="dialogStartPY' + q + '" style="background-color: white; color: black; text-align: center; font-size: medium" onclick="gotoDialog(' + q + ')"></td>')
+wordRow.push('<td id="dialogStart' + q + '" style="background-color: black; color: white; text-align: center; font-size: xx-large" onclick="gotoDialog(' + q + ')">' +
+    //startHMS[0] + ':' + startHMS[1] + ':' + startHMS[2] +
+    '▶▶</td>')
+
 for (var i = 0; i < annotatedWordList.length; ++i) {
 var word = annotatedWordList[i][0]
 var pinyin = annotatedWordList[i][1]
@@ -125,7 +183,8 @@ var english = annotatedWordList[i][2]
 
 if (wordToId[word] == null)
   wordToId[word] = Math.round(Math.random() * 1000000)
-var randid = wordToId[word]
+//var randid = wordToId[word]
+var randid = 'wid_q_' + q + '_i_' + i
 
 coloredSpans = []
 var pinyinWords = pinyin.split(' ')
@@ -134,14 +193,19 @@ for (var j = 0; j < pinyinWords.length; ++j) {
   var tonecolor = ['red', '#AE5100', 'green', 'blue', 'black'][getToneNumber(curWord)-1]
   coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord + '</span>')
 }
-var pinyinspan = '<td style="font-size: large; text-align: center;" class="' + randid + ' hoverable pinyinspan">' + coloredSpans.join(' ') + '</td>'
-var wordspan = '<td style="font-size: xx-large; text-align: center;" class="' + randid + ' hoverable wordspan">' + word + '</td>'
+var pinyinspan = '<td nowrap="nowrap" style="font-size: large; text-align: center" class="' + randid + ' hoverable pinyinspan" onclick="gotoDialog(' + q + ')">' + coloredSpans.join(' ') + '</td>'
+var wordspan = '<td nowrap="nowrap" style="font-size: xx-large; text-align: center" class="' + randid + ' hoverable wordspan" onclick="gotoDialog(' + q + ')">' + word + '</td>'
 if (word == ' ') {
   wordspan = '<td style="font-size: xx-small">　</td>'
 }
 
 pinyinRow.push(pinyinspan)
 wordRow.push(wordspan)
+
+}
+
+pinyinRow.push('<td style="display:-moz-inline-box;display:inline-block;width:50px;"></td>')
+wordRow.push('<td style="display:-moz-inline-box;display:inline-block;width:50px;"></td>')
 
 }
 
@@ -152,24 +216,41 @@ nhtml.push('</table>')
 
 $('#caption').html(nhtml.join(''))
 
+
+for (var q = 0; q < annotatedWordListList.length; ++q) {
+var annotatedWordList = annotatedWordListList[q][2]
 for (var i = 0; i < annotatedWordList.length; ++i) {
   var word = annotatedWordList[i][0]
   var pinyin = annotatedWordList[i][1]
   var english = annotatedWordList[i][2]
-  var randid = wordToId[word]
-  setHoverTrans(randid, english)
+  //var randid = wordToId[word]
+  var randid = 'wid_q_' + q + '_i_' + i
+  //setHoverTrans(randid, english)
   if (subLanguage == 'en') {
     setClickPronounceEN(randid, word)
   } else if (subLanguage == 'zh') {
-    setClickPronounceZH(randid, pinyin)
+    //setClickPronounceZH(randid, pinyin)
   }
+}
 }
 
 }
 
 function onTimeChanged(s) {
-now.getAnnotatedSubAtTime(Math.round(s.currentTime*10), setNewSubtitles)
-now.getSubPixAtTime(Math.round(s.currentTime*10), setNewSubPix)
+  var targetTimeDeciSecs = Math.round(s.currentTime*10)
+  var lidx = 0
+  var ridx = dialogStartTimesDeciSeconds.length-1
+  while (lidx < ridx+1) {
+    var midx = Math.floor((lidx + ridx)/2)
+    var ctime = dialogStartTimesDeciSeconds[midx]
+    if (ctime > targetTimeDeciSecs)
+      ridx = midx - 1
+    else
+      lidx = midx + 1
+  }
+  gotoDialogNoVidSeek(ridx)
+//now.getAnnotatedSubAtTime(Math.round(s.currentTime*10), setNewSubtitles)
+//now.getSubPixAtTime(Math.round(s.currentTime*10), setNewSubPix)
 }
 
 /*
@@ -310,9 +391,15 @@ function startPlayback() {
   if (subtitleText.indexOf('\n') == -1) { // this is a URL, not the subtitle text
     if (subtitleText.indexOf('Loading subtitles from ') == 0)
       subtitleText = subtitleText.substring('Loading subtitles from '.length)
-    now.initializeSubtitle(subtitleText, subLanguage)
+    //now.initializeSubtitle(subtitleText, subLanguage)
+    now.initializeSubtitle(subtitleText, subLanguage, function() {
+      now.getFullAnnotatedSub(setNewSubtitleList)
+    })
   } else { // this is the subtitle text
-    now.initializeSubtitleText(subtitleText, subLanguage)
+    //now.initializeSubtitleText(subtitleText, subLanguage)
+    now.initializeSubtitleText(subtitleText, subLanguage, function() {
+      now.getFullAnnotatedSub(setNewSubtitleList)
+    })
   }
   var subpixSource = getUrlParameters()['subpix']
   if (subpixSource != null) {
@@ -408,5 +495,3 @@ map[key] = value;
 });
 return map; 
 }
-
-
