@@ -145,18 +145,21 @@ function gotoDialogNoVidSeek(dialogNum) {
   //$('#dialogStart' + dialogNum).css('background-color', 'darkgreen')
   //$('#dialogStartPY' + dialogNum).css('background-color', 'darkgreen')
   prevDialogNum = dialogNum
-  var offset = $('#dialogStart' + dialogNum).offset()
-  var width = $('#dialogStart' + dialogNum).width()
-  var videoOffset = $('video').offset()
-  var videoWidth = $('video')[0].videoWidth
-  offset.top = videoOffset.top
-  offset.left -= Math.round(videoWidth/4)
+  var offset = $('#dialogStartSpaceWS' + dialogNum).offset()
+  var width = $('#dialogEndSpaceWS' + dialogNum).offset().left - $('#dialogStartSpaceWS' + dialogNum).offset().left
+  //var videoOffset = $('video').offset()
+  //var videoWidth = $('video')[0].videoWidth
+  //offset.top = videoOffset.top
+  //offset.left -= Math.round(videoWidth/4)
+  
   //offset.left -= Math.round(videoWidth/2)
   //offset.left += Math.round(width/2)
   //offset.left = Math.max(0, offset.left)
-  $('video').offset(offset)
+  
+  //$('video').offset(offset)
+  
   //window.scroll($('video').offset().left - Math.round(videoWidth/2))
-  window.scroll(offset.left - Math.round(videoWidth/2))
+  window.scroll(offset.left - Math.round($(window).width()/2) + Math.round(width/2))
 
   
   var annotatedWordList = annotatedWordListListG[dialogNum][2]
@@ -193,7 +196,13 @@ dialogStartTimesDeciSeconds = []
 
 var wordToId = {}
 
-nhtml.push('<table border="0" cellspacing="0">')
+var videoOffset = $('video').offset()
+videoOffset.left = Math.round($(window).width()/2 - $('video')[0].videoWidth/2)
+$('video').offset(videoOffset)
+
+//$('video').css('left', Math.round($(window).width()/2 - $('video')[0].videoWidth/2).toString())
+
+nhtml.push('<table border="0" cellspacing="0" style="position: relative; top: ' + ($('video').offset().top + $('video')[0].videoHeight) + 'px">')
 
 var pinyinRow = []
 var wordRow = []
@@ -209,8 +218,8 @@ var annotatedWordList = annotatedWordListList[q][2]
 
 //console.log(annotatedWordList)
 
-pinyinRow.push('<td id="dialogStartPY' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" onclick="gotoDialog(' + q + ')"></td>')
-wordRow.push('<td id="dialogStart' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" onclick="gotoDialog(' + q + ')">　</td>')
+pinyinRow.push('<td id="dialogStartSpacePYS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" class="spacingPYS" onclick="gotoDialog(' + q + ')"></td>')
+wordRow.push('<td id="dialogStartSpaceWS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" class="spacingWS" onclick="gotoDialog(' + q + ')">　</td>')
 
 for (var i = 0; i < annotatedWordList.length; ++i) {
 var word = annotatedWordList[i][0]
@@ -230,7 +239,7 @@ for (var j = 0; j < pinyinWords.length; ++j) {
   coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord + '</span>')
 }
 var pinyinspan = '<td nowrap="nowrap" style="font-size: 18px; text-align: center;" class="' + randid + ' hoverable pinyinspan pys' + q + '" onclick="gotoDialog(' + q + ')">' + coloredSpans.join(' ') + '</td>'
-var wordspan = '<td nowrap="nowrap" style="font-size: 32px; text-align: center" class="' + randid + ' hoverable wordspan ws' + q + '" onclick="gotoDialog(' + q + ')">' + word + '</td>'
+var wordspan = '<td nowrap="nowrap" style="font-size: 32px; text-align: center;" class="' + randid + ' hoverable wordspan ws' + q + '" onclick="gotoDialog(' + q + ')">' + word + '</td>'
 if (word == ' ') {
   wordspan = '<td style="font-size: xx-small">　</td>'
 }
@@ -240,8 +249,8 @@ wordRow.push(wordspan)
 
 }
 
-pinyinRow.push('<td style="display:-moz-inline-box;display:inline-block;width:50px;"></td>')
-wordRow.push('<td style="display:-moz-inline-box;display:inline-block;width:50px;"></td>')
+pinyinRow.push('<td id="dialogEndSpacePYS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" class="spacingPYS" onclick="gotoDialog(' + q + ')"></td>')
+wordRow.push('<td id="dialogEndSpaceWS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" class="spacingWS" onclick="gotoDialog(' + q + ')">　</td>')
 
 }
 
