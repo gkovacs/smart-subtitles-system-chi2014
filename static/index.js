@@ -6,29 +6,35 @@ audioQueue = []
 subLanguage = 'zh'
 
 function prevButtonPressed() {
-  var vid = $('video')[0]
-  vid.pause()
-  curtime = Math.round(vid.currentTime*10)
-  now.getPrevDialogStartTime(curtime, function(time) {
-    vid.currentTime = time/10
-  })
+  //var vid = $('video')[0]
+  //vid.pause()
+  gotoDialog(prevDialogNum - 1)
+  //curtime = Math.round(vid.currentTime*10)
+  //now.getPrevDialogStartTime(curtime, function(time) {
+  //  vid.currentTime = time/10
+  //})
 }
 
 function nextButtonPressed() {
-  var vid = $('video')[0]
+  //var vid = $('video')[0]
   //vid.pause()
-  curtime = Math.round(vid.currentTime*10)
-  now.getNextDialogStartTime(curtime, function(time) {
-    vid.currentTime = time/10
-  })
+  gotoDialog(prevDialogNum + 1)
+  //curtime = Math.round(vid.currentTime*10)
+  //now.getNextDialogStartTime(curtime, function(time) {
+  //  vid.currentTime = time/10
+  //})
+}
+
+function clearHoverTrans() {
+  $('.currentlyHighlighted').css('background-color', '')
+  $('.currentlyHighlighted').removeClass('currentlyHighlighted')
 }
 
 function setHoverTrans(wordid, hovertext) {
 $('.'+ wordid).hover(function() {
   var vid = $('video')[0]
   vid.pause()
-  $('.currentlyHighlighted').css('background-color', '')
-  $('.currentlyHighlighted').removeClass('currentlyHighlighted')
+  clearHoverTrans()
   var chineseChar = $('.'+ wordid + ':not(.pinyinspan)')
   var pos = chineseChar.offset()
   var width = chineseChar.width()
@@ -112,11 +118,7 @@ if (subpixPath == '')
 $('#subpDisplay').attr('src', subpixPath)
 }
 
-function setNewSubtitles(annotatedWordList) {
-  setNewSubtitleList([[0, 1, annotatedWordList]])
-}
-
-prevDialogNum = 0
+prevDialogNum = -1
 
 dialogStartTimesDeciSeconds = []
 
@@ -127,6 +129,8 @@ function gotoDialog(dialogNum) {
 
 function gotoDialogNoVidSeek(dialogNum) {
   if (dialogNum < 0 || dialogNum >= dialogStartTimesDeciSeconds.length) return
+  if (dialogNum == prevDialogNum) return
+  clearHoverTrans()
   $('#dialogStart' + prevDialogNum).css('background-color', 'black')
   //$('#dialogStartPY' + prevDialogNum).css('background-color', 'black')
   $('#dialogStart' + dialogNum).css('background-color', 'darkgreen')
@@ -137,14 +141,38 @@ function gotoDialogNoVidSeek(dialogNum) {
   var videoOffset = $('video').offset()
   var videoWidth = $('video').width()
   offset.top = videoOffset.top
+  offset.left -= Math.round(videoWidth/4)
   //offset.left -= Math.round(videoWidth/2)
   //offset.left += Math.round(width/2)
   //offset.left = Math.max(0, offset.left)
   $('video').offset(offset)
   window.scroll(offset.left - Math.round(videoWidth/2))
+
+  
+  var annotatedWordList = annotatedWordListListG[dialogNum][2]
+  for (var i = 0; i < annotatedWordList.length; ++i) {
+    var word = annotatedWordList[i][0]
+    var pinyin = annotatedWordList[i][1]
+    var english = annotatedWordList[i][2]
+    //var randid = wordToId[word]
+    var randid = 'wid_q_' + dialogNum + '_i_' + i
+    setHoverTrans(randid, english)
+    if (subLanguage == 'en') {
+      //setClickPronounceEN(randid, word)
+    } else if (subLanguage == 'zh') {
+      //setClickPronounceZH(randid, pinyin)
+    }
+  }
 }
 
+function setNewSubtitles(annotatedWordList) {
+  setNewSubtitleList([[0, 1, annotatedWordList]])
+}
+
+annotatedWordListListG = []
+
 function setNewSubtitleList(annotatedWordListList) {
+annotatedWordListListG = annotatedWordListList
 //console.log(annotatedWordList.toString())
 //if (annotatedWordList.length == 0) return
 $('#translationTriangle').hide()
@@ -160,8 +188,8 @@ nhtml.push('<table border="0" cellspacing="0">')
 var pinyinRow = []
 var wordRow = []
 
-pinyinRow.push('<td style="display:-moz-inline-box;display:inline-block;width:' + $('video').offset().left + 'px;"></td>')
-wordRow.push('<td style="display:-moz-inline-box;display:inline-block;width:' + $('video').offset().left + 'px;"></td>')
+pinyinRow.push('<td style="display:-moz-inline-box;display:inline-block;width:' + ($('video').offset().left + Math.round($('video').width()/4))+ 'px;"></td>')
+wordRow.push('<td style="display:-moz-inline-box;display:inline-block;width:' + ($('video').offset().left + Math.round($('video').width()/4)) + 'px;"></td>')
 
 for (var q = 0; q < annotatedWordListList.length; ++q) {
 var startTimeDeciSeconds = annotatedWordListList[q][0]
@@ -216,7 +244,7 @@ nhtml.push('</table>')
 
 $('#caption').html(nhtml.join(''))
 
-
+/*
 for (var q = 0; q < annotatedWordListList.length; ++q) {
 var annotatedWordList = annotatedWordListList[q][2]
 for (var i = 0; i < annotatedWordList.length; ++i) {
@@ -233,7 +261,7 @@ for (var i = 0; i < annotatedWordList.length; ++i) {
   }
 }
 }
-
+*/
 }
 
 function onTimeChanged(s) {

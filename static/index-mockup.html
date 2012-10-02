@@ -36,7 +36,11 @@ now.ready(function() {
     $('#viewingRegion').show()
     //console.log(subSource)
     now.initializeSubtitle(subSource, subLanguage, function() {
-      now.getFullAnnotatedSub(setNewSubtitleList)
+      now.getFullAnnotatedSub(function(x) {
+        setNewSubtitleList(x)
+        gotoDialog(0)
+        $('video')[0].play()
+      })
     })
   })
 })
