@@ -139,13 +139,14 @@ function gotoDialogNoVidSeek(dialogNum) {
   var offset = $('#dialogStart' + dialogNum).offset()
   var width = $('#dialogStart' + dialogNum).width()
   var videoOffset = $('video').offset()
-  var videoWidth = $('video').width()
+  var videoWidth = $('video')[0].videoWidth
   offset.top = videoOffset.top
   offset.left -= Math.round(videoWidth/4)
   //offset.left -= Math.round(videoWidth/2)
   //offset.left += Math.round(width/2)
   //offset.left = Math.max(0, offset.left)
   $('video').offset(offset)
+  //window.scroll($('video').offset().left - Math.round(videoWidth/2))
   window.scroll(offset.left - Math.round(videoWidth/2))
 
   
@@ -188,8 +189,8 @@ nhtml.push('<table border="0" cellspacing="0">')
 var pinyinRow = []
 var wordRow = []
 
-pinyinRow.push('<td style="display:-moz-inline-box;display:inline-block;width:' + ($('video').offset().left + Math.round($('video').width()/4))+ 'px;"></td>')
-wordRow.push('<td style="display:-moz-inline-box;display:inline-block;width:' + ($('video').offset().left + Math.round($('video').width()/4)) + 'px;"></td>')
+pinyinRow.push('<td style="display:-moz-inline-box;display:inline-block;width:' + ($('video').offset().left + Math.round($('video')[0].videoWidth/2))+ 'px;"></td>')
+wordRow.push('<td style="display:-moz-inline-box;display:inline-block;width:' + ($('video').offset().left + Math.round($('video')[0].videoWidth/2)) + 'px;"></td>')
 
 for (var q = 0; q < annotatedWordListList.length; ++q) {
 var startTimeDeciSeconds = annotatedWordListList[q][0]
@@ -262,6 +263,8 @@ for (var i = 0; i < annotatedWordList.length; ++i) {
 }
 }
 */
+
+gotoDialogNoVidSeek(0)
 }
 
 function onTimeChanged(s) {
@@ -276,6 +279,7 @@ function onTimeChanged(s) {
     else
       lidx = midx + 1
   }
+  if (ridx < 0) ridx = 0
   gotoDialogNoVidSeek(ridx)
 //now.getAnnotatedSubAtTime(Math.round(s.currentTime*10), setNewSubtitles)
 //now.getSubPixAtTime(Math.round(s.currentTime*10), setNewSubPix)
@@ -344,21 +348,23 @@ function flipPause() {
 }
 
 function videoPlaying() {
-$('#playPauseButton').text('Pause (Space)')
-$('#prevLineButton').show()
-$('#nextLineButton').show()
+//$('#playPauseButton').text('Pause (Space)')
+//$('#prevLineButton').show()
+//$('#nextLineButton').show()
+//$('video').width($('video')[0].videoWidth)
+//$('video').height($('video')[0].videoHeight)
 }
 
 function videoPaused() {
-$('#playPauseButton').text('Play (Space)')
-$('#prevLineButton').show()
-$('#nextLineButton').show()
+//$('#playPauseButton').text('Play (Space)')
+//$('#prevLineButton').show()
+//$('#nextLineButton').show()
 }
 
 $(document).click(function(x) {
 var vid = $('video')[0]
 var mouseCoords = relMouseCoords(x, vid)
-if (mouseCoords.y > $('video').height() - 30 || mouseCoords.x > $('video').width()) return true
+if (mouseCoords.y > $('video')[0].videoHeight - 30 || mouseCoords.x > $('video')[0].videoWidth) return true
 if (vid.paused)
   vid.play()
 else
