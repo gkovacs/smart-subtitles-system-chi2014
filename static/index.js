@@ -44,7 +44,8 @@ $('.'+ wordid).hover(function() {
   //$('#translation').appendTo(chineseChar)
   $('#translation').css({'left': (pos.left) + 'px', 'top': (pos.top + height + 10) + 'px', 'position': 'absolute', }).show()
   //$('#translationTriangle').appendTo(chineseChar)
-  $('#translationTriangle').css({'left': (pos.left) + 'px', 'top': (pos.top + height) + 'px', 'position': 'absolute', }).show()
+  $('#translationTriangle').css({'left': (pos.left) + 'px', 'top': (pos.top + height) + 'px', 'position': 'absolute', })//.show()
+
   //$('.'+ wordid).css()
   if (subLanguage == 'en') {
     $('#translation').html(hovertext)
@@ -131,9 +132,17 @@ function gotoDialogNoVidSeek(dialogNum) {
   if (dialogNum < 0 || dialogNum >= dialogStartTimesDeciSeconds.length) return
   if (dialogNum == prevDialogNum) return
   clearHoverTrans()
-  $('#dialogStart' + prevDialogNum).css('background-color', 'black')
+  $('.pysactive').css('font-size', '18px')
+  $('.pysactive').removeClass('pysactive')
+  $('.wsactive').css('font-size', '32px')
+  $('.wsactive').removeClass('wsactive')
+  $('.pys' + dialogNum).css('font-size', '28px')
+  $('.pys' + dialogNum).addClass('pysactive')
+  $('.ws' + dialogNum).css('font-size', '48px')
+  $('.ws' + dialogNum).addClass('wsactive')
+  //$('#dialogStart' + prevDialogNum).css('background-color', 'black')
   //$('#dialogStartPY' + prevDialogNum).css('background-color', 'black')
-  $('#dialogStart' + dialogNum).css('background-color', 'darkgreen')
+  //$('#dialogStart' + dialogNum).css('background-color', 'darkgreen')
   //$('#dialogStartPY' + dialogNum).css('background-color', 'darkgreen')
   prevDialogNum = dialogNum
   var offset = $('#dialogStart' + dialogNum).offset()
@@ -200,10 +209,8 @@ var annotatedWordList = annotatedWordListList[q][2]
 
 //console.log(annotatedWordList)
 
-pinyinRow.push('<td id="dialogStartPY' + q + '" style="background-color: white; color: black; text-align: center; font-size: medium" onclick="gotoDialog(' + q + ')"></td>')
-wordRow.push('<td id="dialogStart' + q + '" style="background-color: black; color: white; text-align: center; font-size: xx-large" onclick="gotoDialog(' + q + ')">' +
-    //startHMS[0] + ':' + startHMS[1] + ':' + startHMS[2] +
-    '▶▶</td>')
+pinyinRow.push('<td id="dialogStartPY' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" onclick="gotoDialog(' + q + ')"></td>')
+wordRow.push('<td id="dialogStart' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" onclick="gotoDialog(' + q + ')">　</td>')
 
 for (var i = 0; i < annotatedWordList.length; ++i) {
 var word = annotatedWordList[i][0]
@@ -222,8 +229,8 @@ for (var j = 0; j < pinyinWords.length; ++j) {
   var tonecolor = ['red', '#AE5100', 'green', 'blue', 'black'][getToneNumber(curWord)-1]
   coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord + '</span>')
 }
-var pinyinspan = '<td nowrap="nowrap" style="font-size: large; text-align: center" class="' + randid + ' hoverable pinyinspan" onclick="gotoDialog(' + q + ')">' + coloredSpans.join(' ') + '</td>'
-var wordspan = '<td nowrap="nowrap" style="font-size: xx-large; text-align: center" class="' + randid + ' hoverable wordspan" onclick="gotoDialog(' + q + ')">' + word + '</td>'
+var pinyinspan = '<td nowrap="nowrap" style="font-size: 18px; text-align: center;" class="' + randid + ' hoverable pinyinspan pys' + q + '" onclick="gotoDialog(' + q + ')">' + coloredSpans.join(' ') + '</td>'
+var wordspan = '<td nowrap="nowrap" style="font-size: 32px; text-align: center" class="' + randid + ' hoverable wordspan ws' + q + '" onclick="gotoDialog(' + q + ')">' + word + '</td>'
 if (word == ' ') {
   wordspan = '<td style="font-size: xx-small">　</td>'
 }
