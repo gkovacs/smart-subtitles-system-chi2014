@@ -152,8 +152,11 @@ function gotoDialogNoVidSeek(dialogNum) {
   //$('#dialogStart' + dialogNum).css('background-color', 'darkgreen')
   //$('#dialogStartPY' + dialogNum).css('background-color', 'darkgreen')
   prevDialogNum = dialogNum
-  var offset = $('#dialogStartSpaceWS' + dialogNum).offset()
-  var width = $('#dialogEndSpaceWS' + dialogNum).offset().left - $('#dialogStartSpaceWS' + dialogNum).offset().left// - $('#dialogStartSpaceWS' + dialogNum).width()
+  var videoHeight = $('video')[0].videoHeight
+  var videoBottom = $('video').offset().top + videoHeight
+  var windowBottom = $('#bottomOfScreen').offset().top
+  var offset = $('#whitespaceS' + dialogNum).offset()
+  //var width = $('#dialogEndSpaceWS' + dialogNum).offset().left - $('#dialogStartSpaceWS' + dialogNum).offset().left// - $('#dialogStartSpaceWS' + dialogNum).width()
   //var videoOffset = $('video').offset()
   //var videoWidth = $('video')[0].videoWidth
   //offset.top = videoOffset.top
@@ -168,14 +171,23 @@ function gotoDialogNoVidSeek(dialogNum) {
   //window.scroll($('video').offset().left - Math.round(videoWidth/2))
   //window.scroll(offset.left - Math.round($(window).width()/2) + Math.round(width/2))]
   $('html, body').stop(true, true)
-  // - Math.round($(window).width()/2 + width/2)
   var oldOffset = $('html, body').scrollLeft()
-  var newOffset = offset.left - Math.round($(window).width()/2) + Math.round(width/2) + Math.round($('#dialogStartSpaceWS' + dialogNum).width()/2)
+  var newOffset = offset.top - 48 - videoHeight - (windowBottom - videoBottom)/2
   if (Math.abs(newOffset - oldOffset) > $(window).width()) {
-    $('html, body').animate({scrollLeft: newOffset}, 100)
+    $('html, body').animate({scrollTop: newOffset}, 100)
   } else {
-    $('html, body').animate({scrollLeft: newOffset}, 300)
+    $('html, body').animate({scrollTop: newOffset}, 300)
   }
+  // - Math.round($(window).width()/2 + width/2)
+  
+
+  //var oldOffset = $('html, body').scrollLeft()
+  //var newOffset = offset.left - Math.round($(window).width()/2) + Math.round(width/2) + Math.round($('#dialogStartSpaceWS' + dialogNum).width()/2)
+  //if (Math.abs(newOffset - oldOffset) > $(window).width()) {
+  //  $('html, body').animate({scrollLeft: newOffset}, 100)
+  //} else {
+  //  $('html, body').animate({scrollLeft: newOffset}, 300)
+  //}
   //$('body').animate({scrollLeft: Math.round($('#dialogStartSpaceWS' + dialogNum).scrollLeft())}, 10)
 
   
@@ -225,13 +237,8 @@ var wordToId = {}
 
 //$('video').css('left', Math.round($(window).width()/2 - $('video')[0].videoWidth/2).toString())
 
-nhtml.push('<table border="0" cellspacing="0" style="position: relative; top: ' + ($('video').offset().top + $('video')[0].videoHeight) + 'px">')
-
-var pinyinRow = []
-var wordRow = []
-
-pinyinRow.push('<td style="display:-moz-inline-box;display:inline-block;width:' + ($('video').offset().left + Math.round($('video')[0].videoWidth/2))+ 'px;"></td>')
-wordRow.push('<td style="display:-moz-inline-box;display:inline-block;width:' + ($('video').offset().left + Math.round($('video')[0].videoWidth/2)) + 'px;"></td>')
+//pinyinRow.push('<td style="display:-moz-inline-box;display:inline-block;width:' + ($('video').offset().left + Math.round($('video')[0].videoWidth/2))+ 'px;"></td>')
+//wordRow.push('<td style="display:-moz-inline-box;display:inline-block;width:' + ($('video').offset().left + Math.round($('video')[0].videoWidth/2)) + 'px;"></td>')
 
 for (var q = 0; q < annotatedWordListList.length; ++q) {
 var startTimeDeciSeconds = annotatedWordListList[q][0]
@@ -239,10 +246,16 @@ dialogStartTimesDeciSeconds[q] = startTimeDeciSeconds
 var startHMS = toHourMinSec(Math.round(startTimeDeciSeconds/10))
 var annotatedWordList = annotatedWordListList[q][2]
 
+nhtml.push('<table border="0" cellspacing="0">')
+
+var pinyinRow = []
+var wordRow = []
+var whitespaceRow = []
+
 //console.log(annotatedWordList)
 
-pinyinRow.push('<td id="dialogStartSpacePYS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" class="spacingPYS" onclick="gotoDialog(' + q + ')"></td>')
-wordRow.push('<td id="dialogStartSpaceWS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" class="spacingWS" onclick="gotoDialog(' + q + ')">　</td>')
+//pinyinRow.push('<td id="dialogStartSpacePYS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" class="spacingPYS" onclick="gotoDialog(' + q + ')"></td>')
+//wordRow.push('<td id="dialogStartSpaceWS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" class="spacingWS" onclick="gotoDialog(' + q + ')">　</td>')
 
 for (var i = 0; i < annotatedWordList.length; ++i) {
 var word = annotatedWordList[i][0]
@@ -269,18 +282,20 @@ if (word == ' ') {
 
 pinyinRow.push(pinyinspan)
 wordRow.push(wordspan)
+whitespaceRow.push('<td id="whitespaceS' + q + '" style="font-size: 32px">　</td>')
 
 }
 
-pinyinRow.push('<td id="dialogEndSpacePYS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" class="spacingPYS" onclick="gotoDialog(' + q + ')"></td>')
-wordRow.push('<td id="dialogEndSpaceWS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" class="spacingWS" onclick="gotoDialog(' + q + ')">　</td>')
-
-}
+//pinyinRow.push('<td id="dialogEndSpacePYS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" class="spacingPYS" onclick="gotoDialog(' + q + ')"></td>')
+//wordRow.push('<td id="dialogEndSpaceWS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" class="spacingWS" onclick="gotoDialog(' + q + ')">　</td>')
 
 nhtml.push('<col>' + pinyinRow.join('') + '</col>')
 nhtml.push('<col>' + wordRow.join('') + '</col>')
+nhtml.push('<col>' + whitespaceRow.join('') + '</col>')
 
 nhtml.push('</table>')
+
+}
 
 $('#caption').html(nhtml.join(''))
 
@@ -311,6 +326,7 @@ function videoLoaded() {
   var videoWidth = $('video')[0].videoWidth
   $('video').css('left', '50%')
   $('video').css('margin-left', -Math.round(videoWidth/2))
+  $('#videoSpacing').css('margin-top', ($('video').offset().top + $('video')[0].videoHeight))
   //var videoOffset = $('video').offset()
   //videoOffset.left = Math.round($(window).width()/2 - $('video')[0].videoWidth/2)
   //$('video').offset(videoOffset)
