@@ -31,8 +31,8 @@ function clearHoverTrans() {
 }
 
 function onWordHover(wordid) {
-  var vid = $('video')[0]
-  vid.pause()
+  //var vid = $('video')[0]
+  //vid.pause()
   clearHoverTrans()
   var chineseChar = $('.'+ wordid + ':not(.pinyinspan)')
   var pos = chineseChar.offset()
@@ -307,6 +307,7 @@ for (var i = 0; i < annotatedWordList.length; ++i) {
 */
 
 gotoDialogNoVidSeek(0)
+//$('video')[0].play()
 }
 
 function onTimeChanged(s) {
