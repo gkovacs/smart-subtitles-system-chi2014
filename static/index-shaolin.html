@@ -77,7 +77,7 @@ Subtitle (<a href="http://en.wikipedia.org/wiki/SubRip#SubRip_text_file_format">
 
 <div id='viewingRegion' style='display:none;'>
 <div id="errorRegion" style="background-color: yellow" align="center"></div>
-<div align="center"><video style="position: fixed; left: 0px" controls="controls" id="videoControls" ontimeupdate="onTimeChanged(this)" onerror="onVideoError(this)" onplay="videoPlaying(this)" onpause="videoPaused(this)" onfocus="this.blur()">
+<div align="center"><video style="position: fixed; left: 0px" controls="controls" id="videoControls" ontimeupdate="onTimeChanged(this)" onerror="onVideoError(this)" onplay="videoPlaying(this)" onpause="videoPaused(this)" onfocus="this.blur()" onloadedmetadata="videoLoaded()">
 </video></div>
 <br/>
 

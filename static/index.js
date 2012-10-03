@@ -152,7 +152,7 @@ function gotoDialogNoVidSeek(dialogNum) {
   //$('#dialogStartPY' + dialogNum).css('background-color', 'darkgreen')
   prevDialogNum = dialogNum
   var offset = $('#dialogStartSpaceWS' + dialogNum).offset()
-  var width = $('#dialogEndSpaceWS' + dialogNum).offset().left - $('#dialogStartSpaceWS' + dialogNum).offset().left - $('#dialogStartSpaceWS' + dialogNum).width()
+  var width = $('#dialogEndSpaceWS' + dialogNum).offset().left - $('#dialogStartSpaceWS' + dialogNum).offset().left// - $('#dialogStartSpaceWS' + dialogNum).width()
   //var videoOffset = $('video').offset()
   //var videoWidth = $('video')[0].videoWidth
   //offset.top = videoOffset.top
@@ -169,7 +169,7 @@ function gotoDialogNoVidSeek(dialogNum) {
   $('html, body').stop(true, true)
   // - Math.round($(window).width()/2 + width/2)
   var oldOffset = $('html, body').scrollLeft()
-  var newOffset = offset.left - Math.round($(window).width()/2) + Math.round(width/2)
+  var newOffset = offset.left - Math.round($(window).width()/2) + Math.round(width/2) + Math.round($('#dialogStartSpaceWS' + dialogNum).width()/2)
   if (Math.abs(newOffset - oldOffset) > $(window).width()) {
     $('html, body').animate({scrollLeft: newOffset}, 100)
   } else {
@@ -221,10 +221,6 @@ var nhtml = []
 dialogStartTimesDeciSeconds = []
 
 var wordToId = {}
-
-var videoOffset = $('video').offset()
-videoOffset.left = Math.round($(window).width()/2 - $('video')[0].videoWidth/2)
-$('video').offset(videoOffset)
 
 //$('video').css('left', Math.round($(window).width()/2 - $('video')[0].videoWidth/2).toString())
 
@@ -308,6 +304,15 @@ for (var i = 0; i < annotatedWordList.length; ++i) {
 
 gotoDialogNoVidSeek(0)
 //$('video')[0].play()
+}
+
+function videoLoaded() {
+  var videoWidth = $('video')[0].videoWidth
+  $('video').css('left', '50%')
+  $('video').css('margin-left', -Math.round(videoWidth/2))
+  //var videoOffset = $('video').offset()
+  //videoOffset.left = Math.round($(window).width()/2 - $('video')[0].videoWidth/2)
+  //$('video').offset(videoOffset)
 }
 
 function onTimeChanged(s) {
@@ -416,7 +421,6 @@ function videoClicked() {
 
 $(document).click(function(x) {
 var vid = $('video')[0]
-console.log(x)
 var videoLeft = $('video').offset().left
 var videoTop = $('video').offset().top
 var videoWidth = $('video')[0].videoWidth

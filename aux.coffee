@@ -367,11 +367,9 @@ root.initializeUser = (nuser) ->
   getFullAnnotatedSubChinese = (callback) ->
     allSubLines = subtitleGetter.getTimesAndSubtitles()
     annotatedSubLines = []
-    console.log 'getting full annotated sub'
     await
       for i in [0...allSubLines.length]
         getGlossChinese(allSubLines[i][2], defer(annotatedSubLines[i]))
-    console.log 'finished getting full annotated sub'
     timesAndAnnotatedSubLines = []
     for i in [0...allSubLines.length]
       timesAndAnnotatedSubLines[i] = [allSubLines[i][0], allSubLines[i][1], annotatedSubLines[i]]
