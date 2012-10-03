@@ -12,6 +12,7 @@
 <body style="font-family: 'Arial', sans-serif;">
 <script type="text/javascript" src="/nowjs/now.js"></script>
 <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="jquery.mousewheel.min.js"></script>
 <script type="text/javascript" src="pinyinutils.js"></script>
 <script type="text/javascript" src="modernizr.js"></script>
 <script type="text/javascript" src="client.js"></script>
@@ -111,6 +112,8 @@ Subtitle (<a href="http://en.wikipedia.org/wiki/SubRip#SubRip_text_file_format">
 <div align="center"><video style="position: fixed; left: 0px" controls="controls" id="videoControls" ontimeupdate="onTimeChanged(this)" onerror="onVideoError(this)" onplay="videoPlaying(this)" onpause="videoPaused(this)" onfocus="this.blur()" onloadedmetadata="videoLoaded()">
 </video></div>
 <br/>
+
+<div id="bottomOfScreen" style="position: fixed; top: 100%; left: 100%"></div>
 
 <div id='subpRegion' align="center"><img id='subpDisplay'></img></div>
 <div align="center">

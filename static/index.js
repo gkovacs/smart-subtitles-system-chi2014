@@ -496,6 +496,16 @@ function checkKey(x) {
 
 $(document).keydown(checkKey)
 
+function mouseWheelMove(event, delta) {
+  if (delta > 0) {
+    gotoDialog(prevDialogNum - 1)
+  } else {
+    gotoDialog(prevDialogNum + 1)
+  }
+}
+
+$(document).mousewheel(mouseWheelMove)
+
 function startPlayback() {
   if (isLocalFile()) {
     var file = $('#videoInputFile')[0].files[0]
