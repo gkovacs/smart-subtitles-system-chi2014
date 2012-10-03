@@ -152,7 +152,7 @@ function gotoDialogNoVidSeek(dialogNum) {
   //$('#dialogStartPY' + dialogNum).css('background-color', 'darkgreen')
   prevDialogNum = dialogNum
   var offset = $('#dialogStartSpaceWS' + dialogNum).offset()
-  var width = $('#dialogEndSpaceWS' + dialogNum).offset().left - $('#dialogStartSpaceWS' + dialogNum).offset().left
+  var width = $('#dialogEndSpaceWS' + dialogNum).offset().left - $('#dialogStartSpaceWS' + dialogNum).offset().left - $('#dialogStartSpaceWS' + dialogNum).width()
   //var videoOffset = $('video').offset()
   //var videoWidth = $('video')[0].videoWidth
   //offset.top = videoOffset.top
@@ -165,7 +165,17 @@ function gotoDialogNoVidSeek(dialogNum) {
   //$('video').offset(offset)
   
   //window.scroll($('video').offset().left - Math.round(videoWidth/2))
-  window.scroll(offset.left - Math.round($(window).width()/2) + Math.round(width/2))
+  //window.scroll(offset.left - Math.round($(window).width()/2) + Math.round(width/2))]
+  $('html, body').stop(true, true)
+  // - Math.round($(window).width()/2 + width/2)
+  var oldOffset = $('html, body').scrollLeft()
+  var newOffset = offset.left - Math.round($(window).width()/2) + Math.round(width/2)
+  if (Math.abs(newOffset - oldOffset) > $(window).width()) {
+    $('html, body').animate({scrollLeft: newOffset}, 100)
+  } else {
+    $('html, body').animate({scrollLeft: newOffset}, 300)
+  }
+  //$('body').animate({scrollLeft: Math.round($('#dialogStartSpaceWS' + dialogNum).scrollLeft())}, 10)
 
   
 
