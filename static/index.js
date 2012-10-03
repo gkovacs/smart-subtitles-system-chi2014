@@ -28,6 +28,7 @@ function nextButtonPressed() {
 function clearHoverTrans() {
   $('.currentlyHighlighted').css('background-color', '')
   $('.currentlyHighlighted').removeClass('currentlyHighlighted')
+  $('#translation').hide()
 }
 
 function onWordHover(wordid) {
