@@ -32,8 +32,8 @@ function clearHoverTrans() {
 }
 
 function onWordHover(wordid) {
-  var vid = $('video')[0]
-  vid.pause()
+  //var vid = $('video')[0]
+  //vid.pause()
   clearHoverTrans()
   var chineseChar = $('.'+ wordid + ':not(.pinyinspan)')
   var pos = chineseChar.offset()
@@ -130,6 +130,17 @@ prevDialogNum = -1
 
 dialogStartTimesDeciSeconds = []
 
+function wordClicked(dialogNum) {
+  var pd = prevDialogNum
+  gotoDialog(dialogNum)
+  var vid = $('video')[0]
+  if (dialogNum < pd) {
+    vid.pause()
+  } else {
+    vid.play()
+  }
+}
+
 function gotoDialog(dialogNum) {
   gotoDialogNoVidSeek(dialogNum)
   $('video')[0].currentTime = dialogStartTimesDeciSeconds[dialogNum] / 10
@@ -174,7 +185,8 @@ function gotoDialogNoVidSeek(dialogNum) {
   var oldOffset = $('html, body').scrollLeft()
   var newOffset = offset.top - 48 - videoHeight - (windowBottom - videoBottom)/2
   if (Math.abs(newOffset - oldOffset) > $(window).width()) {
-    $('html, body').animate({scrollTop: newOffset}, 100)
+    //$('html, body').scrollTop(newOffset)
+    $('html, body').animate({scrollTop: newOffset}, 30)
   } else {
     $('html, body').animate({scrollTop: newOffset}, 300)
   }
@@ -274,15 +286,15 @@ for (var j = 0; j < pinyinWords.length; ++j) {
   var tonecolor = ['red', '#AE5100', 'green', 'blue', 'black'][getToneNumber(curWord)-1]
   coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord + '</span>')
 }
-var pinyinspan = '<td nowrap="nowrap" style="font-size: 18px; text-align: center;" class="' + randid + ' hoverable pinyinspan pys' + q + '" onclick="gotoDialog(' + q + ')">' + coloredSpans.join(' ') + '</td>'
-var wordspan = '<td nowrap="nowrap" style="font-size: 32px; text-align: center;" hovertext="' + english + '" id="WS' + randid + '" class="' + randid + ' hoverable wordspan ws' + q + '" onmouseover="onWordHover(\'' + randid + '\')" onclick="gotoDialog(' + q + ')">' + word + '</td>'
+var pinyinspan = '<td nowrap="nowrap" style="font-size: 18px; text-align: center;" class="' + randid + ' hoverable pinyinspan pys' + q + '" onclick="wordClicked(' + q + ')">' + coloredSpans.join(' ') + '</td>'
+var wordspan = '<td nowrap="nowrap" style="font-size: 32px; text-align: center;" hovertext="' + english + '" id="WS' + randid + '" class="' + randid + ' hoverable wordspan ws' + q + '" onmouseover="onWordHover(\'' + randid + '\')" onclick="wordClicked(' + q + ')">' + word + '</td>'
 if (word == ' ') {
   wordspan = '<td style="font-size: xx-small">　</td>'
 }
 
 pinyinRow.push(pinyinspan)
 wordRow.push(wordspan)
-whitespaceRow.push('<td id="whitespaceS' + q + '" style="font-size: 32px" class="whitespacespan" onclick="gotoDialog(' + q + ')">　</td>')
+whitespaceRow.push('<td id="whitespaceS' + q + '" style="font-size: 32px">　</td>')
 
 }
 
@@ -511,7 +523,7 @@ function mouseWheelMove(event, delta) {
   }
 }
 
-pausedFromLeftButtonHold = false
+//pausedFromLeftButtonHold = false
 
 function mouseDown(event) {
   if (event.which == 2) { // middle button
@@ -522,6 +534,7 @@ function mouseDown(event) {
     flipPause()
     event.preventDefault()
   }
+  /*
   if (event.which == 1 && !$('video')[0].paused) { // left button
     $('video')[0].pause()
     pausedFromLeftButtonHold = true
@@ -531,10 +544,11 @@ function mouseDown(event) {
     //event.stopImmediatePropagation()
     //event.stopPropagation()
   }
+  */
 }
 
 $(document).mousedown(mouseDown)
-
+/*
 function mouseUp(event) {
   if (event.which == 1 && pausedFromLeftButtonHold) { // left button, resume
     pausedFromLeftButtonHold = false
@@ -544,7 +558,7 @@ function mouseUp(event) {
 }
 
 $(document).mouseup(mouseUp)
-
+*/
 $(document).mousewheel(mouseWheelMove)
 
 $(document)[0].addEventListener('contextmenu', function(event) {
