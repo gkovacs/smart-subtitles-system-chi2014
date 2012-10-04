@@ -282,7 +282,7 @@ if (word == ' ') {
 
 pinyinRow.push(pinyinspan)
 wordRow.push(wordspan)
-whitespaceRow.push('<td id="whitespaceS' + q + '" style="font-size: 32px">　</td>')
+whitespaceRow.push('<td id="whitespaceS' + q + '" style="font-size: 32px" class="whitespacespan" onclick="gotoDialog(' + q + ')">　</td>')
 
 }
 
@@ -468,6 +468,7 @@ return false
 
 function checkKey(x) {
   var vid = $('video')[0]
+  console.log(x.keyCode)
   if (x.keyCode == 32) { // space
     if (vid.paused)
       vid.play()
@@ -491,6 +492,12 @@ function checkKey(x) {
     }
     x.preventDefault()
     return false
+  } else if (x.keyCode == 38) { // up arrow
+    prevButtonPressed()
+    x.preventDefault()
+  } else if (x.keyCode == 40) { // down arrow
+    nextButtonPressed()
+    x.preventDefault()
   }
 }
 
@@ -504,7 +511,40 @@ function mouseWheelMove(event, delta) {
   }
 }
 
+pausedFromLeftButtonHold = false
+
+function mouseDown(event) {
+  if (event.which == 2) { // middle button
+    flipPause()
+    event.preventDefault()
+  }
+  if (event.which == 3) { // right button
+    flipPause()
+    event.preventDefault()
+  }
+  if (event.which == 1 && !$('video')[0].paused) { // left button
+    $('video')[0].pause()
+    pausedFromLeftButtonHold = true
+    event.preventDefault()
+  }
+}
+
+$(document).mousedown(mouseDown)
+
+function mouseUp(event) {
+  if (event.which == 1 && pausedFromLeftButtonHold) { // left button, resume
+    pausedFromLeftButtonHold = false
+    $('video')[0].play()
+  }
+}
+
+$(document).mouseup(mouseUp)
+
 $(document).mousewheel(mouseWheelMove)
+
+$(document)[0].addEventListener('contextmenu', function(event) {
+  event.preventDefault()
+})
 
 function startPlayback() {
   if (isLocalFile()) {

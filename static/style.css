@@ -25,6 +25,11 @@
   cursor: pointer;
 }
 
+.whitespacespan {
+  cursor: hand;
+  cursor: pointer;
+}
+
 .spacingPYS {
   cursor: hand;
   cursor: pointer;
