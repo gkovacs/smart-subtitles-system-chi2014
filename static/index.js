@@ -525,7 +525,11 @@ function mouseDown(event) {
   if (event.which == 1 && !$('video')[0].paused) { // left button
     $('video')[0].pause()
     pausedFromLeftButtonHold = true
-    event.preventDefault()
+    $('body').addClass('unselectable')
+    //$('video').trigger(event)
+    //event.preventDefault()
+    //event.stopImmediatePropagation()
+    //event.stopPropagation()
   }
 }
 
@@ -534,6 +538,7 @@ $(document).mousedown(mouseDown)
 function mouseUp(event) {
   if (event.which == 1 && pausedFromLeftButtonHold) { // left button, resume
     pausedFromLeftButtonHold = false
+    $('body').removeClass('unselectable')
     $('video')[0].play()
   }
 }

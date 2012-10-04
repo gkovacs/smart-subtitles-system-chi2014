@@ -15,6 +15,13 @@
   border-color: transparent transparent transparent transparent;
 }
 
+.unselectable {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 .pinyinspan {
   cursor: hand;
   cursor: pointer;
