@@ -32,8 +32,8 @@ function clearHoverTrans() {
 }
 
 function onWordHover(wordid) {
-  //var vid = $('video')[0]
-  //vid.pause()
+  var vid = $('video')[0]
+  vid.pause()
   clearHoverTrans()
   var chineseChar = $('.'+ wordid + ':not(.pinyinspan)')
   var pos = chineseChar.offset()
