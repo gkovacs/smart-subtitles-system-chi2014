@@ -171,10 +171,16 @@ function gotoDialogNoVidSeek(dialogNum) {
   $('.pysactive').removeClass('pysactive')
   $('.wsactive').css('font-size', '32px')
   $('.wsactive').removeClass('wsactive')
+  $('.tbactive').hide()
+  $('.tbactive').css('font-size', '32px')
+  $('.tbactive').removeClass('tbactive')
   $('.pys' + dialogNum).css('font-size', '28px')
   $('.pys' + dialogNum).addClass('pysactive')
   $('.ws' + dialogNum).css('font-size', '48px')
   $('.ws' + dialogNum).addClass('wsactive')
+  $('.tb' + dialogNum).css('font-size', '48px')
+  $('.tb' + dialogNum).addClass('tbactive')
+  $('.tb' + dialogNum).show()
   //$('#dialogStart' + prevDialogNum).css('background-color', 'black')
   //$('#dialogStartPY' + prevDialogNum).css('background-color', 'black')
   //$('#dialogStart' + dialogNum).css('background-color', 'darkgreen')
@@ -327,8 +333,8 @@ for (var j = 0; j < pinyinWords.length; ++j) {
   var tonecolor = ['red', '#AE5100', 'green', 'blue', 'black'][getToneNumber(curWord)-1]
   coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord + '</span>')
 }
-var pinyinspan = '<td nowrap="nowrap" style="font-size: 18px; text-align: center;" class="' + randid + ' hoverable pinyinspan pys' + q + '" onclick="wordClicked(' + q + ')">' + coloredSpans.join(' ') + '</td>'
-var wordspan = '<td nowrap="nowrap" style="font-size: 32px; text-align: center;" hovertext="' + english + '" id="WS' + randid + '" class="' + randid + ' hoverable wordspan ws' + q + '" onmouseover="onWordHover(\'' + randid + '\')" onmouseout="onWordLeave(\'' + randid + '\')" onclick="wordClicked(' + q + ')">' + word + '</td>'
+var pinyinspan = '<td nowrap="nowrap" style="text-align: center;" class="' + randid + ' hoverable pinyinspan pys' + q + '" onclick="wordClicked(' + q + ')">' + coloredSpans.join(' ') + '</td>'
+var wordspan = '<td nowrap="nowrap" style="text-align: center;" hovertext="' + english + '" id="WS' + randid + '" class="' + randid + ' hoverable wordspan ws' + q + '" onmouseover="onWordHover(\'' + randid + '\')" onmouseout="onWordLeave(\'' + randid + '\')" onclick="wordClicked(' + q + ')">' + word + '</td>'
 if (word == ' ') {
   wordspan = '<td style="font-size: xx-small">　</td>'
 }
@@ -340,7 +346,7 @@ whitespaceRow.push('<td id="whitespaceS' + q + '" style="font-size: 32px">　</t
 }
 
 wordRow.push('<td id="translate"' + q + '" style="font-size: 32px">　</td>')
-wordRow.push('<td id="translate"' + q + '" style="font-size: 32px" onclick="showFullTranslation(\'' + currentSentence + '\', \'' + firstWordId + '\')">翻译</td>')
+wordRow.push('<td id="translate"' + q + '" style="font-size: 32px; display: none" class="translateButton tb' + q + '" onclick="showFullTranslation(\'' + currentSentence + '\', \'' + firstWordId + '\')">翻译</td>')
 
 //pinyinRow.push('<td id="dialogEndSpacePYS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" class="spacingPYS" onclick="gotoDialog(' + q + ')"></td>')
 //wordRow.push('<td id="dialogEndSpaceWS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" class="spacingWS" onclick="gotoDialog(' + q + ')">　</td>')

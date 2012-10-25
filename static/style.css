@@ -2,6 +2,22 @@ video {
   z-index: 3;
 }
 
+.wsactive {
+  font-size: 48px;
+}
+
+.pysactive {
+  font-size: 28px;
+}
+
+.wordspan {
+  font-size: 32px;
+}
+
+.pinyinspan {
+  font-size: 18px;
+}
+
 #videoMask {
   z-index: 2;
 }
@@ -28,6 +44,16 @@ video {
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
+}
+
+.translateButton {
+  cursor: hand;
+  cursor: pointer;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -khtml-border-radius: 10px;
+  border-radius: 10px;
+  background-color: #22eeff;
 }
 
 .pinyinspan {
