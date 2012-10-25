@@ -1,3 +1,11 @@
+video {
+  z-index: 3;
+}
+
+#videoMask {
+  z-index: 2;
+}
+
 #translationTriangle {
   width: 0px;
   height: 0px;

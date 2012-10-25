@@ -29,6 +29,8 @@ pinyinutils = require './static/pinyinutils'
 
 getprononciation = require './getprononciation'
 
+translator = require './translator'
+
 language = 'zh'
 
 root.initializeUser = (nuser) ->
@@ -110,8 +112,8 @@ root.initializeUser = (nuser) ->
   fixPinyin = (pinyin) ->
     pinyin = pinyin.toLowerCase()
     # substitutions for errors in Google's pinyin service
-    ft = ["'"]
-    dt = ['']
+    ft = ["'", 'zěnmeliǎo']
+    dt = ['', 'zěnmele']
     return pinyinutils.replaceAllList(pinyin, ft, dt)
 
   lookupDataForWord = (word) ->
@@ -239,7 +241,6 @@ root.initializeUser = (nuser) ->
     if not sub? or sub == ''
       callback([])
     jdict.getGlossForSentence(sub, callback)
-    
 
   getGlossChinese = (sub, callback) ->
     processPinyin = (pinyin) ->
@@ -376,6 +377,32 @@ root.initializeUser = (nuser) ->
     callback(timesAndAnnotatedSubLines)
 
 
+  getFullAnnotatedSubJapanese = (callback) ->
+    allSubLines = subtitleGetter.getTimesAndSubtitles()
+    annotatedSubLines = []
+    await
+      for i in [0...allSubLines.length]
+        jdict.getGlossForSentence(allSubLines[i][2], defer(annotatedSubLines[i]))
+    timesAndAnnotatedSubLines = []
+    for i in [0...allSubLines.length]
+      timesAndAnnotatedSubLines[i] = [allSubLines[i][0], allSubLines[i][1], annotatedSubLines[i]]
+    callback(timesAndAnnotatedSubLines)
+
+  getFullAnnotatedSubEnglish = (callback) ->
+    allSubLines = subtitleGetter.getTimesAndSubtitles()
+    annotatedSubLines = []
+    for i in [0...allSubLines.length]
+      annotatedSubLines[i] = []
+      for word in edict.getWordList(allSubLines[i][2])
+        annotatedSubLines[i].push([word, '', edict.getDefnForWord(word)])
+    timesAndAnnotatedSubLines = []
+    for i in [0...allSubLines.length]
+      timesAndAnnotatedSubLines[i] = [allSubLines[i][0], allSubLines[i][1], annotatedSubLines[i]]
+    callback(timesAndAnnotatedSubLines)
+
+  getTranslations = (text, callback) ->
+    translator.getTranslations(text, 'zh-CHS', 'en', callback)
+
   nuser.now.getAnnotatedSubAtTime = getAnnotatedSubAtTime
   nuser.now.getFullAnnotatedSub = getFullAnnotatedSub
   nuser.now.getSubPixAtTime = getSubPixAtTime
@@ -386,6 +413,7 @@ root.initializeUser = (nuser) ->
   nuser.now.initializeSubPix = initializeSubPix
   nuser.now.downloadSubtitleText = downloadSubtitleText
   nuser.now.getPrononciation = getprononciation.getPrononciationRateLimitedCached
+  nuser.now.getTranslations = getTranslations
 
 main = ->
   # shaolin

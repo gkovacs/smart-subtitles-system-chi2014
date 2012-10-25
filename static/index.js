@@ -31,21 +31,38 @@ function clearHoverTrans() {
   $('#translation').hide()
 }
 
-function onWordHover(wordid) {
-  //var vid = $('video')[0]
-  //vid.pause()
-  clearHoverTrans()
+function placeTranslationText(wordid) {
   var chineseChar = $('.'+ wordid + ':not(.pinyinspan)')
   var pos = chineseChar.offset()
   var width = chineseChar.width()
   var height = chineseChar.height()
-  var hovertext = $('#WS'+ wordid).attr('hovertext')
-  $($('.'+ wordid)).css('background-color', 'yellow')
-  $($('.'+ wordid)).addClass('currentlyHighlighted')
+  
   //$('#translation').appendTo(chineseChar)
   $('#translation').css({'left': (pos.left) + 'px', 'top': (pos.top + height + 10) + 'px', 'position': 'absolute', }).show()
   //$('#translationTriangle').appendTo(chineseChar)
   $('#translationTriangle').css({'left': (pos.left) + 'px', 'top': (pos.top + height) + 'px', 'position': 'absolute', })//.show()
+}
+
+function onWordLeave(wordid) {
+  if ($('#translation').attr('translationFor') == wordid)
+    $('#translation').hide()
+  $($('.'+ wordid)).css('background-color', '')
+  $($('.'+ wordid)).removeClass('currentlyHighlighted')
+}
+
+function onWordHover(wordid) {
+  //var vid = $('video')[0]
+  //vid.pause()
+  console.log(wordid)
+  clearHoverTrans()
+  placeTranslationText(wordid)
+
+  $($('.'+ wordid)).css('background-color', 'yellow')
+  $($('.'+ wordid)).addClass('currentlyHighlighted')
+
+  $('#translation').attr('translationFor', wordid)
+
+  var hovertext = $('#WS'+ wordid).attr('hovertext')
 
   //$('.'+ wordid).css()
   if (subLanguage == 'en') {
@@ -229,6 +246,20 @@ function setupHoverForDialog(dialogNum) {
 }
 */
 
+function showFullTranslation(sentence, firstWordId) {
+  console.log(sentence)
+  clearHoverTrans()
+  now.getTranslations(sentence, function(translation) {
+    console.log(translation[0].TranslatedText)
+    $('#translation').text(translation[0].TranslatedText)
+    placeTranslationText(firstWordId)
+    var offset = $('#translation').offset()
+    offset.left = $(window).width()/2 - $('#translation').width()/2
+    $('#translation').offset(offset)
+    $('#translation').show()
+  })
+}
+
 function setNewSubtitles(annotatedWordList) {
   setNewSubtitleList([[0, 1, annotatedWordList]])
 }
@@ -269,6 +300,14 @@ var whitespaceRow = []
 //pinyinRow.push('<td id="dialogStartSpacePYS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" class="spacingPYS" onclick="gotoDialog(' + q + ')"></td>')
 //wordRow.push('<td id="dialogStartSpaceWS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" class="spacingWS" onclick="gotoDialog(' + q + ')">　</td>')
 
+var allWords = []
+for (var i = 0; i < annotatedWordList.length; ++i) {
+  allWords.push(annotatedWordList[i][0])
+}
+var currentSentence = allWords.join('')
+
+var firstWordId = ''
+
 for (var i = 0; i < annotatedWordList.length; ++i) {
 var word = annotatedWordList[i][0]
 var pinyin = annotatedWordList[i][1]
@@ -278,16 +317,18 @@ if (wordToId[word] == null)
   wordToId[word] = Math.round(Math.random() * 1000000)
 //var randid = wordToId[word]
 var randid = 'wid_q_' + q + '_i_' + i
+if (i == 0) firstWordId = randid;
 
 coloredSpans = []
-var pinyinWords = pinyin.split(' ')
+pinyinWords = pinyin.split(' ')
+
 for (var j = 0; j < pinyinWords.length; ++j) {
   var curWord = pinyinWords[j]
   var tonecolor = ['red', '#AE5100', 'green', 'blue', 'black'][getToneNumber(curWord)-1]
   coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord + '</span>')
 }
 var pinyinspan = '<td nowrap="nowrap" style="font-size: 18px; text-align: center;" class="' + randid + ' hoverable pinyinspan pys' + q + '" onclick="wordClicked(' + q + ')">' + coloredSpans.join(' ') + '</td>'
-var wordspan = '<td nowrap="nowrap" style="font-size: 32px; text-align: center;" hovertext="' + english + '" id="WS' + randid + '" class="' + randid + ' hoverable wordspan ws' + q + '" onmouseover="onWordHover(\'' + randid + '\')" onclick="wordClicked(' + q + ')">' + word + '</td>'
+var wordspan = '<td nowrap="nowrap" style="font-size: 32px; text-align: center;" hovertext="' + english + '" id="WS' + randid + '" class="' + randid + ' hoverable wordspan ws' + q + '" onmouseover="onWordHover(\'' + randid + '\')" onmouseout="onWordLeave(\'' + randid + '\')" onclick="wordClicked(' + q + ')">' + word + '</td>'
 if (word == ' ') {
   wordspan = '<td style="font-size: xx-small">　</td>'
 }
@@ -297,6 +338,9 @@ wordRow.push(wordspan)
 whitespaceRow.push('<td id="whitespaceS' + q + '" style="font-size: 32px">　</td>')
 
 }
+
+wordRow.push('<td id="translate"' + q + '" style="font-size: 32px">　</td>')
+wordRow.push('<td id="translate"' + q + '" style="font-size: 32px" onclick="showFullTranslation(\'' + currentSentence + '\', \'' + firstWordId + '\')">翻译</td>')
 
 //pinyinRow.push('<td id="dialogEndSpacePYS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" class="spacingPYS" onclick="gotoDialog(' + q + ')"></td>')
 //wordRow.push('<td id="dialogEndSpaceWS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" class="spacingWS" onclick="gotoDialog(' + q + ')">　</td>')

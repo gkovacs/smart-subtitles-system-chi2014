@@ -10,6 +10,6 @@ main = ->
   #print edict.splitWord('9111')
   #print edict.getWordList('The day after 9111,')
   print edict.getDefnForWord('flew')
-  print edict.getReferenceInDefinition('(<I>imp.</I>) of Fly')
+  #print edict.getReferenceInDefinition('(<I>imp.</I>) of Fly')
 
 main() if require.main is module
