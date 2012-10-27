@@ -158,14 +158,17 @@ function wordClicked(dialogNum) {
   }
 }
 
-function gotoDialog(dialogNum) {
-  gotoDialogNoVidSeek(dialogNum)
+function gotoDialog(dialogNum, dontanimate) {
+  gotoDialogNoVidSeek(dialogNum, dontanimate)
   $('video')[0].currentTime = dialogStartTimesDeciSeconds[dialogNum] / 10
 }
 
-function gotoDialogNoVidSeek(dialogNum) {
+gotoDialogInProgress = false
+
+function gotoDialogNoVidSeek(dialogNum, dontanimate) {
   if (dialogNum < 0 || dialogNum >= dialogStartTimesDeciSeconds.length) return
   if (dialogNum == prevDialogNum) return
+  gotoDialogInProgress = true
   clearHoverTrans()
   $('.pysactive').css('font-size', '18px')
   $('.pysactive').removeClass('pysactive')
@@ -207,13 +210,20 @@ function gotoDialogNoVidSeek(dialogNum) {
   $('html, body').stop(true, true)
   var oldOffset = $('html, body').scrollLeft()
   var newOffset = offset.top - 48 - videoHeight - (windowBottom - videoBottom)/2
-  if (Math.abs(newOffset - oldOffset) > $(window).width()) {
+  if (false) {
+    $('html, body').scrollTop(newOffset)
+    //gotoDialogInProgress = false
+    setTimeout(function() {gotoDialogInProgress = false}, 50)
+  } else if (Math.abs(newOffset - oldOffset) > $(window).width()) {
     //$('html, body').scrollTop(newOffset)
     $('html, body').animate({scrollTop: newOffset}, 30)
+    setTimeout(function() {gotoDialogInProgress = false}, 130)
   } else {
-    $('html, body').animate({scrollTop: newOffset}, 300)
+    $('html, body').animate({scrollTop: newOffset}, 100)
+    setTimeout(function() {gotoDialogInProgress = false}, 200)
   }
   // - Math.round($(window).width()/2 + width/2)
+  
   
 
   //var oldOffset = $('html, body').scrollLeft()
@@ -334,7 +344,7 @@ for (var j = 0; j < pinyinWords.length; ++j) {
   coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord + '</span>')
 }
 var pinyinspan = '<td nowrap="nowrap" style="text-align: center;" class="' + randid + ' hoverable pinyinspan pys' + q + '" onclick="wordClicked(' + q + ')">' + coloredSpans.join(' ') + '</td>'
-var wordspan = '<td nowrap="nowrap" style="text-align: center;" hovertext="' + english + '" id="WS' + randid + '" class="' + randid + ' hoverable wordspan ws' + q + '" onmouseover="onWordHover(\'' + randid + '\')" onmouseout="onWordLeave(\'' + randid + '\')" onclick="wordClicked(' + q + ')">' + word + '</td>'
+var wordspan = '<td nowrap="nowrap" dialognum=' + q + ' style="text-align: center;" hovertext="' + english + '" id="WS' + randid + '" class="' + randid + ' hoverable wordspan ws' + q + '" onmouseover="onWordHover(\'' + randid + '\')" onmouseout="onWordLeave(\'' + randid + '\')" onclick="wordClicked(' + q + ')">' + word + '</td>'
 if (word == ' ') {
   wordspan = '<td style="font-size: xx-small">　</td>'
 }
@@ -609,7 +619,27 @@ function mouseUp(event) {
 
 $(document).mouseup(mouseUp)
 */
+
 $(document).mousewheel(mouseWheelMove)
+
+function onScroll() {
+  //$('video')[0].pause()
+  if (gotoDialogInProgress) return
+  $.doTimeout('scroll', 300, function() {
+    var videoHeight = $('video')[0].videoHeight
+    var videoBottom = $('video').offset().top + videoHeight
+    var windowBottom = $('#bottomOfScreen').offset().top
+    var windowTop = $(window).scrollTop()
+    var center = (windowBottom + videoBottom) / 2
+    //console.log(center)
+    //console.log($.nearest({x: $(window).width()/2, y: center}, '.wordspan')[0])
+    dialognum = $($.nearest({x: $(window).width()/2, y: center}, '.wordspan')[0]).attr('dialognum')
+    console.log(dialognum)
+    gotoDialog(dialognum, true)
+  })
+}
+
+$(document).scroll(onScroll)
 
 $(document)[0].addEventListener('contextmenu', function(event) {
   event.preventDefault()
