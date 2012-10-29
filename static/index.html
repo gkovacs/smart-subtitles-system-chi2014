@@ -61,6 +61,9 @@ if (urlParams['video'] != null && (urlParams['sub'] != null || urlParams['subpix
   var subPixSource = ''
   if (urlParams['subpix'] != null)
     subPixSource = urlParams['subpix']
+  var nativeSubSource = ''
+  if (urlParams['nativesub'] != null)
+    nativeSubSource = urlParams['nativesub']
   callOnceMethodAvailable('initializeSubtitle', function() {
     $('#inputRegion').hide()
     $('#viewingRegion').show()
@@ -69,6 +72,10 @@ if (urlParams['video'] != null && (urlParams['sub'] != null || urlParams['subpix
     now.initializeSubtitle(subSource, subLanguage, function() {
       now.getFullAnnotatedSub(setNewSubtitleList)
     })
+  })
+  callOnceMethodAvailable('initializeNativeSubtitle', function() {
+    //now.initializeSubtitle(subSource, subLanguage)
+    now.initializeNativeSubtitle(nativeSubSource)
   })
   callOnceMethodAvailable('initializeSubPix', function() {
     $('#inputRegion').hide()
@@ -123,7 +130,7 @@ Subtitle (<a href="http://en.wikipedia.org/wiki/SubRip#SubRip_text_file_format">
 <div id="pinyin" style="font-size: large"></div>
 <div id="caption"></div>
 <div id="translationTriangle" style="display: none"></div>
-<div id="translation" style="font-size: medium; display: none; white-space: nowrap"></div>
+<div id="translation" isFullTranslation='false' style="font-size: medium; display: none; white-space: nowrap"></div>
 <div id="pronounceWidget" style="display: none"><audio onended="nextAudioItem()" onerror="nextAudioItem()" controls=""></audio></div>
 </div>
 </div>

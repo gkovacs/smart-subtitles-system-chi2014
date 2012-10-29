@@ -35,8 +35,15 @@ language = 'zh'
 
 root.initializeUser = (nuser) ->
 
-  subtext = ''
   subtitleGetter = null
+  nativeSubtitleGetter = {
+    subtitleAtTimeAsync: (deciSec, callback) ->
+      idx = subtitleGetter.getSubtitleIndexFromTime(deciSec)
+      subtext = subtitleGetter.timesAndSubtitles[idx][2]
+      getTranslations(subtext, (translation) ->
+        callback(translation[0].TranslatedText)
+      )
+  }
   subPixGetter = null
 
   initializeSubtitle = (subtitleSource, nlanguage, doneCallback) ->
@@ -44,6 +51,13 @@ root.initializeUser = (nuser) ->
       return
     downloadSubtitleText(subtitleSource, (subtext) ->
       initializeSubtitleText(subtext, nlanguage, doneCallback)
+    )
+
+  initializeNativeSubtitle = (subtitleSource, doneCallback) ->
+    if (not subtitleSource?) or subtitleSource == ''
+      return
+    downloadSubtitleText(subtitleSource, (subtext) ->
+      initializeNativeSubtitleText(subtext, doneCallback)
     )
 
   initializeSubtitleText = (subtitleText, nlanguage, doneCallback) ->
@@ -56,6 +70,36 @@ root.initializeUser = (nuser) ->
     #  for text in textlist
     #    getpinyin.getPinyinRateLimitedCached(text, (ntext, pinyin) ->
     #    )
+
+  initializeNativeSubtitleText = (subtitleText, doneCallback) ->
+    nativeSubtitleGetterReal = new subtitleread.SubtitleRead(subtitleText)
+    nativeSubtitleGetter = {
+    subtitleAtTimeAsync: (deciSec, callback) ->
+      idx = subtitleGetter.getSubtitleIndexFromTime(deciSec)
+      [start,end,subtext] = subtitleGetter.timesAndSubtitles[idx]
+      idx = nativeSubtitleGetterReal.getSubtitleIndexFromTime((start+start+end)/3)
+      isOverHalfOfNativeOrTargetCovered = (start_target, end_target, start_native, end_native) ->
+        target_duration = end - start
+        native_duration = end_native - start_native
+        covered_duration = Math.min(end_native, end_target) - Math.max(start_target, start_native)
+        return covered_duration*2 > Math.min(native_duration, target_duration)
+      while idx >= 0
+        [nstart,nend,nsubtext] = nativeSubtitleGetterReal.timesAndSubtitles[idx]
+        if not isOverHalfOfNativeOrTargetCovered(start, end, nstart, nend)
+          break
+        idx -= 1
+      idx += 1
+      translations = []
+      while idx < nativeSubtitleGetterReal.timesAndSubtitles.length
+        [nstart,nend,nsubtext] = nativeSubtitleGetterReal.timesAndSubtitles[idx]
+        if translations.length > 0 and not isOverHalfOfNativeOrTargetCovered(start, end, nstart, nend)
+          break
+        translations.push(nsubtext)
+        idx += 1
+      callback(translations.join(' '))
+    }
+    if doneCallback?
+      doneCallback()
 
   initializeSubPix = (subPixSource) ->
     if (not subPixSource?) or subPixSource == ''
@@ -218,6 +262,9 @@ root.initializeUser = (nuser) ->
       getFullAnnotatedSubJapanese(callback)
     if language == 'en'
       getFullAnnotatedSubEnglish(callback)
+
+  getNativeSubAtTime = (time, callback) ->
+    nativeSubtitleGetter.subtitleAtTimeAsync(time, callback)
 
   getAnnotatedSubAtTime = (time, callback) ->
     if language == 'zh'
@@ -403,6 +450,7 @@ root.initializeUser = (nuser) ->
   getTranslations = (text, callback) ->
     translator.getTranslations(text, 'zh-CHS', 'en', callback)
 
+  nuser.now.getNativeSubAtTime = getNativeSubAtTime
   nuser.now.getAnnotatedSubAtTime = getAnnotatedSubAtTime
   nuser.now.getFullAnnotatedSub = getFullAnnotatedSub
   nuser.now.getSubPixAtTime = getSubPixAtTime
@@ -410,6 +458,8 @@ root.initializeUser = (nuser) ->
   nuser.now.getNextDialogStartTime = getNextDialogStartTime
   nuser.now.initializeSubtitle = initializeSubtitle
   nuser.now.initializeSubtitleText = initializeSubtitleText
+  nuser.now.initializeNativeSubtitle = initializeNativeSubtitle
+  nuser.now.initializeNativeSubtitleText = initializeNativeSubtitleText
   nuser.now.initializeSubPix = initializeSubPix
   nuser.now.downloadSubtitleText = downloadSubtitleText
   nuser.now.getPrononciation = getprononciation.getPrononciationRateLimitedCached

@@ -72,6 +72,7 @@ function onWordHover(wordid) {
       hovertext = hovertext.slice(0, hovertext.indexOf('/'))
     }
     $('#translation').text(hovertext)
+    $('#translation').attr('isFullTranslation', 'false')
   }
 }
 
@@ -262,9 +263,30 @@ function setupHoverForDialog(dialogNum) {
 }
 */
 
+function translateButtonPressed(sentence, firstWordId) {
+  if ($('#translation').attr('isFullTranslation') == 'true' && $('video')[0].paused) {
+    $('video')[0].play();
+    return
+  }
+  $('video')[0].pause();
+  showFullTranslation(sentence, firstWordId)
+}
+
 function showFullTranslation(sentence, firstWordId) {
   console.log(sentence)
   clearHoverTrans()
+  var currentTimeDeciSecs = Math.round($('video')[0].currentTime*10)
+  now.getNativeSubAtTime(currentTimeDeciSecs, function(translation) {
+    console.log(translation)
+    $('#translation').text(translation)
+    $('#translation').attr('isFullTranslation', 'true')
+    placeTranslationText(firstWordId)
+    var offset = $('#translation').offset()
+    offset.left = $(window).width()/2 - $('#translation').width()/2
+    $('#translation').offset(offset)
+    $('#translation').show()
+  })
+  /*
   now.getTranslations(sentence, function(translation) {
     console.log(translation[0].TranslatedText)
     $('#translation').text(translation[0].TranslatedText)
@@ -274,6 +296,7 @@ function showFullTranslation(sentence, firstWordId) {
     $('#translation').offset(offset)
     $('#translation').show()
   })
+  */
 }
 
 function setNewSubtitles(annotatedWordList) {
@@ -288,6 +311,7 @@ annotatedWordListListG = annotatedWordListList
 //if (annotatedWordList.length == 0) return
 $('#translationTriangle').hide()
 $('#translation').text('')
+$('#translation').attr('isFullTranslation', 'false')
 var nhtml = []
 
 dialogStartTimesDeciSeconds = []
@@ -356,7 +380,7 @@ whitespaceRow.push('<td id="whitespaceS' + q + '" style="font-size: 32px">　</t
 }
 
 wordRow.push('<td id="translate"' + q + '" style="font-size: 32px">　</td>')
-wordRow.push('<td id="translate"' + q + '" style="font-size: 32px; display: none" class="translateButton tb' + q + '" onclick="showFullTranslation(\'' + currentSentence + '\', \'' + firstWordId + '\')">翻译</td>')
+wordRow.push('<td id="translate"' + q + '" style="font-size: 32px; display: none" class="translateButton tb' + q + '" onclick="translateButtonPressed(\'' + currentSentence + '\', \'' + firstWordId + '\')">翻译</td>')
 
 //pinyinRow.push('<td id="dialogEndSpacePYS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" class="spacingPYS" onclick="gotoDialog(' + q + ')"></td>')
 //wordRow.push('<td id="dialogEndSpaceWS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" class="spacingWS" onclick="gotoDialog(' + q + ')">　</td>')

@@ -49,6 +49,20 @@ class SubtitleRead
     @timesAndSubtitles = timesAndSubtitles
     @lastStartTime = lastStartTime
 
+  getSubtitleIndexFromTime: (deciSec) ->
+    lidx = 0
+    ridx = @timesAndSubtitles.length-1
+    while lidx < ridx+1
+      midx = Math.floor((lidx + ridx)/2)
+      ctime = @timesAndSubtitles[midx][0]
+      if ctime > deciSec
+        ridx = midx - 1
+      else
+        lidx = midx + 1
+    if ridx < 0
+      ridx = 0
+    return ridx
+
   getTimesAndSubtitles: () ->
     return @timesAndSubtitles
 
@@ -58,6 +72,9 @@ class SubtitleRead
       retv
     else
       ''
+
+  subtitleAtTimeAsync: (deciSec, callback) ->
+    callback(@subtitleAtTime(deciSec))
 
 root.SubtitleRead = SubtitleRead
 root.toDeciSeconds = toDeciSeconds
