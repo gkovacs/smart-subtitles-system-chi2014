@@ -69,8 +69,14 @@ if (urlParams['video'] != null && (urlParams['sub'] != null || urlParams['subpix
     $('#viewingRegion').show()
     console.log(subSource)
     //now.initializeSubtitle(subSource, subLanguage)
+    var anchorhash = location.hash.replace('#', '')
     now.initializeSubtitle(subSource, subLanguage, function() {
-      now.getFullAnnotatedSub(setNewSubtitleList)
+      now.getFullAnnotatedSub(function(sublist) {
+        setNewSubtitleList(sublist)
+        if (anchorhash != '') {
+          gotoDialog(parseInt(anchorhash))
+        }
+      })
     })
   })
   callOnceMethodAvailable('initializeNativeSubtitle', function() {

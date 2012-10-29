@@ -171,6 +171,9 @@ function gotoDialogNoVidSeek(dialogNum, dontanimate) {
   if (dialogNum == prevDialogNum) return
   gotoDialogInProgress = true
   clearHoverTrans()
+  
+  location.hash = dialogNum.toString()
+  
   $('.pysactive').css('font-size', '18px')
   $('.pysactive').removeClass('pysactive')
   $('.wsactive').css('font-size', '32px')
@@ -668,6 +671,15 @@ $(document).scroll(onScroll)
 $(document)[0].addEventListener('contextmenu', function(event) {
   event.preventDefault()
 })
+
+$(window).bind('hashchange',function(event){
+    var anchorhash = location.hash.replace('#', '');
+    if (anchorhash == '')
+      return
+    if (gotoDialogInProgress)
+      return
+    gotoDialog(parseInt(anchorhash))
+});
 
 function startPlayback() {
   if (isLocalFile()) {
