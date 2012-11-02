@@ -21,16 +21,17 @@ initialize_token = (callback) ->
   )
 
 getTranslations = (fromtext, fromlanguage, tolanguage, callback) ->
-  client.get('bing_en_to_zhs_j5|' + fromtext, (err, reply) ->
-	  if reply != null
-	    callback(JSON.parse(reply))
-	  else
-	    initialize_token(() ->
-	      transclient.getTranslations({text: fromtext, from: fromlanguage, to: tolanguage, maxTranslations: 5}, (err2, translated_text) ->
-	        client.set('bing_en_to_zhs_j5|' + fromtext, JSON.stringify(translated_text.Translations))
-	        callback(translated_text.Translations)
-	      )
-	    )
+  client.get('bing_' + fromlanguage + '_to_' + tolanguage + '_j5|' + fromtext, (err, reply) ->
+    console.log(fromtext)
+    if reply != null
+      callback(JSON.parse(reply))
+    else
+      initialize_token(() ->
+        transclient.getTranslations({text: fromtext, from: fromlanguage, to: tolanguage, maxTranslations: 5}, (err2, translated_text) ->
+          client.set('bing_' + fromlanguage + '_to_' + tolanguage + '_j5|' + fromtext, JSON.stringify(translated_text.Translations))
+          callback(translated_text.Translations)
+        )
+      )
   )
 
 redis = require 'redis'

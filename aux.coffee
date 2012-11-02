@@ -32,6 +32,7 @@ getprononciation = require './getprononciation'
 translator = require './translator'
 
 language = 'zh'
+targetLanguage = 'en' # zh-CHS
 
 root.initializeUser = (nuser) ->
 
@@ -46,11 +47,11 @@ root.initializeUser = (nuser) ->
   }
   subPixGetter = null
 
-  initializeSubtitle = (subtitleSource, nlanguage, doneCallback) ->
+  initializeSubtitle = (subtitleSource, nlanguage, tlanguage, doneCallback) ->
     if (not subtitleSource?) or subtitleSource == ''
       return
     downloadSubtitleText(subtitleSource, (subtext) ->
-      initializeSubtitleText(subtext, nlanguage, doneCallback)
+      initializeSubtitleText(subtext, nlanguage, tlanguage, doneCallback)
     )
 
   initializeNativeSubtitle = (subtitleSource, doneCallback) ->
@@ -60,8 +61,9 @@ root.initializeUser = (nuser) ->
       initializeNativeSubtitleText(subtext, doneCallback)
     )
 
-  initializeSubtitleText = (subtitleText, nlanguage, doneCallback) ->
+  initializeSubtitleText = (subtitleText, nlanguage, tlanguage, doneCallback) ->
     language = nlanguage
+    targetLanguage = tlanguage
     subtitleGetter = new subtitleread.SubtitleRead(subtitleText)
     if doneCallback?
       doneCallback()
@@ -278,9 +280,14 @@ root.initializeUser = (nuser) ->
     sub = subtitleGetter.subtitleAtTime(time)
     if not sub? or sub == ''
       callback([])
+    english_translations = []
+    word_list = edict.getWordList(sub)
+    await
+      for word,idx in word_list
+        translator.getTranslations(word, 'en', 'zh-CHS', defer(english_translations[idx]))
     output = []
-    for word in edict.getWordList(sub)
-      output.push([word, '', edict.getDefnForWord(word)])
+    for word,idx in word_list
+      output.push([word, '', english_translations[idx][0].TranslatedText])
     callback(output)
 
   getAnnotatedSubAtTimeJapanese = (time, callback) ->
@@ -440,15 +447,23 @@ root.initializeUser = (nuser) ->
     annotatedSubLines = []
     for i in [0...allSubLines.length]
       annotatedSubLines[i] = []
-      for word in edict.getWordList(allSubLines[i][2])
-        annotatedSubLines[i].push([word, '', edict.getDefnForWord(word)])
+      english_translations = []
+      word_list = edict.getWordList(allSubLines[i][2])
+      await
+        for word,idx in word_list
+          translator.getTranslations(word, language, targetLanguage, defer(english_translations[idx]))
+          #translator.getTranslations(word, 'en', 'zh-CHS', defer(english_translations[idx]))
+      for word,idx in word_list
+        annotatedSubLines[i].push([word, '', english_translations[idx][0].TranslatedText])
+      #for word in edict.getWordList(allSubLines[i][2])
+      #  annotatedSubLines[i].push([word, '', edict.getDefnForWord(word)])
     timesAndAnnotatedSubLines = []
     for i in [0...allSubLines.length]
       timesAndAnnotatedSubLines[i] = [allSubLines[i][0], allSubLines[i][1], annotatedSubLines[i]]
     callback(timesAndAnnotatedSubLines)
 
   getTranslations = (text, callback) ->
-    translator.getTranslations(text, 'zh-CHS', 'en', callback)
+    translator.getTranslations(text, language, targetLanguage, callback)
 
   nuser.now.getNativeSubAtTime = getNativeSubAtTime
   nuser.now.getAnnotatedSubAtTime = getAnnotatedSubAtTime

@@ -4,6 +4,7 @@ sub = {}
 audioQueue = []
 
 subLanguage = 'zh'
+targetLanguage = 'vi'
 
 function prevButtonPressed() {
   //var vid = $('video')[0]
@@ -66,7 +67,8 @@ function onWordHover(wordid) {
 
   //$('.'+ wordid).css()
   if (subLanguage == 'en') {
-    $('#translation').html(hovertext)
+    //$('#translation').html(hovertext)
+    $('#translation').text(hovertext)
   } else {
     if (hovertext.indexOf('/') != -1) {
       hovertext = hovertext.slice(0, hovertext.indexOf('/'))
@@ -269,9 +271,9 @@ function setupHoverForDialog(dialogNum) {
 function translateButtonPressed(sentence, firstWordId) {
   if ($('#translation').attr('isFullTranslation') == 'true' && $('video')[0].paused) {
     $('video')[0].play();
-    return
+  } else {
+    $('video')[0].pause();
   }
-  $('video')[0].pause();
   showFullTranslation(sentence, firstWordId)
 }
 
@@ -347,7 +349,7 @@ var allWords = []
 for (var i = 0; i < annotatedWordList.length; ++i) {
   allWords.push(annotatedWordList[i][0])
 }
-var currentSentence = allWords.join('')
+var currentSentence = escapeHtmlQuotes(allWords.join(''))
 
 var firstWordId = ''
 
@@ -355,6 +357,8 @@ for (var i = 0; i < annotatedWordList.length; ++i) {
 var word = annotatedWordList[i][0]
 var pinyin = annotatedWordList[i][1]
 var english = annotatedWordList[i][2]
+if (english == null) english = ''
+else english = escapeHtmlQuotes(english)
 
 if (wordToId[word] == null)
   wordToId[word] = Math.round(Math.random() * 1000000)
@@ -383,7 +387,7 @@ whitespaceRow.push('<td id="whitespaceS' + q + '" style="font-size: 32px">　</t
 }
 
 wordRow.push('<td id="translate"' + q + '" style="font-size: 32px">　</td>')
-wordRow.push('<td id="translate"' + q + '" style="font-size: 32px; display: none" class="translateButton tb' + q + '" onclick="translateButtonPressed(\'' + currentSentence + '\', \'' + firstWordId + '\')">翻译</td>')
+wordRow.push('<td id="translate"' + q + '" style="font-size: 32px; display: none; white-space: nowrap" class="translateButton tb' + q + '" onclick="translateButtonPressed(\'' + currentSentence + '\', \'' + firstWordId + '\')">翻译</td>')
 
 //pinyinRow.push('<td id="dialogEndSpacePYS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" class="spacingPYS" onclick="gotoDialog(' + q + ')"></td>')
 //wordRow.push('<td id="dialogEndSpaceWS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" class="spacingWS" onclick="gotoDialog(' + q + ')">　</td>')
@@ -705,12 +709,12 @@ function startPlayback() {
     if (subtitleText.indexOf('Loading subtitles from ') == 0)
       subtitleText = subtitleText.substring('Loading subtitles from '.length)
     //now.initializeSubtitle(subtitleText, subLanguage)
-    now.initializeSubtitle(subtitleText, subLanguage, function() {
+    now.initializeSubtitle(subtitleText, subLanguage, targetLanguage, function() {
       now.getFullAnnotatedSub(setNewSubtitleList)
     })
   } else { // this is the subtitle text
     //now.initializeSubtitleText(subtitleText, subLanguage)
-    now.initializeSubtitleText(subtitleText, subLanguage, function() {
+    now.initializeSubtitleText(subtitleText, subLanguage, targetLanguage, function() {
       now.getFullAnnotatedSub(setNewSubtitleList)
     })
   }

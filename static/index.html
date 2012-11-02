@@ -10,7 +10,7 @@
 
 </head>
 <body style="font-family: 'Arial', sans-serif;">
-<script type="text/javascript" src="/nowjs/now.js"></script>
+<script type="text/javascript" src="http://localhost:3000/nowjs/now.js"></script>
 <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="jquery.mousewheel.min.js"></script>
 <script type="text/javascript" src="jquery.nearest.min.js"></script>
@@ -50,6 +50,16 @@ now.ready(function() {
 var urlParams = getUrlParameters()
 if (urlParams['lang'] != null)
   subLanguage = urlParams['lang']
+if (urlParams['tlang'] != null)
+  targetLanguage = urlParams['tlang']
+else {
+  if (subLanguage != 'en')
+    targetLanguage = 'en'
+  else
+    targetLanguage = 'zh'
+}
+if (targetLanguage == 'zh' || targetLanguage == 'zhs' || targetLanguage == 'zh_CN' || targetLanguage == 'zh-CN') targetLanguage = 'zh-CHS'
+if (targetLanguage == 'zht' || targetLanguage == 'zh_TW' || targetLanguage == 'zh-TW') targetLanguage = 'zh-CHT'
 if (urlParams['video'] != null && (urlParams['sub'] != null || urlParams['subpix'] != null)) {
   var videoSource = ''
   if (urlParams['video'] != null)
@@ -70,7 +80,7 @@ if (urlParams['video'] != null && (urlParams['sub'] != null || urlParams['subpix
     console.log(subSource)
     //now.initializeSubtitle(subSource, subLanguage)
     var anchorhash = location.hash.replace('#', '')
-    now.initializeSubtitle(subSource, subLanguage, function() {
+    now.initializeSubtitle(subSource, subLanguage, targetLanguage, function() {
       now.getFullAnnotatedSub(function(sublist) {
         setNewSubtitleList(sublist)
         if (anchorhash != '') {

@@ -39,6 +39,15 @@ rjust = (str, length, padchar=' ') ->
   	fill.push(padchar)
   return str + fill.join('')
 
+replaceAll = (str, from, to) ->
+  return str.split(from).join(to)
+
+root.escapeHtmlQuotes = (str) ->
+  replacements = [['&', '&amp;'], ['>', '&gt;'], ['<', '&lt;'], ['"', '&quot;'], ["'", '&#8217;']]
+  for [from,to] in replacements
+    str = replaceAll(str, from, to)
+  return str
+
 root.callOnceMethodAvailable = callOnceMethodAvailable
 root.ljust = ljust
 root.rjust = rjust
