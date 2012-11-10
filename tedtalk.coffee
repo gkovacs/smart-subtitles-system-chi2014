@@ -8,6 +8,8 @@ $ = require 'jQuery'
 
 main = ->
   ted_url = process.argv[2]
+  # http://www.ted.com/talks/lang/zh/yang_lan.html
+  # http://www.ted.com/talks/lang/zh-cn/yang_lan.html
   #print ted_url
   await
     http_get.get({url: ted_url}, defer(err, dlData))

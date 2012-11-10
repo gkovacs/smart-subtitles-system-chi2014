@@ -262,7 +262,7 @@ root.initializeUser = (nuser) ->
       getFullAnnotatedSubChinese(callback)
     if language == 'ja'
       getFullAnnotatedSubJapanese(callback)
-    if language == 'en'
+    if language == 'en' or language == 'es'
       getFullAnnotatedSubEnglish(callback)
 
   getNativeSubAtTime = (time, callback) ->
