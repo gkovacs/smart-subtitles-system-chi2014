@@ -31,6 +31,8 @@ getprononciation = require './getprononciation'
 
 translator = require './translator'
 
+getchinese_gloss = require './getchinese_gloss'
+
 language = 'zh'
 targetLanguage = 'en' # zh-CHS
 
@@ -296,6 +298,8 @@ root.initializeUser = (nuser) ->
       callback([])
     jdict.getGlossForSentence(sub, callback)
 
+  getGlossChinese = getchinese_gloss.getWordsPinyinEnglishCached
+  ###
   getGlossChinese = (sub, callback) ->
     processPinyin = (pinyin) ->
       #print pinyin
@@ -411,6 +415,7 @@ root.initializeUser = (nuser) ->
         #  processPinyin
         #)
     )
+  ###
 
   getAnnotatedSubAtTimeChinese = (time, callback) ->
     sub = subtitleGetter.subtitleAtTime(time)
