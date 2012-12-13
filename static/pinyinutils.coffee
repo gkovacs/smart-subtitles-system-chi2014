@@ -13,7 +13,7 @@ applyToneToVowel = (vowel, num) ->
     return 'ōóǒòo'[num]
   if vowel == 'u'
     return 'ūúǔùu'[num]
-  if vowel == 'ü'
+  if vowel == 'ü' or vowel == 'v'
     return 'ǖǘǚǜü'[num]
 
 getToneNumber = (word) ->
@@ -66,7 +66,7 @@ toneNumberToMarkSingle = (word) ->
     word = word[...-1]
   else
     return word
-  vow = ['a', 'i', 'e', 'o', 'u', 'ü']
+  vow = ['a', 'i', 'e', 'o', 'u', 'ü', 'v']
   numVowels = (x for x in word when x in vow).length
   if numVowels == 0
     return word
@@ -77,7 +77,18 @@ toneNumberToMarkSingle = (word) ->
   return word.replace(secondVowel, applyToneToVowel(secondVowel, toneNum))
 
 toneNumberToMark = (words) ->
-  wordL = words.split(' ')
+  wordL = []
+  curWord = []
+  for c in words
+    if '12345 '.indexOf(c) != -1
+      if c != ' '
+        curWord.push c
+      wordL.push curWord.join('')
+      curWord = []
+    else
+      curWord.push c
+  if curWord.length > 0
+    wordL.push curWord.join('')
   wordL = (toneNumberToMarkSingle(word) for word in wordL)
   wordL.join(' ')
 
@@ -91,6 +102,7 @@ main = ->
   #print text
   #print removeToneMarks(text)
   #print toneNumberToMark('nu:3 er2')
-  print toneNumberToMark('shui2')
+  #print toneNumberToMark('shui2')
+  print toneNumberToMark('nv3hai2zi3')
 
 main() if require? and require.main is module

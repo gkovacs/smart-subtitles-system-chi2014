@@ -6,7 +6,9 @@ http_get = require 'http-get'
 
 root.portnum = 3000
 
-require 'coffee-script'
+require 'iced-coffee-script'
+
+deferred = require 'deferred'
 
 subtitleread = require './static/subtitleread'
 subpread = require './static/subpread'
@@ -426,14 +428,22 @@ root.initializeUser = (nuser) ->
 
   getFullAnnotatedSubChinese = (callback) ->
     allSubLines = subtitleGetter.getTimesAndSubtitles()
-    annotatedSubLines = []
+    chineseGlossPromise = deferred.promisify(getGlossChinese)
     await
-      for i in [0...allSubLines.length]
-        getGlossChinese(allSubLines[i][2], defer(annotatedSubLines[i]))
+      deferred.map(allSubLines, deferred.gate((e, i) ->
+        chineseGlossPromise(e[2])
+      , 100))(defer(annotatedSubLines))
     timesAndAnnotatedSubLines = []
     for i in [0...allSubLines.length]
       timesAndAnnotatedSubLines[i] = [allSubLines[i][0], allSubLines[i][1], annotatedSubLines[i]]
     callback(timesAndAnnotatedSubLines)
+    #await
+    #  for i in [0...allSubLines.length]
+    #    getGlossChinese(allSubLines[i][2], defer(annotatedSubLines[i]))
+    #timesAndAnnotatedSubLines = []
+    #for i in [0...allSubLines.length]
+    #  timesAndAnnotatedSubLines[i] = [allSubLines[i][0], allSubLines[i][1], annotatedSubLines[i]]
+    #callback(timesAndAnnotatedSubLines)
 
 
   getFullAnnotatedSubJapanese = (callback) ->

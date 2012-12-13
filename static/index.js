@@ -366,8 +366,9 @@ if (wordToId[word] == null)
 var randid = 'wid_q_' + q + '_i_' + i
 if (i == 0) firstWordId = randid;
 
-/*
 coloredSpans = []
+var pinyinspan = '<td style="font-size: xx-small"></td>'
+if (pinyin) {
 pinyinWords = pinyin.split(' ')
 
 for (var j = 0; j < pinyinWords.length; ++j) {
@@ -375,9 +376,9 @@ for (var j = 0; j < pinyinWords.length; ++j) {
   var tonecolor = ['red', '#AE5100', 'green', 'blue', 'black'][getToneNumber(curWord)-1]
   coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord + '</span>')
 }
-var pinyinspan = '<td nowrap="nowrap" style="text-align: center;" class="' + randid + ' hoverable pinyinspan pys' + q + '" onclick="wordClicked(' + q + ')">' + coloredSpans.join(' ') + '</td>'
-*/
-var pinyinspan = '<td nowrap="nowrap" style="text-align: center;" class="' + randid + ' hoverable pinyinspan pys' + q + '" onclick="wordClicked(' + q + ')">' + pinyin + '</td>'
+pinyinspan = '<td nowrap="nowrap" style="text-align: center;" class="' + randid + ' hoverable pinyinspan pys' + q + '" onclick="wordClicked(' + q + ')">' + coloredSpans.join(' ') + '</td>'
+}
+
 var wordspan = '<td nowrap="nowrap" dialognum=' + q + ' style="text-align: center;" hovertext="' + english + '" id="WS' + randid + '" class="' + randid + ' hoverable wordspan ws' + q + '" onmouseover="onWordHover(\'' + randid + '\')" onmouseout="onWordLeave(\'' + randid + '\')" onclick="wordClicked(' + q + ')">' + word + '</td>'
 if (word == ' ') {
   wordspan = '<td style="font-size: xx-small">　</td>'
@@ -610,6 +611,8 @@ function checkKey(x) {
 $(document).keydown(checkKey)
 
 function mouseWheelMove(event, delta) {
+  if (gotoDialogInProgress)
+    return
   if (delta > 0) {
     gotoDialog(prevDialogNum - 1)
   } else {
