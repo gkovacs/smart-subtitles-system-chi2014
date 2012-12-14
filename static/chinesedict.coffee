@@ -62,6 +62,16 @@ class ChineseDict
     else
       return ''
 
+  getEnglishListForWord: (word) ->
+    res = this.wordLookup[word]
+    if res?
+      output = []
+      for [pinyin,english] in res
+        for def in english.split('/')
+          output.push def.trim()
+      return output
+    return []
+
   getEnglishForWord: (word) ->
     res = this.wordLookup[word]
     if res? and res.length > 0

@@ -16,12 +16,12 @@ chinesedict = require './static/chinesedict'
 japanesedict = require './static/japanesedict'
 englishdict = require './static/englishdict'
 
-dictText = fs.readFileSync('static/cedict_full.txt', 'utf8')
-cdict = new chinesedict.ChineseDict(dictText)
-jdictText = fs.readFileSync('static/edict2_full.txt', 'utf8')
-jdict = new japanesedict.JapaneseDict(jdictText)
-edictText = fs.readFileSync('static/engdict-opted.html', 'utf8')
-edict = new englishdict.EnglishDict(edictText)
+#dictText = fs.readFileSync('static/cedict_full.txt', 'utf8')
+#cdict = new chinesedict.ChineseDict(dictText)
+#jdictText = fs.readFileSync('static/edict2_full.txt', 'utf8')
+#jdict = new japanesedict.JapaneseDict(jdictText)
+#edictText = fs.readFileSync('static/engdict-opted.html', 'utf8')
+#edict = new englishdict.EnglishDict(edictText)
 
 redis = require 'redis'
 client = redis.createClient()

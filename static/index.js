@@ -70,10 +70,13 @@ function onWordHover(wordid) {
     //$('#translation').html(hovertext)
     $('#translation').text(hovertext)
   } else {
-    if (hovertext.indexOf('/') != -1) {
-      hovertext = hovertext.slice(0, hovertext.indexOf('/'))
-    }
-    $('#translation').text(hovertext)
+    definitions = hovertext.split('/')
+    firstDef = definitions[0]
+    nextDefs = ' <span id="transAltDefs" style="color: grey">' + definitions.slice(1).join('; ') + '</span>'
+    //if (hovertext.indexOf(';') != -1) {
+    //  hovertext = hovertext.slice(0, hovertext.indexOf('/'))
+    //}
+    $('#translation').html(firstDef + nextDefs)
     $('#translation').attr('isFullTranslation', 'false')
   }
 }

@@ -9,6 +9,12 @@ child_process = require 'child_process'
 
 pinyinutils = require './static/pinyinutils'
 
+fs = require 'fs'
+
+dictText = fs.readFileSync('static/cedict_full.txt', 'utf8')
+chinesedict = require './static/chinesedict'
+cdict = new chinesedict.ChineseDict(dictText)
+
 deferred = require 'deferred'
 
 $ = require 'jQuery'
@@ -131,10 +137,22 @@ extended_vocab = {
     multi: [['一个', 'yi1ge', 'one'], ['都', 'dou1', 'all'], ['不', 'bu4', 'not'], ['留', 'liu2', 'remain']]
   },
   '挺住': {
-    english: 'stand firm'
+    english: 'stand firm',
   },
   '阿弥陀佛': {
     english: 'Amitabha Buddha',
+  },
+  '挨个人': {
+    multi: [['挨个', 'ai2ge4', 'one by one'], ['人', 'ren2', 'person']],
+  },
+  '班长': {
+    english: 'Class President',
+  },
+  '丫头': {
+    english: 'girl',
+  },
+  '吗': {
+    english: '(question tag)'
   },
 }
 
@@ -158,6 +176,21 @@ context_vocab = {
     english: 'to touch',
   },
 }
+'我没有资格当老师': {
+  '当': {
+    english: 'to act as',
+  },
+}
+'还有你我才觉得有活的滋味啊': {
+  '滋味': {
+    english: 'feeling',
+  },
+},
+'不是说敲一下门吗': {
+  '门吗': {
+    multi: [['门', 'men2', 'door'], ['吗', 'ma', '(question tag)']],
+  },
+},
 }
 
 addContextVocab = (chinese, vocabdict) ->
@@ -169,6 +202,22 @@ for x in ['传说千雪峰有一朵奇花', '朝庭决定派遣使者到雪山�
       english: 'flower'
     }
   }
+
+uniquify = (list) ->
+  output = []
+  seen = {}
+  for x in list
+    if not seen[x]?
+      seen[x] = true
+      output.push x
+  return output
+
+removeEmpty = (list) ->
+  output = []
+  for x in list
+    if x != ''
+      output.push x
+  return output
 
 parseAdsoOutput = (stdout) ->
   cnwords = []
@@ -221,6 +270,8 @@ parseAdsoOutput = (stdout) ->
       winf = ([word, pinyinutils.toneNumberToMark(pinyin), english] for [word, pinyin, english] in winf)
     for x in winf
       words.push(x)
+  #return words
+  words = ([word,pinyin,(removeEmpty uniquify([english.trim()].concat(cdict.getEnglishListForWord(word)))).join('/')] for [word,pinyin,english] in words)
   return words
 
 escapeshell = (cmd) ->
