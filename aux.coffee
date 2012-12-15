@@ -83,7 +83,22 @@ root.initializeUser = (nuser) ->
     subtitleAtTimeAsync: (deciSec, callback) ->
       idx = subtitleGetter.getSubtitleIndexFromTime(deciSec)
       [start,end,subtext] = subtitleGetter.timesAndSubtitles[idx]
-      idx = nativeSubtitleGetterReal.getSubtitleIndexFromTime((start+start+end)/3)
+      idx = nativeSubtitleGetterReal.getSubtitleIndexFromTime((start+end)/2)
+      ###
+      subtextWords = getchinese_gloss.getEnglishWordsInGloss(subtext, (glossWords) ->
+        translations = []
+        if nativeSubtitleGetterReal.timesAndSubtitles[idx-1]?
+          curtrans = nativeSubtitleGetterReal.timesAndSubtitles[idx-1][2]
+          if getchinese_gloss.sentenceOverlapPercentageWithWords(curtrans, glossWords) > 0.1
+            translations.push curtrans
+        translations.push nativeSubtitleGetterReal.timesAndSubtitles[idx][2]
+        if nativeSubtitleGetterReal.timesAndSubtitles[idx+1]?
+          curtrans = nativeSubtitleGetterReal.timesAndSubtitles[idx+1][2]
+          if getchinese_gloss.sentenceOverlapPercentageWithWords(curtrans, glossWords) > 0.1
+            translations.push curtrans
+        callback translations.join(' | ')
+      )
+      ###
       isOverHalfOfNativeOrTargetCovered = (start_target, end_target, start_native, end_native) ->
         target_duration = end - start
         native_duration = end_native - start_native
@@ -94,7 +109,8 @@ root.initializeUser = (nuser) ->
         if not isOverHalfOfNativeOrTargetCovered(start, end, nstart, nend)
           break
         idx -= 1
-      idx += 1
+      if idx != 0
+        idx += 1
       translations = []
       while idx < nativeSubtitleGetterReal.timesAndSubtitles.length
         [nstart,nend,nsubtext] = nativeSubtitleGetterReal.timesAndSubtitles[idx]
@@ -270,7 +286,10 @@ root.initializeUser = (nuser) ->
       getFullAnnotatedSubEnglish(callback)
 
   getNativeSubAtTime = (time, callback) ->
-    nativeSubtitleGetter.subtitleAtTimeAsync(time, callback)
+    idx = subtitleGetter.getSubtitleIndexFromTime(time)
+    [startTime,endTime,subLine] = subtitleGetter.timesAndSubtitles[idx]
+    midTime = Math.floor((startTime + endTime) / 2)
+    nativeSubtitleGetter.subtitleAtTimeAsync(midTime, callback)
 
   getAnnotatedSubAtTime = (time, callback) ->
     if language == 'zh'

@@ -152,7 +152,10 @@ extended_vocab = {
     english: 'girl',
   },
   '吗': {
-    english: '(question tag)'
+    english: '(question tag)',
+  },
+  '银别': {
+    english: 'Yin Bie',
   },
 }
 
@@ -189,6 +192,11 @@ context_vocab = {
 '不是说敲一下门吗': {
   '门吗': {
     multi: [['门', 'men2', 'door'], ['吗', 'ma', '(question tag)']],
+  },
+},
+'卓一航，你听到我们统领说的话没有': {
+  '统领': {
+    english: 'commander'
   },
 },
 }
@@ -292,6 +300,45 @@ getWordsPinyinEnglishCached = (text, callback) ->
       callback(parseAdsoOutput(stdout))
     )
   )
+
+englishStopwordsList = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now']
+
+englishStopwords = {}
+for x in englishStopwordsList
+  englishStopwords[x] = true
+
+overlapPercentage = root.overlapPercentage = (words1, words2) ->
+  console.log words1
+  console.log words2
+  overlapNum = 0
+  for key,value of words1
+    if words2[key]?
+      overlapNum += 1
+  console.log overlapNum / Math.min(words1.length, words2.length)
+  return overlapNum / Math.min(words1.length, words2.length)
+
+listEnglishWordsInSentence = root.listEnglishWordsInSentence = (text) ->
+  englishWords = {}
+  for x in text.split(/[^A-Za-z0-9]+/)
+    x = x.toLowerCase()
+    if x.length > 0 and (not englishWords[x]?) and (not englishStopwords[x]?)
+      englishWords[x] = true
+  return englishWords
+
+sentenceOverlapPercentageWithWords = root.sentenceOverlapPercentageWithWords = (sentence, words) ->
+  return overlapPercentage(listEnglishWordsInSentence(sentence), words)
+
+root.getEnglishWordsInGloss = (text, callback) ->
+  await
+    getWordsPinyinEnglishCached(text, defer(wordsPinyinEnglish))
+  englishWords = {}
+  for [word, pinyin, english] in wordsPinyinEnglish
+    for x in english.split(/[^A-Za-z0-9]+/)
+      x = x.toLowerCase()
+      if x.length > 0 and (not englishWords[x]?) and (not englishStopwords[x]?)
+        englishWords[x] = true
+  callback englishWords
+
 
 root.getWordsPinyinEnglishCached = getWordsPinyinEnglishCached
 
