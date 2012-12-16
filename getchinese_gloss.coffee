@@ -57,7 +57,7 @@ extended_vocab = {
     multi: [['练', 'lian4', 'to practice'], ['熟', 'shou2', 'skilled']]
   },
   '给你': {
-    multi: [['给', 'gei3', 'give'], ['你', 'ni3men', 'you']]
+    multi: [['给', 'gei3', 'give'], ['你', 'ni3', 'you']]
   },
   '亏待': {
     english: 'treat unfairly',
@@ -157,6 +157,21 @@ extended_vocab = {
   '银别': {
     english: 'Yin Bie',
   },
+  '有没有': {
+    english: 'do you have?',
+  },
+  '蜘顺': {
+    english: "Zhi Shun (spider's name)",
+  },
+  '高中毕业证': {
+    multi: [['高中', 'gao1 zhong1', 'high school'], ['毕业', 'bi4 ye4', 'graduation'], ['证', 'zheng4', 'certificate']],
+  },
+  '多星星': {
+    multi: [['多', 'duo1', 'many'], ['星星', 'xing1xing1', 'stars']]
+  },
+  '汗江': {
+    english: 'Han River',
+  },
 }
 
 context_vocab = {
@@ -196,7 +211,84 @@ context_vocab = {
 },
 '卓一航，你听到我们统领说的话没有': {
   '统领': {
-    english: 'commander'
+    english: 'commander',
+  },
+},
+'到底有没有良心': {
+  '到底': {
+    english: 'in the end',
+  },
+},
+'如果不是一时间就能学会我干嘛要请你这么贵的老师': {
+  '干嘛': {
+    english: 'why on earth?',
+  },
+},
+'蜘顺！蜘顺！我在找你呢,快点出来': {
+  '你呢': {
+    multi: [['你', 'ni3', 'you'], ['呢', 'ne', 'currently']]
+  },
+  '在': {
+    english: 'in the middle of doing sth',
+  },
+},
+'已经都几回了': {
+  '回了': {
+    multi: [['回', 'hui2', 'times'], ['了', 'le', '']]
+  },
+  '几': {
+    english: 'how many',
+  },
+},
+'我对爸爸自豪呢': {
+  '对': {
+    english: 'towards'
+  },
+},
+'难道只对金钱和势力活着的那样的老师会有尊敬感吗': {
+  '势力活着': {
+    multi: [['势力', 'shi4 li', 'power'], ['活着', 'huo2 zhe', 'living']],
+  },
+},
+'是啊！如果有能打我的老师我就当他的学生': {
+  '当': {
+    english: 'to act as'
+  },
+},
+'吃了豹子胆敢对我的女儿动手': {
+  '豹子胆敢': {
+    multi: [['豹子', 'bao4 zi', 'leopard'], ['胆敢', 'dan3 gan3', 'to dare']]
+  },
+  '动手': {
+    english: 'to hit',
+  },
+},
+'溺爱子女是错误': {
+  '溺爱子女': {
+    multi: [['溺爱', 'ni4 ai4', 'to spoil'], ['子女', 'zi4 nv4', 'children']]
+  }
+},
+'老师连老师的爷爷都不能打': {
+  '连老师': {
+    multi: [['连', 'lian2', 'even'], ['老师', 'lao3 shi1', 'teacher']]
+  },
+},
+'从今天开始禁止出入知道了吗': {
+  '禁止': {
+    english: 'to prohibit',
+  },
+  '出入': {
+    english: 'to go out and come in',
+  },
+},
+'连画一个星星也是用各种颜色吧': {
+  '连画': {
+    multi: [['连', 'lian2', 'even'], ['画', 'hua4', 'to paint']],
+  },
+},
+'是会长': {
+  '是': {
+    english: 'yes',
   },
 },
 }
@@ -228,6 +320,8 @@ removeEmpty = (list) ->
   return output
 
 parseAdsoOutput = (stdout) ->
+  if stdout.trim() == ''
+    return []
   cnwords = []
   pywords = []
   lines = stdout.split('\n')

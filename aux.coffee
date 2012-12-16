@@ -513,6 +513,8 @@ root.initializeUser = (nuser) ->
   nuser.now.downloadSubtitleText = downloadSubtitleText
   nuser.now.getPrononciation = getprononciation.getPrononciationRateLimitedCached
   nuser.now.getTranslations = getTranslations
+  nuser.now.serverlog = (msg) ->
+    console.log (new Date().getTime()/1000).toString() + ' | ' + msg
 
 main = ->
   # shaolin

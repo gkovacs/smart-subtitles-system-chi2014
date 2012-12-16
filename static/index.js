@@ -49,12 +49,13 @@ function onWordLeave(wordid) {
     $('#translation').hide()
   $($('.'+ wordid)).css('background-color', '')
   $($('.'+ wordid)).removeClass('currentlyHighlighted')
+  now.serverlog('left: wordid=' + wordid + ' word=' + $('#WS' + wordid).text())
 }
 
 function onWordHover(wordid) {
   //var vid = $('video')[0]
   //vid.pause()
-  console.log(wordid)
+  //console.log(wordid)
   clearHoverTrans()
   placeTranslationText(wordid)
 
@@ -79,6 +80,7 @@ function onWordHover(wordid) {
     $('#translation').html(firstDef + nextDefs)
     $('#translation').attr('isFullTranslation', 'false')
   }
+  now.serverlog('entered: wordid=' + wordid + ' word=' + $('#WS' + wordid).text())
 }
 
 /*
@@ -171,11 +173,13 @@ function gotoDialog(dialogNum, dontanimate) {
 
 gotoDialogInProgress = false
 
-function gotoDialogNoVidSeek(dialogNum, dontanimate) {
+function gotoDialogNoVidSeek(dialogNum, dontanimate, automatic) {
   if (dialogNum < 0 || dialogNum >= dialogStartTimesDeciSeconds.length) return
   if (dialogNum == prevDialogNum) return
   gotoDialogInProgress = true
   clearHoverTrans()
+  
+  var realPrevDialogNum = prevDialogNum
   
   location.hash = dialogNum.toString()
   
@@ -245,7 +249,7 @@ function gotoDialogNoVidSeek(dialogNum, dontanimate) {
   //$('body').animate({scrollLeft: Math.round($('#dialogStartSpaceWS' + dialogNum).scrollLeft())}, 10)
 
   
-
+  now.serverlog('gotodialog: dialogNum=' + dialogNum + ' prevDialogNum=' + realPrevDialogNum + ' automatic=' + automatic)
 }
 
 dialogsSetUp = {}
@@ -293,6 +297,7 @@ function showFullTranslation(sentence, firstWordId) {
     offset.left = $(window).width()/2 - $('#translation').width()/2
     $('#translation').offset(offset)
     $('#translation').show()
+    now.serverlog('translation: firstWordId=' + firstWordId + ' translation=' + translation)
   })
   /*
   now.getTranslations(sentence, function(translation) {
@@ -428,7 +433,7 @@ for (var i = 0; i < annotatedWordList.length; ++i) {
 }
 */
 
-gotoDialogNoVidSeek(0)
+gotoDialogNoVidSeek(0, false, true)
 //$('video')[0].play()
 }
 
@@ -455,7 +460,7 @@ function onTimeChanged(s) {
       lidx = midx + 1
   }
   if (ridx < 0) ridx = 0
-  gotoDialogNoVidSeek(ridx)
+  gotoDialogNoVidSeek(ridx, false, true)
 //now.getAnnotatedSubAtTime(Math.round(s.currentTime*10), setNewSubtitles)
 //now.getSubPixAtTime(Math.round(s.currentTime*10), setNewSubPix)
 }
@@ -516,10 +521,17 @@ vid.pause()
 
 function flipPause() {
   var vid = $('video')[0]
-  if (vid.paused)
+  if (vid.paused) {
     vid.play()
-  else
+    playedVideo()
+  } else {
     vid.pause()
+    pausedVideo()
+  }
+}
+
+function playedVideo() {
+  now.serverlog('playing: currentIdx=' )
 }
 
 function videoPlaying() {
@@ -556,10 +568,13 @@ if (x.pageX < videoLeft || x.pageX > videoLeft + videoWidth) return true
 if (x.pageY < videoTop || x.pageY > videoTop + videoHeight - 40) return true
 //var mouseCoords = relMouseCoords(x, vid)
 //if (mouseCoords.y > $('video')[0].videoHeight - 30 || mouseCoords.x > $('video')[0].videoWidth) return true
-if (vid.paused)
+if (vid.paused) {
   vid.play()
-else
+  playedVideo()
+} else {
   vid.pause()
+  pausedVideo()
+}
 return false
 })
 
@@ -580,10 +595,13 @@ function checkKey(x) {
   var vid = $('video')[0]
   console.log(x.keyCode)
   if (x.keyCode == 32) { // space
-    if (vid.paused)
+    if (vid.paused) {
       vid.play()
-    else
+      playedVideo()
+    } else {
       vid.pause()
+      pausedVideo()
+    }
     x.preventDefault()
     return false
   } else if (x.keyCode == 37) { // left arrow
