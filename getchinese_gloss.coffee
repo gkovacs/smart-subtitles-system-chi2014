@@ -155,7 +155,8 @@ extended_vocab = {
     english: '(question tag)',
   },
   '银别': {
-    english: 'Yin Bie',
+    english: 'Yin Bie (name)',
+    pinyin: 'Yin2 Bie2',
   },
   '有没有': {
     english: 'do you have?',
@@ -171,6 +172,25 @@ extended_vocab = {
   },
   '汗江': {
     english: 'Han River',
+  },
+  '大不了': {
+    english: 'serious',
+  },
+  '一只': {
+    english: 'one (small animal)',
+  },
+  '两只': {
+    english: 'two (small animals)',
+  },
+  '三只': {
+    english: 'three (small animals)',
+  },
+  '10只': {
+    english: 'ten (small animals)',
+  },
+  '没关系': {
+    english: "it doesn't matter",
+    pinyin: 'mei2guan1xi4',
   },
 }
 
@@ -266,7 +286,10 @@ context_vocab = {
 '溺爱子女是错误': {
   '溺爱子女': {
     multi: [['溺爱', 'ni4 ai4', 'to spoil'], ['子女', 'zi4 nv4', 'children']]
-  }
+  },
+  '错误': {
+    english: 'mistake',
+  },
 },
 '老师连老师的爷爷都不能打': {
   '连老师': {
@@ -281,6 +304,11 @@ context_vocab = {
     english: 'to go out and come in',
   },
 },
+'应该是禁止外出吧' : {
+  '禁止': {
+    english: 'to prohibit',
+  },
+},
 '连画一个星星也是用各种颜色吧': {
   '连画': {
     multi: [['连', 'lian2', 'even'], ['画', 'hua4', 'to paint']],
@@ -289,6 +317,11 @@ context_vocab = {
 '是会长': {
   '是': {
     english: 'yes',
+  },
+},
+'我不管别人怎么说': {
+  '不管': {
+    english: 'regardless of',
   },
 },
 }

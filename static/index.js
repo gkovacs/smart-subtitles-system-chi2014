@@ -9,7 +9,8 @@ targetLanguage = 'vi'
 function prevButtonPressed() {
   //var vid = $('video')[0]
   //vid.pause()
-  gotoDialog(prevDialogNum - 1)
+  var pdn = getCurrentDialogNum()
+  gotoDialog(pdn - 1)
   //curtime = Math.round(vid.currentTime*10)
   //now.getPrevDialogStartTime(curtime, function(time) {
   //  vid.currentTime = time/10
@@ -19,7 +20,8 @@ function prevButtonPressed() {
 function nextButtonPressed() {
   //var vid = $('video')[0]
   //vid.pause()
-  gotoDialog(prevDialogNum + 1)
+  var pdn = getCurrentDialogNum()
+  gotoDialog(pdn + 1)
   //curtime = Math.round(vid.currentTime*10)
   //now.getNextDialogStartTime(curtime, function(time) {
   //  vid.currentTime = time/10
@@ -156,7 +158,7 @@ prevDialogNum = -1
 dialogStartTimesDeciSeconds = []
 
 function wordClicked(dialogNum) {
-  var pd = prevDialogNum
+  var pd = getCurrentDialogNum()
   gotoDialog(dialogNum)
   var vid = $('video')[0]
   if (dialogNum < pd) {
@@ -167,19 +169,25 @@ function wordClicked(dialogNum) {
 }
 
 function gotoDialog(dialogNum, dontanimate) {
+  //skipCurrentTimeChanged = true
   gotoDialogNoVidSeek(dialogNum, dontanimate)
   $('video')[0].currentTime = dialogStartTimesDeciSeconds[dialogNum] / 10
+  //setTimeout(function() {skipCurrentTimeChanged = false}, 100)
 }
 
 gotoDialogInProgress = false
+//skipCurrentTimeChanged = false
 
 function gotoDialogNoVidSeek(dialogNum, dontanimate, automatic) {
+  var pdn = getCurrentDialogNum()
+  if (dialogNum == pdn) return
   if (dialogNum < 0 || dialogNum >= dialogStartTimesDeciSeconds.length) return
-  if (dialogNum == prevDialogNum) return
   gotoDialogInProgress = true
-  clearHoverTrans()
+  $('html, body').stop(true, true)
+  var realPrevDialogNum = pdn
+  //prevDialogNum = dialogNum
   
-  var realPrevDialogNum = prevDialogNum
+  clearHoverTrans()
   
   location.hash = dialogNum.toString()
   
@@ -201,7 +209,7 @@ function gotoDialogNoVidSeek(dialogNum, dontanimate, automatic) {
   //$('#dialogStartPY' + prevDialogNum).css('background-color', 'black')
   //$('#dialogStart' + dialogNum).css('background-color', 'darkgreen')
   //$('#dialogStartPY' + dialogNum).css('background-color', 'darkgreen')
-  prevDialogNum = dialogNum
+  
   var videoHeight = $('video')[0].videoHeight
   var videoBottom = $('video').offset().top + videoHeight
   var windowBottom = $('#bottomOfScreen').offset().top
@@ -220,7 +228,7 @@ function gotoDialogNoVidSeek(dialogNum, dontanimate, automatic) {
   
   //window.scroll($('video').offset().left - Math.round(videoWidth/2))
   //window.scroll(offset.left - Math.round($(window).width()/2) + Math.round(width/2))]
-  $('html, body').stop(true, true)
+  
   var oldOffset = $('html, body').scrollLeft()
   var newOffset = offset.top - 48 - videoHeight - (windowBottom - videoBottom)/2
   if (false) {
@@ -399,7 +407,7 @@ whitespaceRow.push('<td id="whitespaceS' + q + '" style="font-size: 32px">　</t
 }
 
 wordRow.push('<td id="translate"' + q + '" style="font-size: 32px">　</td>')
-wordRow.push('<td id="translate"' + q + '" style="font-size: 32px; display: none; white-space: nowrap" class="translateButton tb' + q + '" onclick="translateButtonPressed(\'' + currentSentence + '\', \'' + firstWordId + '\')">翻译</td>')
+wordRow.push('<td id="translate"' + q + '" style="font-size: 32px; display: none; white-space: nowrap" dialogNum="' + q + '" class="translateButton tb' + q + '" onclick="translateButtonPressed(\'' + currentSentence + '\', \'' + firstWordId + '\')">翻译</td>')
 
 //pinyinRow.push('<td id="dialogEndSpacePYS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" class="spacingPYS" onclick="gotoDialog(' + q + ')"></td>')
 //wordRow.push('<td id="dialogEndSpaceWS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" class="spacingWS" onclick="gotoDialog(' + q + ')">　</td>')
@@ -433,14 +441,14 @@ for (var i = 0; i < annotatedWordList.length; ++i) {
 }
 */
 
-gotoDialogNoVidSeek(0, false, true)
+//gotoDialogNoVidSeek(0, false, true)
 //$('video')[0].play()
 }
 
 function videoLoaded() {
   var videoWidth = $('video')[0].videoWidth
   $('video').css('left', '50%')
-  $('video').css('margin-left', -Math.round(videoWidth/2))
+  $('video').css('margin-left', - Math.round(videoWidth/2))
   $('#videoSpacing').css('margin-top', ($('video').offset().top + $('video')[0].videoHeight))
   //var videoOffset = $('video').offset()
   //videoOffset.left = Math.round($(window).width()/2 - $('video')[0].videoWidth/2)
@@ -448,6 +456,7 @@ function videoLoaded() {
 }
 
 function onTimeChanged(s) {
+  if (gotoDialogInProgress) return
   var targetTimeDeciSecs = Math.round(s.currentTime*10)
   var lidx = 0
   var ridx = dialogStartTimesDeciSeconds.length-1
@@ -460,6 +469,7 @@ function onTimeChanged(s) {
       lidx = midx + 1
   }
   if (ridx < 0) ridx = 0
+  if (gotoDialogInProgress) return
   gotoDialogNoVidSeek(ridx, false, true)
 //now.getAnnotatedSubAtTime(Math.round(s.currentTime*10), setNewSubtitles)
 //now.getSubPixAtTime(Math.round(s.currentTime*10), setNewSubPix)
@@ -532,6 +542,10 @@ function flipPause() {
 
 function playedVideo() {
   now.serverlog('playing: currentIdx=' )
+}
+
+function pausedVideo() {
+  now.serverlog('paused: currentIdx=' )
 }
 
 function videoPlaying() {
@@ -620,10 +634,10 @@ function checkKey(x) {
     }
     x.preventDefault()
     return false
-  } else if (x.keyCode == 38) { // up arrow
+  } else if (x.keyCode == 38 || x.keyCode == 33) { // up arrow, page up
     prevButtonPressed()
     x.preventDefault()
-  } else if (x.keyCode == 40) { // down arrow
+  } else if (x.keyCode == 40 || x.keyCode == 34) { // down arrow, page down
     nextButtonPressed()
     x.preventDefault()
   }
@@ -631,15 +645,30 @@ function checkKey(x) {
 
 $(document).keydown(checkKey)
 
-function mouseWheelMove(event, delta) {
-  if (gotoDialogInProgress)
-    return
-  if (delta > 0) {
-    gotoDialog(prevDialogNum - 1)
-  } else {
-    gotoDialog(prevDialogNum + 1)
-  }
+function getCurrentDialogNum() {
+  return parseInt($('.tbactive').attr('dialogNum'))
 }
+
+mouseWheelMoveInProgress = false
+
+function mouseWheelMove(event, delta) {
+  event.preventDefault()
+  if (gotoDialogInProgress) {
+    return false
+  }
+  mouseWheelMoveInProgress = true
+  //console.log('mousewheel move - prevDialogNum: ' + prevDialogNum)
+  var currentDialogNum = getCurrentDialogNum()
+  if (delta > 0) {
+    gotoDialog(currentDialogNum - 1)
+  } else {
+    gotoDialog(currentDialogNum + 1)
+  }
+  mouseWheelMoveInProgress = false
+  return false
+}
+
+$(document).mousewheel(mouseWheelMove)
 
 //pausedFromLeftButtonHold = false
 
@@ -678,12 +707,11 @@ function mouseUp(event) {
 $(document).mouseup(mouseUp)
 */
 
-$(document).mousewheel(mouseWheelMove)
-
 function onScroll() {
   //$('video')[0].pause()
-  if (gotoDialogInProgress) return
-  $.doTimeout('scroll', 300, function() {
+  if (gotoDialogInProgress || mouseWheelMoveInProgress) return
+  $.doTimeout('scroll', 100, function() {
+    if (gotoDialogInProgress || mouseWheelMoveInProgress) return
     var videoHeight = $('video')[0].videoHeight
     var videoBottom = $('video').offset().top + videoHeight
     var windowBottom = $('#bottomOfScreen').offset().top
@@ -691,8 +719,7 @@ function onScroll() {
     var center = (windowBottom + videoBottom) / 2
     //console.log(center)
     //console.log($.nearest({x: $(window).width()/2, y: center}, '.wordspan')[0])
-    dialognum = $($.nearest({x: $(window).width()/2, y: center}, '.wordspan')[0]).attr('dialognum')
-    console.log(dialognum)
+    var dialognum = $($.nearest({x: $(window).width()/2, y: center}, '.wordspan')[0]).attr('dialognum')
     gotoDialog(dialognum, true)
   })
 }
