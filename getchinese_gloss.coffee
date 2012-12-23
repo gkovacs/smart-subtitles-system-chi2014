@@ -192,6 +192,13 @@ extended_vocab = {
     english: "it doesn't matter",
     pinyin: 'mei2guan1xi4',
   },
+  '武当': {
+    english: 'WuDang',
+    pinyin: 'Wu3 Dang1',
+  },
+  '铲平': {
+    english: '',
+  },
 }
 
 context_vocab = {
