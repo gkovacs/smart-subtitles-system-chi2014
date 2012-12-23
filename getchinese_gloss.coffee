@@ -413,8 +413,22 @@ parseAdsoOutput = (stdout) ->
     for x in winf
       words.push(x)
   #return words
-  words = ([word,pinyin,(removeEmpty uniquify([english.trim()].concat(cdict.getEnglishListForWord(word)))).join('/')] for [word,pinyin,english] in words)
-  return words
+  #words = ([word,pinyin,(removeEmpty uniquify([english.trim()].concat(cdict.getEnglishListForWord(word)))).join('/')] for [word,pinyin,english] in words)
+  #return words
+  output = []
+  for [word,pinyin,english] in words
+    if (not hasAlpha(pinyin)) or (english.trim().length == 0)
+      pinyin = cdict.getPinyinForWord(word)
+      english = uniquify(cdict.getEnglishListForWord(word)).join('/')
+    else
+      english = uniquify([english.trim()].concat(cdict.getEnglishListForWord(word)))).join('/')
+    output.push [word,pinyin,english]
+  return output
+
+hasAlpha = (text) ->
+  isAlpha = (c) ->
+    'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.indexOf(c) != -1
+  return (1 for c in text when isAlpha(c)).length > 0
 
 escapeshell = (cmd) ->
   return "'" + cmd.split("'").join("\'").split('\n').join(' ') + "'"
@@ -477,7 +491,7 @@ root.getEnglishWordsInGloss = (text, callback) ->
 root.getWordsPinyinEnglishCached = getWordsPinyinEnglishCached
 
 main = ->
-  text = process.argv[2]
+  text = process.argv[2] ? '中华人民共和国'
   print text
   getWordsPinyinEnglishCached(text, (words) ->
     for [word,pinyin,english] in words
