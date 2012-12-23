@@ -21,6 +21,8 @@ initialize_token = (callback) ->
   )
 
 getTranslations = (fromtext, fromlanguage, tolanguage, callback) ->
+  if fromlanguage == 'zh'
+    fromlanguage = 'zh-CHS'
   client.get('bing_' + fromlanguage + '_to_' + tolanguage + '_j5|' + fromtext, (err, reply) ->
     console.log(fromtext)
     if reply != null

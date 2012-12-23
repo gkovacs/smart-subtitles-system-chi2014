@@ -866,3 +866,9 @@ map[key] = value;
 });
 return map; 
 }
+
+now.clientlog = function(text) {
+  //console.log((new Date().getTime()/1000).toString() + ' | ' + text)
+  console.log(text)
+}
+

@@ -1,6 +1,6 @@
 fs = require 'fs'
 iconv_lite = require 'iconv-lite'
-Iconv = require('iconv').Iconv
+#Iconv = require('iconv').Iconv
 $ = require 'jQuery'
 http_get = require 'http-get'
 
@@ -15,8 +15,9 @@ parseTime = (timestamp) ->
   return [parseInt(min), parseFloat(sec)]
 
 main = ->
+  songurl = process.argv[2] ? 'http://www.5ilrc.com/Song_390066.html'
   await
-    http_get.get({url: 'http://www.5ilrc.com/Song_390066.html', encoding: 'binary'}, defer(err, dlData))
+    http_get.get({url: songurl, encoding: 'binary'}, defer(err, dlData))
   pagedata = dlData.buffer
   #console.log pagedata
 

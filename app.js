@@ -71,3 +71,4 @@ everyone.now.getEnglish = function(word, recPinyinCallback) {
 
 console.log('express server started')
 //console.log("Express server listening on port %d in %s mode", httpserver.address().port, app.settings.env);
+

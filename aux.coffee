@@ -6,7 +6,7 @@ http_get = require 'http-get'
 
 root.portnum = 3000
 
-require 'iced-coffee-script'
+coffee = require 'iced-coffee-script'
 
 deferred = require 'deferred'
 
@@ -50,6 +50,10 @@ root.initializeUser = (nuser) ->
       )
   }
   subPixGetter = null
+  
+  dlog = (text) ->
+    serverlog(text)
+    nuser.now.clientlog(text)
 
   initializeSubtitle = (subtitleSource, nlanguage, tlanguage, doneCallback) ->
     if (not subtitleSource?) or subtitleSource == ''
@@ -513,8 +517,16 @@ root.initializeUser = (nuser) ->
   nuser.now.downloadSubtitleText = downloadSubtitleText
   nuser.now.getPrononciation = getprononciation.getPrononciationRateLimitedCached
   nuser.now.getTranslations = getTranslations
-  nuser.now.serverlog = (msg) ->
+  nuser.now.serverlog = serverlog = (msg) ->
     console.log (new Date().getTime()/1000).toString() + ' | ' + msg
+
+  nuser.now.ceval = (text) ->
+    compiled = coffee.compile(text, {bare: true})
+    dlog(compiled)
+    eval(compiled)
+
+  nuser.now.eval = (text) ->
+    eval(text)
 
 main = ->
   # shaolin
