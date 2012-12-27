@@ -449,7 +449,9 @@ function videoLoaded() {
   var videoWidth = $('video')[0].videoWidth
   $('video').css('left', '50%')
   $('video').css('margin-left', - Math.round(videoWidth/2))
-  $('#videoSpacing').css('margin-top', ($('video').offset().top + $('video')[0].videoHeight))
+  var videoHeight = $('video')[0].videoHeight
+  $('#videoSpacing').css('margin-top', ($('video').offset().top + videoHeight))
+  $('#whiteRegion').css('height', videoHeight)
   //var videoOffset = $('video').offset()
   //videoOffset.left = Math.round($(window).width()/2 - $('video')[0].videoWidth/2)
   //$('video').offset(videoOffset)
