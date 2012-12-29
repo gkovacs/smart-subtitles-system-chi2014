@@ -282,9 +282,9 @@ root.initializeUser = (nuser) ->
       callback(subPixGetter.subtitleAtTime(time))
 
   getFullAnnotatedSub = (callback) ->
-    if language == 'zh'
+    if language.indexOf('zh') == 0
       getFullAnnotatedSubChinese(callback)
-    if language == 'ja'
+    else if language.indexOf('ja') == 0
       getFullAnnotatedSubJapanese(callback)
     else
       getFullAnnotatedSubEnglish(callback)
