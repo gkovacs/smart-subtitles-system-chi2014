@@ -61,9 +61,9 @@ main = ->
       starttime = subline.start_time / 1000.0
       endtime = subline.end_time / 1000.0
       [hr,min,sec,msec] = client_utils.toHourMinSecMillisec(starttime)
-      startstring = [hr,min,sec].join(':')+'.'+msec
+      startstring = [hr,min,sec].join(':')+','+msec
       [hr,min,sec,msec] = client_utils.toHourMinSecMillisec(endtime)
-      endstring = [hr,min,sec].join(':')+'.'+msec
+      endstring = [hr,min,sec].join(':')+','+msec
       console.log(i+1)
       console.log startstring + ' --> ' + endstring
       console.log text

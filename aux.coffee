@@ -18,10 +18,10 @@ englishdict = require './static/englishdict'
 
 #dictText = fs.readFileSync('static/cedict_full.txt', 'utf8')
 #cdict = new chinesedict.ChineseDict(dictText)
-#jdictText = fs.readFileSync('static/edict2_full.txt', 'utf8')
-#jdict = new japanesedict.JapaneseDict(jdictText)
-#edictText = fs.readFileSync('static/engdict-opted.html', 'utf8')
-#edict = new englishdict.EnglishDict(edictText)
+jdictText = fs.readFileSync('static/edict2_full.txt', 'utf8')
+jdict = new japanesedict.JapaneseDict(jdictText)
+edictText = fs.readFileSync('static/engdict-opted.html', 'utf8')
+edict = new englishdict.EnglishDict(edictText)
 
 redis = require 'redis'
 client = redis.createClient()
@@ -286,7 +286,7 @@ root.initializeUser = (nuser) ->
       getFullAnnotatedSubChinese(callback)
     if language == 'ja'
       getFullAnnotatedSubJapanese(callback)
-    if language == 'en' or language == 'es'
+    else
       getFullAnnotatedSubEnglish(callback)
 
   getNativeSubAtTime = (time, callback) ->

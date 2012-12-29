@@ -27,9 +27,9 @@ main = ->
     if i+1 < times_and_texts.length
       endtime = times_and_texts[i+1][0]
     [hr,min,sec,msec] = client_utils.toHourMinSecMillisec(starttime)
-    startstring = [hr,min,sec].join(':')+'.'+msec
+    startstring = [hr,min,sec].join(':')+','+msec
     [hr,min,sec,msec] = client_utils.toHourMinSecMillisec(endtime)
-    endstring = [hr,min,sec].join(':')+'.'+msec
+    endstring = [hr,min,sec].join(':')+','+msec
     print startstring + ' --> ' + endstring
     print text
     print ''
