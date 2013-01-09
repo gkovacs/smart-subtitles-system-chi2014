@@ -46,15 +46,17 @@ video {
   user-select: none;
 }
 
+
 .translateButton {
   cursor: hand;
   cursor: pointer;
-  -moz-border-radius: 10px;
-  -webkit-border-radius: 10px;
-  -khtml-border-radius: 10px;
-  border-radius: 10px;
-  background-color: #22eeff;
+  //-moz-border-radius: 10px;
+  //-webkit-border-radius: 10px;
+  //-khtml-border-radius: 10px;
+  //border-radius: 10px;
+  //background-color: #22eeff;
 }
+
 
 .pinyinspan {
   cursor: hand;
@@ -80,3 +82,4 @@ video {
   cursor: hand;
   cursor: pointer;
 }
+

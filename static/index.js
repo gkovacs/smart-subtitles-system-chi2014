@@ -47,11 +47,13 @@ function placeTranslationText(wordid) {
 }
 
 function onWordLeave(wordid) {
-  if ($('#translation').attr('translationFor') == wordid)
-    $('#translation').hide()
   $($('.'+ wordid)).css('background-color', '')
   $($('.'+ wordid)).removeClass('currentlyHighlighted')
   now.serverlog('left: wordid=' + wordid + ' word=' + $('#WS' + wordid).text())
+  if ($('.currentlyHighlighted').length == 0)
+    showFullTranslation()
+  //if ($('#translation').attr('translationFor') == wordid)
+  //  $('#translation').hide()
 }
 
 function onWordHover(wordid) {
@@ -258,6 +260,7 @@ function gotoDialogNoVidSeek(dialogNum, dontanimate, automatic) {
 
   
   now.serverlog('gotodialog: dialogNum=' + dialogNum + ' prevDialogNum=' + realPrevDialogNum + ' automatic=' + automatic)
+  showFullTranslation(dialogNum)
 }
 
 dialogsSetUp = {}
@@ -283,20 +286,26 @@ function setupHoverForDialog(dialogNum) {
 }
 */
 
-function translateButtonPressed(sentence, firstWordId) {
+function translateButtonPressed(n) {
   if ($('#translation').attr('isFullTranslation') == 'true' && $('video')[0].paused) {
     $('video')[0].play();
   } else {
     $('video')[0].pause();
   }
-  showFullTranslation(sentence, firstWordId)
+  showFullTranslation(n)
 }
 
-function showFullTranslation(sentence, firstWordId) {
+function showFullTranslation(n) {
+  if (typeof n === "undefined" || n === null)
+    n = getCurrentDialogNum()
+  sentence = $('.tb' + n).attr('currentSentence')
+  firstWordId = $('.tb' + n).attr('firstWordId')
   console.log(sentence)
   clearHoverTrans()
-  var currentTimeDeciSecs = Math.round($('video')[0].currentTime*10)
+  //var currentTimeDeciSecs = Math.round($('video')[0].currentTime*10)
+  var currentTimeDeciSecs = $('.tb' + n).attr('startTimeDeciSeconds')
   now.getNativeSubAtTime(currentTimeDeciSecs, function(translation) {
+    if ($('.currentlyHighlighted').length != 0) return
     console.log(translation)
     $('#translation').text(translation)
     $('#translation').attr('isFullTranslation', 'true')
@@ -392,7 +401,7 @@ for (var j = 0; j < pinyinWords.length; ++j) {
   var tonecolor = ['red', '#AE5100', 'green', 'blue', 'black'][getToneNumber(curWord)-1]
   coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord + '</span>')
 }
-pinyinspan = '<td nowrap="nowrap" style="text-align: center;" class="' + randid + ' hoverable pinyinspan pys' + q + '" onclick="wordClicked(' + q + ')">' + coloredSpans.join(' ') + '</td>'
+pinyinspan = '<td nowrap="nowrap" style="text-align: center;" class="' + randid + ' hoverable pinyinspan pys' + q + '" onmouseover="onWordHover(\'' + randid + '\')" onmouseout="onWordLeave(\'' + randid + '\')" onclick="wordClicked(' + q + ')">' + coloredSpans.join(' ') + '</td>'
 }
 
 var wordspan = '<td nowrap="nowrap" dialognum=' + q + ' style="text-align: center;" hovertext="' + english + '" id="WS' + randid + '" class="' + randid + ' hoverable wordspan ws' + q + '" onmouseover="onWordHover(\'' + randid + '\')" onmouseout="onWordLeave(\'' + randid + '\')" onclick="wordClicked(' + q + ')">' + word + '</td>'
@@ -407,7 +416,7 @@ whitespaceRow.push('<td id="whitespaceS' + q + '" style="font-size: 32px">　</t
 }
 
 wordRow.push('<td id="translate"' + q + '" style="font-size: 32px">　</td>')
-wordRow.push('<td id="translate"' + q + '" style="font-size: 32px; display: none; white-space: nowrap" dialogNum="' + q + '" class="translateButton tb' + q + '" onclick="translateButtonPressed(\'' + currentSentence + '\', \'' + firstWordId + '\')">翻译</td>')
+wordRow.push('<td><button id="translate"' + q + '" style="font-size: 32px; display: none; white-space: nowrap" dialogNum="' + q + '" class="translateButton tb' + q + '" startTimeDeciSeconds="' + startTimeDeciSeconds + '" currentSentence="' + currentSentence + '" firstWordId="' + firstWordId + '" onclick="translateButtonPressed(' + q + ')">翻译</button></td>')
 
 //pinyinRow.push('<td id="dialogEndSpacePYS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" class="spacingPYS" onclick="gotoDialog(' + q + ')"></td>')
 //wordRow.push('<td id="dialogEndSpaceWS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" class="spacingWS" onclick="gotoDialog(' + q + ')">　</td>')
