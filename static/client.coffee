@@ -9,6 +9,14 @@ callOnceMethodAvailable = (method, callback) ->
       callOnceMethodAvailable(method, callback)
     , 300)
 
+callOnceElementAvailable = (element, callback) ->
+  if $(element).length > 0
+    callback()
+  else
+    setTimeout(() ->
+      callOnceElementAvailable(element, callback)
+    , 300)
+
 root.toHourMinSecMillisec = (seconds) ->
   hours = Math.floor(seconds / 3600)
   seconds -= hours * 3600
@@ -49,5 +57,6 @@ root.escapeHtmlQuotes = (str) ->
   return str
 
 root.callOnceMethodAvailable = callOnceMethodAvailable
+root.callOnceElementAvailable = callOnceElementAvailable
 root.ljust = ljust
 root.rjust = rjust

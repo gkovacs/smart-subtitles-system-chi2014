@@ -20,6 +20,7 @@
 <script type="text/javascript" src="client.js"></script>
 <script type="text/javascript" src="index.js"></script>
 <script type="text/javascript" src="examplevids.js"></script>
+<script type="text/javascript" src="scrollutil.js"></script>
 <script type="text/javascript">
 
 $(document).ready(function() {
@@ -133,22 +134,24 @@ Subtitle (<a href="http://en.wikipedia.org/wiki/SubRip#SubRip_text_file_format">
 </div>
 
 <div id='viewingRegion' style='display:none;'>
+<div id='fixedVideoFrame' style="position: absolute; top:0; left:0; width: 100%; height: 300px; overflow: hidden;">
 <div id="errorRegion" style="background-color: yellow" align="center"></div>
 <div id="whiteRegion" style="background-color: white; width: 100%; position: fixed; top: 0px;" align="center"></div>
-<div align="center"><video style="position: fixed; left: 0px; top: 0px;" controls="controls" id="videoControls" ontimeupdate="onTimeChanged(this)" onerror="onVideoError(this)" onplay="videoPlaying(this)" onpause="videoPaused(this)" onfocus="this.blur()" onloadedmetadata="videoLoaded()">
+<div align="center"><video style="position: fixed; left: 0px; top: 0px; height: 300px;" controls="controls" id="videoControls" ontimeupdate="onTimeChanged(this)" onerror="onVideoError(this)" onplay="videoPlaying(this)" onpause="videoPaused(this)" onfocus="this.blur()" onloadedmetadata="videoLoaded()">
 </video></div>
-<br/>
+</div>
 
 <div id="bottomOfScreen" style="position: fixed; top: 100%; left: 100%"></div>
-
+<div id='bottomFrame' style="position: fixed; top: 300px; left: 0; bottom: 0; width: 100%; overflow: auto;">
+<div id="translation" isFullTranslation='false' style="font-size: medium; display: inline-block; white-space: nowrap; position: relative"></div>
 <div id='subpRegion' align="center"><img id='subpDisplay'></img></div>
 <div align="center">
 <div id="videoSpacing"></div>
 <div id="pinyin" style="font-size: large"></div>
 <div id="caption"></div>
 <div id="translationTriangle" style="display: none"></div>
-<div id="translation" isFullTranslation='false' style="font-size: medium; display: none; white-space: nowrap"></div>
 <div id="pronounceWidget" style="display: none"><audio onended="nextAudioItem()" onerror="nextAudioItem()" controls=""></audio></div>
+</div>
 </div>
 </div>
 
