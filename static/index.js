@@ -368,6 +368,7 @@ var wordToId = {}
 
 for (var q = 0; q < annotatedWordListList.length; ++q) {
 var startTimeDeciSeconds = annotatedWordListList[q][0]
+var endTimeDeciSeconds = annotatedWordListList[q][1]
 dialogStartTimesDeciSeconds[q] = startTimeDeciSeconds
 var startHMS = toHourMinSec(Math.round(startTimeDeciSeconds/10))
 var annotatedWordList = annotatedWordListList[q][2]
@@ -429,7 +430,7 @@ whitespaceRow.push('<td id="whitespaceS' + q + '" style="font-size: 32px">　</t
 }
 
 wordRow.push('<td id="translate"' + q + '" style="font-size: 32px">　</td>')
-wordRow.push('<td><button id="translate"' + q + '" style="font-size: 32px; display: none; white-space: nowrap" dialogNum="' + q + '" class="translateButton tb' + q + '" startTimeDeciSeconds="' + startTimeDeciSeconds + '" currentSentence="' + currentSentence + '" firstWordId="' + firstWordId + '" onclick="translateButtonPressed(' + q + ')">翻译</button></td>')
+wordRow.push('<td><button id="translate"' + q + '" style="font-size: 32px; display: none; white-space: nowrap" dialogNum="' + q + '" class="translateButton tb' + q + '" startTimeDeciSeconds="' + startTimeDeciSeconds + '" endTimeDeciSeconds="' + endTimeDeciSeconds + '" currentSentence="' + currentSentence + '" firstWordId="' + firstWordId + '" onclick="translateButtonPressed(' + q + ')">翻译</button></td>')
 
 //pinyinRow.push('<td id="dialogEndSpacePYS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 18px" class="spacingPYS" onclick="gotoDialog(' + q + ')"></td>')
 //wordRow.push('<td id="dialogEndSpaceWS' + q + '" style="background-color: white; color: black; text-align: center; font-size: 32px" class="spacingWS" onclick="gotoDialog(' + q + ')">　</td>')
@@ -480,8 +481,31 @@ function videoLoaded() {
   //$('video').offset(videoOffset)
 }
 
+function dialogEndTimeSec(dialogNum) {
+  if (typeof dialogNum === "undefined" || dialogNum === null)
+    dialogNum = getCurrentDialogNum()
+  return parseFloat($('.tb'+dialogNum).attr('endTimeDeciSeconds')) / 10.0
+}
+
+function dialogStartTimeSec(dialogNum) {
+  if (typeof dialogNum === "undefined" || dialogNum === null)
+    dialogNum = getCurrentDialogNum()
+  return parseFloat($('.tb'+dialogNum).attr('startTimeDeciSeconds')) / 10.0
+}
+
 function onTimeChanged(s) {
   if (gotoDialogInProgress) return
+  if (s.currentTime > dialogEndTimeSec()) {
+    var sinceEndOfDialog = s.currentTime - dialogEndTimeSec()
+    var toNextDialog = dialogStartTimeSec(getCurrentDialogNum() + 1) - s.currentTime
+    var betweenDialogs = Math.min(sinceEndOfDialog, toNextDialog)
+    var pbrate = 0.9 + betweenDialogs/20.0
+    console.log('end of dialog')
+    $('video')[0].playbackRate = 1.0 //Math.min(1.3, pbrate)
+  } else {
+    console.log('in dialog')
+    $('video')[0].playbackRate = 1.0
+  }
   var targetTimeDeciSecs = Math.round(s.currentTime*10)
   var lidx = 0
   var ridx = dialogStartTimesDeciSeconds.length-1

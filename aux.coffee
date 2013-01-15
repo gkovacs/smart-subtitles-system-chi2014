@@ -520,13 +520,13 @@ root.initializeUser = (nuser) ->
   nuser.now.serverlog = serverlog = (msg) ->
     console.log (new Date().getTime()/1000).toString() + ' | ' + msg
 
-  nuser.now.ceval = (text) ->
-    compiled = coffee.compile(text, {bare: true})
-    dlog(compiled)
-    eval(compiled)
+  #nuser.now.ceval = (text) ->
+  #  compiled = coffee.compile(text, {bare: true})
+  #  dlog(compiled)
+  #  eval(compiled)
 
-  nuser.now.eval = (text) ->
-    eval(text)
+  #nuser.now.eval = (text) ->
+  #  eval(text)
 
 main = ->
   # shaolin
