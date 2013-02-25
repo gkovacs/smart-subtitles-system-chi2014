@@ -128,7 +128,14 @@ Subtitle (<a href="http://en.wikipedia.org/wiki/SubRip#SubRip_text_file_format">
 
 <br/>
 
-<textarea id="subtitleInput" style="width: 100%; height: 200px" onkeypress="textChanged()" onchange="textChanged()" onkeyup="textChanged()"></textarea><br />
+<textarea id="subtitleInput" style="width: 100%; height: 100px" onkeypress="textChanged()" onchange="textChanged()" onkeyup="textChanged()"></textarea><br />
+Optional Native-language Subtitle (<a href="http://en.wikipedia.org/wiki/SubRip#SubRip_text_file_format">SRT</a> format):
+<input type="file" accept=".srt" id="nativeSrtInputFile" style="width: 500px" onkeypress="nativeSubtitleUploaded()" onchange="nativeSubtitleUploaded()" onkeyup="nativeSubtitleUploaded()" />
+
+<br/>
+
+<textarea id="nativeSubtitleInput" style="width: 100%; height: 100px" onkeypress="textChanged()" onchange="textChanged()" onkeyup="textChanged()"></textarea><br />
+
 <button onclick="startPlayback()" disabled="true" id="startPlaybackButton">Start Video</button>
 
 </div>

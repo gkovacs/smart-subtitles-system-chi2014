@@ -377,6 +377,9 @@ class JapaneseDict
         #  
       	#  scores_and_lengths.push([, length])
 
+  getRomaji: (word) ->
+    if wordLookup[word]?
+      return wordLookup[word][0]
 
 root.JapaneseDict = JapaneseDict
 root.kanaMatchesRomajiScore = kanaMatchesRomajiScore

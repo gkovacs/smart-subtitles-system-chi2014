@@ -499,12 +499,12 @@ function onTimeChanged(s) {
     var sinceEndOfDialog = s.currentTime - dialogEndTimeSec()
     var toNextDialog = dialogStartTimeSec(getCurrentDialogNum() + 1) - s.currentTime
     var betweenDialogs = Math.min(sinceEndOfDialog, toNextDialog)
-    var pbrate = 0.9 + betweenDialogs/20.0
+    var pbrate = 0.8 + betweenDialogs/10.0
     console.log('end of dialog')
-    $('video')[0].playbackRate = 1.0 //Math.min(1.3, pbrate)
+    $('video')[0].playbackRate = Math.min(1.0, pbrate)
   } else {
     console.log('in dialog')
-    $('video')[0].playbackRate = 1.0
+    $('video')[0].playbackRate = 0.8
   }
   var targetTimeDeciSecs = Math.round(s.currentTime*10)
   var lidx = 0
@@ -834,22 +834,14 @@ function startPlayback() {
     var videoSource = $('#videoInputURL').val().trim()
     $('video')[0].src = videoSource
   }
-  var subtitleText = $('#subtitleInput').val().trim()
   $('#inputRegion').hide()
   $('#viewingRegion').show()
-  if (subtitleText.indexOf('\n') == -1) { // this is a URL, not the subtitle text
-    if (subtitleText.indexOf('Loading subtitles from ') == 0)
-      subtitleText = subtitleText.substring('Loading subtitles from '.length)
-    //now.initializeSubtitle(subtitleText, subLanguage)
-    now.initializeSubtitle(subtitleText, subLanguage, targetLanguage, function() {
-      now.getFullAnnotatedSub(setNewSubtitleList)
-    })
-  } else { // this is the subtitle text
-    //now.initializeSubtitleText(subtitleText, subLanguage)
-    now.initializeSubtitleText(subtitleText, subLanguage, targetLanguage, function() {
-      now.getFullAnnotatedSub(setNewSubtitleList)
-    })
-  }
+  var subtitleText = $('#subtitleInput').val().trim()
+  var nativeSubtitleText = $('#nativeSubtitleInput').val().trim()
+  now.initializeSubtitleText(subtitleText, subLanguage, targetLanguage, function() {
+    now.getFullAnnotatedSub(setNewSubtitleList)
+    now.initializeNativeSubtitleText(nativeSubtitleText)
+  })
   var subpixSource = getUrlParameters()['subpix']
   if (subpixSource != null) {
     now.initializeSubPix(subpixSource)
@@ -904,6 +896,17 @@ reader.onloadend = function( ){
   textChanged()
 }
 var srtfile = $('#srtInputFile')[0].files[0]
+reader.readAsText(srtfile)
+}
+
+
+function nativeSubtitleUploaded() {
+var reader = new FileReader()
+reader.onloadend = function( ){
+  $('#nativeSubtitleInput').val(reader.result)
+  textChanged()
+}
+var srtfile = $('#nativeSrtInputFile')[0].files[0]
 reader.readAsText(srtfile)
 }
 
