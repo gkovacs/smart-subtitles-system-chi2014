@@ -75,12 +75,12 @@ if (urlParams['video'] != null && (urlParams['sub'] != null || urlParams['subpix
   var nativeSubSource = ''
   if (urlParams['nativesub'] != null)
     nativeSubSource = urlParams['nativesub']
+  var anchorhash = location.hash.replace('#', '')
   callOnceMethodAvailable('initializeSubtitle', function() {
     $('#inputRegion').hide()
     $('#viewingRegion').show()
     console.log(subSource)
     //now.initializeSubtitle(subSource, subLanguage)
-    var anchorhash = location.hash.replace('#', '')
     now.initializeSubtitle(subSource, subLanguage, targetLanguage, function() {
       now.getFullAnnotatedSub(function(sublist) {
         setNewSubtitleList(sublist)
