@@ -86,6 +86,9 @@ if (urlParams['video'] != null && (urlParams['sub'] != null || urlParams['subpix
         setNewSubtitleList(sublist)
         if (anchorhash != '') {
           gotoDialog(parseInt(anchorhash))
+          $('video')[0].play()
+        } else {
+          $('video')[0].play()
         }
       })
     })
