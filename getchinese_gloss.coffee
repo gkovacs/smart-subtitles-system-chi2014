@@ -208,6 +208,16 @@ context_vocab = {
     pinyin: 'tu1',
   },
 },
+'八点四十分': {
+  '八点': {
+    english: "eight o'clock",
+    pinyin: 'ba1dian3',
+  },
+  '四十分': {
+    english: "fourty minutes",
+    pinyin: 'si4shi2fen1',
+  },
+},
 '听闻卓老前辈所守护的奇花': {
   '听闻': {
     english: 'to hear',

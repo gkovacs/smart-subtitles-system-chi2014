@@ -47,6 +47,8 @@ $('#supportedVideoFormats').html(supportedFormats.join(' or ') + ' format')
 
 })
 
+autoHideTrans = false
+
 now.ready(function() {
 var urlParams = getUrlParameters()
 if (urlParams['lang'] != null)
@@ -76,6 +78,8 @@ if (urlParams['video'] != null && (urlParams['sub'] != null || urlParams['subpix
   if (urlParams['nativesub'] != null)
     nativeSubSource = urlParams['nativesub']
   var anchorhash = location.hash.replace('#', '')
+  if (urlParams['autohide'] != null)
+    autoHideTrans = urlParams['autohide']
   callOnceMethodAvailable('initializeSubtitle', function() {
     $('#inputRegion').hide()
     $('#viewingRegion').show()
