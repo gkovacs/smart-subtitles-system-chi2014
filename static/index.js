@@ -50,11 +50,13 @@ function onWordLeave(wordid) {
   $($('.'+ wordid)).css('background-color', '')
   $($('.'+ wordid)).removeClass('currentlyHighlighted')
   now.serverlog('left: wordid=' + wordid + ' word=' + $('#WS' + wordid).text())
-  if ($('.currentlyHighlighted').length == 0)
-    showFullTranslation()
-  
-  //if ($('#translation').attr('translationFor') == wordid)
-  //  $('#translation').hide()
+  if (autoShowTranslation) {
+    if ($('.currentlyHighlighted').length == 0)
+      showFullTranslation()
+  } else {
+    if ($('#translation').attr('translationFor') == wordid)
+      $('#translation').hide()
+  }
 }
 
 function onWordHover(wordid) {
@@ -273,7 +275,9 @@ function gotoDialogNoVidSeek(dialogNum, dontanimate, automatic) {
 
   
   now.serverlog('gotodialog: dialogNum=' + dialogNum + ' prevDialogNum=' + realPrevDialogNum + ' automatic=' + automatic)
-  showFullTranslation(dialogNum)
+  if (autoShowTranslation) {
+    showFullTranslation(dialogNum)
+  }
 }
 
 dialogsSetUp = {}
