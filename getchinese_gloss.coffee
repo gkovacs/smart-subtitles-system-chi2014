@@ -427,7 +427,7 @@ parseAdsoOutput = (stdout) ->
   #return words
   output = []
   for [word,pinyin,english] in words
-    if (not hasAlpha(pinyin)) or (english.trim().length == 0)
+    if (not pinyin?) or (not english?) or (not hasAlpha(pinyin)) or (english.trim().length == 0)
       pinyin = cdict.getPinyinForWord(word)
       english = (removeEmpty uniquify(cdict.getEnglishListForWord(word))).join('/')
     else
