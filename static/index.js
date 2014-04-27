@@ -352,7 +352,17 @@ function setNewSubtitles(annotatedWordList) {
 
 annotatedWordListListG = []
 
-function setNewSubtitleList(annotatedWordListList) {
+function setNewSubtitleList(annotatedWordListListOrig) {
+  var annotatedWordListList = []
+  for (var q = 0; q < annotatedWordListListOrig.length; ++q) {
+    if (annotatedWordListListOrig[q][2].length > 0) {
+      annotatedWordListList.push(annotatedWordListListOrig[q]);
+    }
+  }
+  setNewSubtitleListReal(annotatedWordListList);
+}
+
+function setNewSubtitleListReal(annotatedWordListList) {
 annotatedWordListListG = annotatedWordListList
 //console.log(annotatedWordList.toString())
 //if (annotatedWordList.length == 0) return
