@@ -427,7 +427,7 @@ pinyinWords = pinyin.split(' ')
 for (var j = 0; j < pinyinWords.length; ++j) {
   var curWord = pinyinWords[j]
   var tonecolor = ['red', '#AE5100', 'green', 'blue', 'black'][getToneNumber(curWord)-1]
-  coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord + '</span>')
+  coloredSpans.push('<span style="color: ' + tonecolor + '">' + curWord.toLowerCase() + '</span>')
 }
 pinyinspan = '<td nowrap="nowrap" style="text-align: center;" class="' + randid + ' hoverable pinyinspan pys' + q + '" onmouseover="onWordHover(\'' + randid + '\')" onmouseout="onWordLeave(\'' + randid + '\')" onclick="wordClicked(' + q + ')">' + coloredSpans.join(' ') + '</td>'
 }
