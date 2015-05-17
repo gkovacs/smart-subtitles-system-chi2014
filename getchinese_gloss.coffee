@@ -17,7 +17,7 @@ cdict = new chinesedict.ChineseDict(dictText)
 
 deferred = require 'deferred'
 
-$ = require 'jQuery'
+$ = require('jquery')(require("jsdom").jsdom().parentWindow)
 
 extended_vocab = {
   '千雪峰': {
